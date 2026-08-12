@@ -35,16 +35,50 @@
 
         .timetable-table {
             height: 100%;
-            table-layout: fixed;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
             border-collapse: collapse;
         }
 
+        .timetable-table thead {
+            flex: 0 0 auto;
+        }
+
+        .timetable-table tbody {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .timetable-table thead tr,
         .timetable-table tbody tr {
-            height: 14.2857%; /* 7개 교시 정확히 균등 분할 */
+            display: flex;
+            width: 100%;
+        }
+
+        .timetable-table tbody tr {
+            flex: 1;
+            min-height: 0;
+        }
+
+        .timetable-table th,
+        .timetable-table td {
+            flex: 1;
+            min-width: 0;
+            box-sizing: border-box;
+        }
+
+        .timetable-table th:first-child,
+        .timetable-table td:first-child {
+            flex: 0 0 3rem; /* 교시 열 고정 폭 */
         }
 
         .timetable-cell {
             height: 100%;
+            display: flex;
+            flex-direction: column;
             transition: all 0.2s ease;
             vertical-align: top;
         }
@@ -252,7 +286,7 @@
 
             for (let p = 0; p < 7; p++) {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td class="text-[11px] font-bold text-gray-400 border-r border-gray-100 bg-gray-50/50 align-middle">${p+1}</td>`;
+                tr.innerHTML = `<td class="text-[11px] font-bold text-gray-400 border-r border-gray-100 bg-gray-50/50 flex items-center justify-center">${p+1}</td>`;
                 for (let d = 0; d < 5; d++) {
                     const key = `${state.currentWeek}-${d}-${p}`;
                     const info = masterMap[key];
@@ -270,7 +304,7 @@
                         else badge = `<span class="text-white px-1.5 py-0.5 rounded text-[9px] font-bold" style="background:${color}">${info.chasi}차시${info.isManual?'*':''}</span>`;
 
                         td.innerHTML = `
-                            <div class="h-full flex flex-col justify-between p-1.5 text-left rounded-lg overflow-hidden ${info.type !== 'regular' ? 'opacity-40 grayscale' : ''}" style="${info.type === 'regular' ? `border-left: 3px solid ${color}` : ''}">
+                            <div class="h-full w-full flex flex-col justify-between p-1.5 text-left rounded-lg overflow-hidden ${info.type !== 'regular' ? 'opacity-40 grayscale' : ''}" style="${info.type === 'regular' ? `border-left: 3px solid ${color}` : ''}">
                                 <div class="flex justify-between items-center mb-0.5">
                                     <span class="text-[11px] font-black" style="color:${color}">${info.cls}</span>
                                     ${badge}
