@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>통합 수업 진도 관리 시스템 (통합 계획형)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <style>
+        :root {
+            --bg-base: #f4f7f5;
+            --primary: #059669;
+            --secondary: #374151;
+        }
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--secondary);
+            letter-spacing: -0.02em;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(5, 150, 105, 0.1);
+        }
+        .timetable-cell {
+            min-height: 95px;
+            transition: all 0.2s ease;
+        }
+        .timetable-cell:hover {
+            background-color: #f0fdf4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .swap-active {
+            outline: 3px solid #ef4444;
+            background-color: #fef2f2 !important;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="p-4 lg:p-8">
+
+    <div class="max-w-[1500px] mx-auto">
+        <!-- 상단 헤더 -->
+        <header class="flex flex-col md:flex-row justify-between items-end mb-8 gap-6">
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">통합 커리큘럼 모드</span>
+                </div>
+                <h1 class="text-4xl font-black text-emerald-900">수업 진도 관리 시스템</h1>
+                <p class="text-gray-500 mt-1 font-medium">모든 반이 공통 차시 계획을 공유하며, 반별 진도는 자동으로 계산됩니다.</p>
+            </div>
+            
+            <nav class="flex gap-2 p-1.5 bg-gray-200/50 rounded-2xl">
+                <button onclick="switchTab('main')" id="btn-tab-main" class="px-6 py-2.5 rounded-xl font-bold transition-all bg-emerald-700 text-white shadow-lg">📅 주간 시간표</button>
+                <button onclick="switchTab('settings')" id="btn-tab-settings" class="px-6 py-2.5 rounded-xl font-bold transition-all text-gray-600 hover:bg-white">⚙️ 시스템 설정</button>
+            </nav>
+        </header>
+
+        <main id="content-area">
+            <!-- 메인 탭 -->
+            <div id="tab-main" class="grid grid-cols-1 xl:grid-cols-4 gap-8">
+                <!-- 시간표 영역 -->
+                <div class="xl:col-span-3 space-y-4">
+                    <div class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                        <div class="flex items-center gap-4">
+                            <button onclick="changeWeek(-1)" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-emerald-50 text-emerald-700 font-bold">◀</button>
+                            <span id="display-week" class="text-xl font-extrabold text-emerald-900 w-36 text-center">8월 1주차</span>
+                            <button onclick="changeWeek(1)" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-emerald-50 text-emerald-700 font-bold">▶</button>
+                        </div>
+                        <button id="btn-swap" onclick="toggleSwapMode()" class="px-5 py-2.5 bg-white border-2 border-emerald-500 text-emerald-700 font-bold rounded-xl hover:bg-emerald-50 transition-all">수업 교환 모드</button>
+                    </div>
+
+                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                        <table class="w-full border-collapse table-fixed text-center">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-100">
+                                    <th class="w-16 py-4 text-xs font-bold text-gray-400">교시</th>
+                                    <th class="py-4 font-bold text-emerald-900">월</th>
+                                    <th class="py-4 font-bold text-emerald-900">화</th>
+                                    <th class="py-4 font-bold text-emerald-900">수</th>
+                                    <th class="py-4 font-bold text-emerald-900">목</th>
+                                    <th class="py-4 font-bold text-emerald-900">금</th>
+                                </tr>
+                            </thead>
+                            <tbody id="timetable-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 통합 진도 계획 영역 -->
+                <div class="space-y-6">
+                    <section class="glass-panel p-6 rounded-3xl shadow-sm border border-emerald-100">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-lg font-bold text-emerald-900">📋 통합 차시 계획</h3>
+                            <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold uppercase">Global Plan</span>
+                        </div>
+                        <div id="plan-list" class="space-y-3 max-h-[600px] overflow-y-auto pr-2 hide-scroll">
+                            <!-- 통합 차시 입력칸 -->
+                        </div>
+                        <button onclick="addPlanStep()" class="w-full mt-4 py-3 border-2 border-dashed border-emerald-200 text-emerald-600 font-bold rounded-xl hover:bg-emerald-50 transition-all">
+                            + 다음 차시 계획 추가
+                        </button>
+                    </section>
+
+                    <div class="p-5 bg-amber-50 rounded-2xl border border-amber-100">
+                        <h4 class="text-xs font-bold text-amber-800 mb-1">💡 안내</h4>
+                        <p class="text-[11px] text-amber-700 leading-relaxed">
+                            모든 학급은 위의 <b>공통 계획</b>을 따릅니다. 시간표상에서 각 반의 수업 횟수에 따라 차시 번호가 자동으로 매겨집니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 설정 탭 -->
+            <div id="tab-settings" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                    <h3 class="text-xl font-bold text-emerald-900 mb-6">📌 학기 기본 시간표</h3>
+                    <table class="w-full text-center border-collapse text-sm">
+                        <thead><tr class="bg-gray-50"><th class="p-2 border">교시</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th></tr></thead>
+                        <tbody id="base-timetable-body"></tbody>
+                    </table>
+                    <button onclick="saveBaseSchedule()" class="w-full mt-6 py-4 bg-emerald-700 text-white font-bold rounded-2xl shadow-lg">기본 설정 저장</button>
+                </div>
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                    <h3 class="text-xl font-bold text-emerald-900 mb-6">🎨 반별 색상 관리</h3>
+                    <div id="class-config-list" class="space-y-4"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 모달 -->
+    <div id="modal-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-[32px] shadow-2xl overflow-hidden">
+            <div class="p-6 bg-emerald-50 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-emerald-900">수업 설정 수정</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 font-bold">✕</button>
+            </div>
+            <div class="p-8 space-y-6">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-4">수업 유형 변경</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="updateType('regular')" class="p-3 rounded-xl border-2 text-sm font-bold hover:bg-emerald-50 border-gray-100" id="btn-type-regular">정상 수업</button>
+                        <button onclick="updateType('skip')" class="p-3 rounded-xl border-2 text-sm font-bold hover:bg-gray-50 border-gray-100" id="btn-type-skip">자율/휴강</button>
+                        <button onclick="updateType('event')" class="p-3 rounded-xl border-2 text-sm font-bold hover:bg-amber-50 border-gray-100" id="btn-type-event">학교 행사</button>
+                        <button onclick="updateType('extra')" class="p-3 rounded-xl border-2 text-sm font-bold hover:bg-blue-50 border-gray-100" id="btn-type-extra">추가 보충</button>
+                    </div>
+                </div>
+                <div class="pt-6 border-t">
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-3">차시 강제 지정</label>
+                    <div class="flex gap-2">
+                        <select id="manual-chasi" class="flex-1 p-3 bg-gray-50 rounded-xl font-bold border-none outline-none">
+                            <option value="auto">자동 계산 적용</option>
+                        </select>
+                        <button onclick="applyManual()" class="px-5 bg-emerald-700 text-white font-bold rounded-xl">적용</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 초기 상수 및 설정 ---
+        const WEEKS = ["8월 1주차", "8월 2주차", "8월 3주차", "8월 4주차", "9월 1주차", "9월 2주차", "9월 3주차", "9월 4주차", "9월 5주차", "10월 1주차", "10월 2주차", "10월 3주차", "10월 4주차", "11월 1주차", "11월 2주차", "11월 3주차", "11월 4주차", "12월 1주차", "12월 2주차", "12월 3주차", "12월 4주차", "12월 5주차", "1월 1주차"];
+        
+        let state = { currentWeek: 0, isSwapMode: false, swapKey: null, editingKey: null };
+        
+        // 데이터 로드 (통합 계획인 globalPlans 사용)
+        let db = {
+            base: JSON.parse(localStorage.getItem('un_base')) || { "0-0": "101", "2-2": "101", "1-4": "102", "3-1": "102" },
+            colors: JSON.parse(localStorage.getItem('un_colors')) || { "101": "#059669", "102": "#1d4ed8" },
+            overrides: JSON.parse(localStorage.getItem('un_over')) || {},
+            globalPlans: JSON.parse(localStorage.getItem('un_plans')) || ["첫 만남 및 오리엔테이션", "물질의 구성 원리", "원자와 분자의 세계", "화학 반응의 기초", "상태 변화 실험"]
+        };
+
+        function save() {
+            localStorage.setItem('un_base', JSON.stringify(db.base));
+            localStorage.setItem('un_colors', JSON.stringify(db.colors));
+            localStorage.setItem('un_over', JSON.stringify(db.overrides));
+            localStorage.setItem('un_plans', JSON.stringify(db.globalPlans));
+        }
+
+        // --- 핵심 엔진: 학기 통합 진도 계산기 ---
+        function getSemesterMap() {
+            const map = {};
+            const counters = {};
+            
+            for (let w = 0; w < WEEKS.length; w++) {
+                for (let d = 0; d < 5; d++) {
+                    for (let p = 0; p < 7; p++) {
+                        const key = `${w}-${d}-${p}`;
+                        const bKey = `${d}-${p}`;
+                        const over = db.overrides[key];
+                        const cls = over ? over.className : (db.base[bKey] || null);
+                        const type = over ? over.type : "regular";
+                        const manual = over ? over.manual : "auto";
+
+                        if (!cls) continue;
+                        if (!counters[cls]) counters[cls] = 1;
+
+                        let assigned = null;
+                        let isM = false;
+
+                        if (manual !== "auto") {
+                            assigned = parseInt(manual);
+                            isM = true;
+                            if (type === "regular") counters[cls] = Math.max(counters[cls], assigned + 1);
+                        } else if (type === "skip" || type === "event") {
+                            assigned = null;
+                        } else {
+                            assigned = counters[cls];
+                            if (type === "regular" || type === "extra") counters[cls]++;
+                        }
+
+                        map[key] = { cls, type, chasi: assigned, isManual: isM };
+                    }
+                }
+            }
+            return map;
+        }
+
+        // --- UI 렌더링 ---
+        function renderTimetable() {
+            const tbody = document.getElementById('timetable-body');
+            tbody.innerHTML = '';
+            const masterMap = getSemesterMap();
+
+            for (let p = 0; p < 7; p++) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td class="text-[10px] font-bold text-gray-300 border-r border-gray-50 bg-gray-50/30">${p+1}</td>`;
+                for (let d = 0; d < 5; d++) {
+                    const key = `${state.currentWeek}-${d}-${p}`;
+                    const info = masterMap[key];
+                    const td = document.createElement('td');
+                    td.className = `border border-gray-50 timetable-cell p-1 relative group ${state.swapKey === key ? 'swap-active' : ''}`;
+                    td.onclick = () => handleSwap(key);
+
+                    if (info) {
+                        const color = db.colors[info.cls] || "#6b7280";
+                        const planText = db.globalPlans[info.chasi - 1] || "";
+                        
+                        let badge = "";
+                        if (info.type === 'skip') badge = `<span class="bg-gray-100 text-gray-400 px-1 rounded text-[9px] font-bold">휴강</span>`;
+                        else if (info.type === 'event') badge = `<span class="bg-amber-100 text-amber-600 px-1 rounded text-[9px] font-bold">행사</span>`;
+                        else badge = `<span class="text-white px-1.5 py-0.5 rounded text-[9px] font-bold" style="background:${color}">${info.chasi}차시${info.isManual?'*':''}</span>`;
+
+                        td.innerHTML = `
+                            <div class="h-full flex flex-col p-1.5 text-left rounded-xl ${info.type !== 'regular' ? 'opacity-40 grayscale' : ''}" style="${info.type === 'regular' ? `border-left: 3px solid ${color}` : ''}">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-[10px] font-black" style="color:${color}">${info.cls}</span>
+                                    ${badge}
+                                </div>
+                                <div class="text-[10px] font-bold text-gray-600 leading-tight line-clamp-2">${planText || (info.type==='regular'?'(미지정)':'')}</div>
+                                <button onclick="openModal('${key}', event)" class="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 bg-white shadow-sm rounded-full w-5 h-5 text-[10px]">⚙️</button>
+                            </div>
+                        `;
+                    }
+                    tr.appendChild(td);
+                }
+                tbody.appendChild(tr);
+            }
+            document.getElementById('display-week').innerText = WEEKS[state.currentWeek];
+        }
+
+        function renderPlans() {
+            const list = document.getElementById('plan-list');
+            list.innerHTML = '';
+            db.globalPlans.forEach((text, i) => {
+                const div = document.createElement('div');
+                div.className = "flex items-center gap-2 group";
+                div.innerHTML = `
+                    <span class="w-8 text-[10px] font-black text-emerald-600">${i+1}차</span>
+                    <input type="text" value="${text}" onchange="updatePlan(${i}, this.value)" class="flex-1 p-2 bg-white border border-gray-100 rounded-xl text-xs shadow-sm focus:ring-1 focus:ring-emerald-300 outline-none">
+                    <button onclick="removePlan(${i})" class="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100">✕</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        // --- 기능 함수들 ---
+        function updatePlan(i, val) { db.globalPlans[i] = val; save(); renderTimetable(); }
+        function addPlanStep() { db.globalPlans.push(""); save(); renderPlans(); }
+        function removePlan(i) { if(confirm('삭제하시겠습니까?')) { db.globalPlans.splice(i,1); save(); renderPlans(); renderTimetable(); } }
+        
+        function changeWeek(d) { 
+            const next = state.currentWeek + d;
+            if(next >= 0 && next < WEEKS.length) { state.currentWeek = next; renderTimetable(); } 
+        }
+
+        function toggleSwapMode() {
+            state.isSwapMode = !state.isSwapMode;
+            state.swapKey = null;
+            const btn = document.getElementById('btn-swap');
+            btn.className = state.isSwapMode ? "px-5 py-2.5 bg-red-500 text-white font-bold rounded-xl" : "px-5 py-2.5 bg-white border-2 border-emerald-500 text-emerald-700 font-bold rounded-xl";
+            btn.innerText = state.isSwapMode ? "대상 선택 (취소)" : "수업 교환 모드";
+            renderTimetable();
+        }
+
+        function handleSwap(key) {
+            if(!state.isSwapMode) return;
+            if(!state.swapKey) { state.swapKey = key; renderTimetable(); }
+            else {
+                const k1 = state.swapKey;
+                const d1 = db.overrides[k1] || { className: db.base[`${k1.split('-')[1]}-${k1.split('-')[2]}`], type: "regular", manual: "auto" };
+                const d2 = db.overrides[key] || { className: db.base[`${key.split('-')[1]}-${key.split('-')[2]}`], type: "regular", manual: "auto" };
+                db.overrides[k1] = {...d2}; db.overrides[key] = {...d1};
+                state.isSwapMode = false; toggleSwapMode(); save(); renderTimetable();
+            }
+        }
+
+        // --- 모달 로직 ---
+        function openModal(key, e) {
+            e.stopPropagation();
+            state.editingKey = key;
+            const info = db.overrides[key] || { className: db.base[`${key.split('-')[1]}-${key.split('-')[2]}`], type: "regular", manual: "auto" };
+            
+            const sel = document.getElementById('manual-chasi');
+            sel.innerHTML = '<option value="auto">자동 계산</option>';
+            db.globalPlans.forEach((_, i) => {
+                const opt = document.createElement('option');
+                opt.value = i+1; opt.innerText = `${i+1}차시 지정`;
+                if(info.manual == i+1) opt.selected = true;
+                sel.appendChild(opt);
+            });
+            document.getElementById('modal-overlay').classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('modal-overlay').classList.add('hidden'); }
+        
+        function updateType(type) {
+            const key = state.editingKey;
+            if(!db.overrides[key]) db.overrides[key] = { className: db.base[`${key.split('-')[1]}-${key.split('-')[2]}`] };
+            db.overrides[key].type = type;
+            save(); renderTimetable(); closeModal();
+        }
+
+        function applyManual() {
+            const key = state.editingKey;
+            const val = document.getElementById('manual-chasi').value;
+            if(!db.overrides[key]) db.overrides[key] = { className: db.base[`${key.split('-')[1]}-${key.split('-')[2]}`], type: "regular" };
+            db.overrides[key].manual = val;
+            save(); renderTimetable(); closeModal();
+        }
+
+        // --- 설정 탭 ---
+        function switchTab(t) {
+            document.getElementById('tab-main').classList.toggle('hidden', t !== 'main');
+            document.getElementById('tab-settings').classList.toggle('hidden', t !== 'settings');
+            if(t === 'settings') renderSettings();
+        }
+
+        function renderSettings() {
+            const tbody = document.getElementById('base-timetable-body');
+            tbody.innerHTML = '';
+            for (let p = 0; p < 7; p++) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td class="p-2 border bg-gray-50 font-bold">${p+1}</td>`;
+                for (let d = 0; d < 5; d++) {
+                    const v = db.base[`${d}-${p}`] || "";
+                    tr.innerHTML += `<td class="border p-0"><input type="text" data-key="${d}-${p}" value="${v}" class="w-full p-2 text-center text-xs font-bold border-none"></td>`;
+                }
+                tbody.appendChild(tr);
+            }
+
+            const cList = document.getElementById('class-config-list');
+            cList.innerHTML = '';
+            const clsList = [...new Set(Object.values(db.base))].filter(c => c);
+            clsList.forEach(cls => {
+                const color = db.colors[cls] || "#059669";
+                const div = document.createElement('div');
+                div.className = "flex justify-between items-center p-4 bg-gray-50 rounded-2xl";
+                div.innerHTML = `<span class="font-bold">${cls}반 색상</span><input type="color" value="${color}" onchange="updateColor('${cls}', this.value)" class="w-8 h-8 rounded-lg">`;
+                cList.appendChild(div);
+            });
+        }
+
+        function saveBaseSchedule() {
+            const inputs = document.querySelectorAll('#base-timetable-body input');
+            const newBase = {};
+            inputs.forEach(i => { if(i.value) newBase[i.dataset.key] = i.value; });
+            db.base = newBase; save(); alert('저장되었습니다.'); location.reload();
+        }
+
+        function updateColor(cls, c) { db.colors[cls] = c; save(); renderTimetable(); }
+
+        window.onload = () => { renderTimetable(); renderPlans(); };
+    </script>
+</body>
+</html>
