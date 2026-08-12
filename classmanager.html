@@ -23,15 +23,37 @@
             backdrop-filter: blur(12px);
             border: 1px solid rgba(5, 150, 105, 0.1);
         }
-        .timetable-cell {
-            min-height: 95px;
-            transition: all 0.2s ease;
+
+        /* 갤럭시 탭 S10 FE+ 및 태블릿 화면 세로 비율 맞춤 및 교시 간격 균등화 */
+        .timetable-wrapper {
+            height: calc(100vh - 170px);
+            min-height: 580px;
+            max-height: 780px;
+            display: flex;
+            flex-direction: column;
         }
+
+        .timetable-table {
+            height: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+
+        .timetable-table tbody tr {
+            height: 14.2857%; /* 7개 교시 정확히 균등 분할 */
+        }
+
+        .timetable-cell {
+            height: 100%;
+            transition: all 0.2s ease;
+            vertical-align: top;
+        }
+
         .timetable-cell:hover {
             background-color: #f0fdf4;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: inset 0 0 0 2px rgba(5, 150, 105, 0.2);
         }
+
         .swap-active {
             outline: 3px solid #ef4444;
             background-color: #fef2f2 !important;
@@ -41,49 +63,48 @@
         .hide-scroll::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="p-4 lg:p-8">
+<body class="p-3 lg:p-5">
 
-    <div class="max-w-[1500px] mx-auto">
+    <div class="max-w-[1600px] mx-auto">
         <!-- 상단 헤더 -->
-        <header class="flex flex-col md:flex-row justify-between items-end mb-8 gap-6">
+        <header class="flex justify-between items-center mb-4">
             <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">통합 커리큘럼 모드</span>
+                <div class="flex items-center gap-2 mb-0.5">
+                    <span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">통합 커리큘럼 모드</span>
                 </div>
-                <h1 class="text-4xl font-black text-emerald-900">수업 진도 관리 시스템</h1>
-                <p class="text-gray-500 mt-1 font-medium">모든 반이 공통 차시 계획을 공유하며, 반별 진도는 자동으로 계산됩니다.</p>
+                <h1 class="text-2xl lg:text-3xl font-black text-emerald-900">수업 진도 관리 시스템</h1>
             </div>
             
-            <nav class="flex gap-2 p-1.5 bg-gray-200/50 rounded-2xl">
-                <button onclick="switchTab('main')" id="btn-tab-main" class="px-6 py-2.5 rounded-xl font-bold transition-all bg-emerald-700 text-white shadow-lg">📅 주간 시간표</button>
-                <button onclick="switchTab('settings')" id="btn-tab-settings" class="px-6 py-2.5 rounded-xl font-bold transition-all text-gray-600 hover:bg-white">⚙️ 시스템 설정</button>
+            <nav class="flex gap-2 p-1 bg-gray-200/50 rounded-2xl">
+                <button onclick="switchTab('main')" id="btn-tab-main" class="px-5 py-2 rounded-xl text-sm font-bold transition-all bg-emerald-700 text-white shadow-md">📅 주간 시간표</button>
+                <button onclick="switchTab('settings')" id="btn-tab-settings" class="px-5 py-2 rounded-xl text-sm font-bold transition-all text-gray-600 hover:bg-white">⚙️ 시스템 설정</button>
             </nav>
         </header>
 
         <main id="content-area">
             <!-- 메인 탭 -->
-            <div id="tab-main" class="grid grid-cols-1 xl:grid-cols-4 gap-8">
+            <div id="tab-main" class="grid grid-cols-1 xl:grid-cols-4 gap-5">
                 <!-- 시간표 영역 -->
-                <div class="xl:col-span-3 space-y-4">
-                    <div class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-                        <div class="flex items-center gap-4">
-                            <button onclick="changeWeek(-1)" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-emerald-50 text-emerald-700 font-bold">◀</button>
-                            <span id="display-week" class="text-xl font-extrabold text-emerald-900 w-36 text-center">8월 1주차</span>
-                            <button onclick="changeWeek(1)" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-emerald-50 text-emerald-700 font-bold">▶</button>
+                <div class="xl:col-span-3 space-y-3">
+                    <div class="flex justify-between items-center bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
+                        <div class="flex items-center gap-3">
+                            <button onclick="changeWeek(-1)" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-emerald-50 text-emerald-700 font-bold">◀</button>
+                            <span id="display-week" class="text-lg font-extrabold text-emerald-900 w-32 text-center">8월 1주차</span>
+                            <button onclick="changeWeek(1)" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-emerald-50 text-emerald-700 font-bold">▶</button>
                         </div>
-                        <button id="btn-swap" onclick="toggleSwapMode()" class="px-5 py-2.5 bg-white border-2 border-emerald-500 text-emerald-700 font-bold rounded-xl hover:bg-emerald-50 transition-all">수업 교환 모드</button>
+                        <button id="btn-swap" onclick="toggleSwapMode()" class="px-4 py-2 text-sm bg-white border-2 border-emerald-500 text-emerald-700 font-bold rounded-xl hover:bg-emerald-50 transition-all">수업 교환 모드</button>
                     </div>
 
-                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                        <table class="w-full border-collapse table-fixed text-center">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden timetable-wrapper">
+                        <table class="w-full text-center timetable-table">
                             <thead>
-                                <tr class="bg-gray-50 border-b border-gray-100">
-                                    <th class="w-16 py-4 text-xs font-bold text-gray-400">교시</th>
-                                    <th class="py-4 font-bold text-emerald-900">월</th>
-                                    <th class="py-4 font-bold text-emerald-900">화</th>
-                                    <th class="py-4 font-bold text-emerald-900">수</th>
-                                    <th class="py-4 font-bold text-emerald-900">목</th>
-                                    <th class="py-4 font-bold text-emerald-900">금</th>
+                                <tr class="bg-gray-50 border-b border-gray-100 h-10">
+                                    <th class="w-12 text-xs font-bold text-gray-400">교시</th>
+                                    <th class="font-bold text-emerald-900 text-sm">월</th>
+                                    <th class="font-bold text-emerald-900 text-sm">화</th>
+                                    <th class="font-bold text-emerald-900 text-sm">수</th>
+                                    <th class="font-bold text-emerald-900 text-sm">목</th>
+                                    <th class="font-bold text-emerald-900 text-sm">금</th>
                                 </tr>
                             </thead>
                             <tbody id="timetable-body"></tbody>
@@ -92,21 +113,21 @@
                 </div>
 
                 <!-- 통합 진도 계획 영역 -->
-                <div class="space-y-6">
-                    <section class="glass-panel p-6 rounded-3xl shadow-sm border border-emerald-100">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-lg font-bold text-emerald-900">📋 통합 차시 계획</h3>
-                            <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold uppercase">Global Plan</span>
+                <div class="space-y-4">
+                    <section class="glass-panel p-5 rounded-2xl shadow-sm border border-emerald-100">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-base font-bold text-emerald-900">📋 통합 차시 계획</h3>
+                            <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-bold uppercase">Global Plan</span>
                         </div>
-                        <div id="plan-list" class="space-y-3 max-h-[600px] overflow-y-auto pr-2 hide-scroll">
+                        <div id="plan-list" class="space-y-2.5 max-h-[480px] overflow-y-auto pr-1 hide-scroll">
                             <!-- 통합 차시 입력칸 -->
                         </div>
-                        <button onclick="addPlanStep()" class="w-full mt-4 py-3 border-2 border-dashed border-emerald-200 text-emerald-600 font-bold rounded-xl hover:bg-emerald-50 transition-all">
+                        <button onclick="addPlanStep()" class="w-full mt-3 py-2.5 border-2 border-dashed border-emerald-200 text-emerald-600 font-bold rounded-xl text-sm hover:bg-emerald-50 transition-all">
                             + 다음 차시 계획 추가
                         </button>
                     </section>
 
-                    <div class="p-5 bg-amber-50 rounded-2xl border border-amber-100">
+                    <div class="p-4 bg-amber-50 rounded-2xl border border-amber-100">
                         <h4 class="text-xs font-bold text-amber-800 mb-1">💡 안내</h4>
                         <p class="text-[11px] text-amber-700 leading-relaxed">
                             모든 학급은 위의 <b>공통 계획</b>을 따릅니다. 시간표상에서 각 반의 수업 횟수에 따라 차시 번호가 자동으로 매겨집니다.
@@ -231,16 +252,16 @@
 
             for (let p = 0; p < 7; p++) {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td class="text-[10px] font-bold text-gray-300 border-r border-gray-50 bg-gray-50/30">${p+1}</td>`;
+                tr.innerHTML = `<td class="text-[11px] font-bold text-gray-400 border-r border-gray-100 bg-gray-50/50 align-middle">${p+1}</td>`;
                 for (let d = 0; d < 5; d++) {
                     const key = `${state.currentWeek}-${d}-${p}`;
                     const info = masterMap[key];
                     const td = document.createElement('td');
-                    td.className = `border border-gray-50 timetable-cell p-1 relative group ${state.swapKey === key ? 'swap-active' : ''}`;
+                    td.className = `border border-gray-100 timetable-cell p-1 relative group ${state.swapKey === key ? 'swap-active' : ''}`;
                     td.onclick = () => handleSwap(key);
 
                     if (info) {
-                        const color = db.colors[info.cls] || "#6b7280";
+                        const color = db.colors[info.cls] || "#059669";
                         const planText = db.globalPlans[info.chasi - 1] || "";
                         
                         let badge = "";
@@ -249,13 +270,15 @@
                         else badge = `<span class="text-white px-1.5 py-0.5 rounded text-[9px] font-bold" style="background:${color}">${info.chasi}차시${info.isManual?'*':''}</span>`;
 
                         td.innerHTML = `
-                            <div class="h-full flex flex-col p-1.5 text-left rounded-xl ${info.type !== 'regular' ? 'opacity-40 grayscale' : ''}" style="${info.type === 'regular' ? `border-left: 3px solid ${color}` : ''}">
-                                <div class="flex justify-between items-center mb-1">
-                                    <span class="text-[10px] font-black" style="color:${color}">${info.cls}</span>
+                            <div class="h-full flex flex-col justify-between p-1.5 text-left rounded-lg overflow-hidden ${info.type !== 'regular' ? 'opacity-40 grayscale' : ''}" style="${info.type === 'regular' ? `border-left: 3px solid ${color}` : ''}">
+                                <div class="flex justify-between items-center mb-0.5">
+                                    <span class="text-[11px] font-black" style="color:${color}">${info.cls}</span>
                                     ${badge}
                                 </div>
-                                <div class="text-[10px] font-bold text-gray-600 leading-tight line-clamp-2">${planText || (info.type==='regular'?'(미지정)':'')}</div>
-                                <button onclick="openModal('${key}', event)" class="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 bg-white shadow-sm rounded-full w-5 h-5 text-[10px]">⚙️</button>
+                                <div class="text-[10px] font-bold text-gray-600 leading-tight line-clamp-2 my-auto">${planText || (info.type==='regular'?'(미지정)':'')}</div>
+                                <div class="flex justify-end">
+                                    <button onclick="openModal('${key}', event)" class="opacity-0 group-hover:opacity-100 bg-white/90 shadow-sm rounded-full w-5 h-5 flex items-center justify-center text-[10px] border border-gray-100">⚙️</button>
+                                </div>
                             </div>
                         `;
                     }
