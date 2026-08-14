@@ -145,7 +145,7 @@
                 </div>
             </div>
             
-            <!-- 구글 시트 동기화 버튼 (추가) -->
+            <!-- 구글 시트 동기화 버튼 -->
             <button @click="loadFromGoogleSheet" :disabled="isLoading" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shrink-0 flex items-center space-x-1 shadow-2xs disabled:opacity-50">
                 <i class="fa-solid fa-rotate text-[10px]" :class="{'fa-spin': isLoading}"></i>
                 <span>{{ isLoading ? '시트 로딩 중...' : '시트 동기화' }}</span>
@@ -585,8 +585,8 @@
 <script>
     const { createApp, ref, computed, onMounted } = Vue;
 
-    // 전달해주신 구글 시트 1단계 CSV URL
-    const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJkRGaoYFHlBuea_f43BdfcdNeJjeP092kIl62FJgnVpkI5jqU_luL7ssMAyfnREIa635lvKo397J-/pub?gid=0&single=true&output=csv";
+    // 전달해주신 구글 앱스 스크립트 웹 앱 URL로 교체
+    const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxd1BWBO4GStXV_RqqiQUaYPYiyycb-Pwz_5GsxsuIE1kES1tOf8HS1aFKVzf2HO2t_sA/exec";
 
     createApp({
         setup() {
@@ -658,60 +658,45 @@
                 return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
             });
 
-            // GOOGLE SHEET CSV SYNC FUNCTION
+            // 오프라인 로컬 데이터 폴백 함수
+            const loadOfflineData = () => {
+                const savedClasses = localStorage.getItem('science_portfolio_classes');
+                const savedStudents = localStorage.getItem('science_portfolio_students');
+                if (savedClasses && savedStudents) {
+                    try {
+                        classes.value = JSON.parse(savedClasses);
+                        studentsMap.value = JSON.parse(savedStudents);
+                        if (classes.value.length > 0 && !classes.value.find(c => c.id === currentClassId.value)) {
+                            currentClassId.value = classes.value[0].id;
+                        }
+                    } catch(e) {
+                        createDefaultClasses();
+                    }
+                } else {
+                    createDefaultClasses();
+                }
+            };
+
+            // GOOGLE SHEET SYNC FUNCTION (서버에서 JSON 불러오기)
             const loadFromGoogleSheet = async () => {
                 isLoading.value = true;
                 try {
-                    const response = await fetch(GOOGLE_SHEET_CSV_URL);
-                    const csvText = await response.text();
+                    const response = await fetch(APP_SCRIPT_URL);
+                    const data = await response.json();
                     
-                    const rows = csvText.split(/\r?\n/).map(r => r.split(','));
-                    if (rows.length === 0) return;
-
-                    // 구글 시트 데이터를 기반으로 학급 및 학생 자동 구성
-                    const fetchedClasses = [];
-                    const fetchedMap = {};
-
-                    rows.forEach((row, idx) => {
-                        if (!row || row.length === 0 || !row.join('').trim()) return;
-                        
-                        // 기본 시트 컬럼 구조 파싱 (1열: 학급, 2열: 번호, 3열: 이름)
-                        const className = row[0] ? row[0].replace(/"/g, '').trim() : '1학년 1반';
-                        const num = row[1] ? parseInt(row[1].replace(/"/g, '').trim()) || (idx + 1) : (idx + 1);
-                        const name = row[2] ? row[2].replace(/"/g, '').trim() : row[0].replace(/"/g, '').trim();
-
-                        if (!name || name === '이름' || name === '학급') return; // 헤더 제거
-
-                        let targetClass = fetchedClasses.find(c => c.name === className);
-                        if (!targetClass) {
-                            const cId = 'cls_sheet_' + fetchedClasses.length;
-                            targetClass = { id: cId, name: className };
-                            fetchedClasses.push(targetClass);
-                            fetchedMap[cId] = [];
-                        }
-
-                        // 기존 저장된 스탬프 수나 메모 보존
-                        const existingStudent = (studentsMap.value[targetClass.id] || []).find(s => s.name === name);
-
-                        fetchedMap[targetClass.id].push({
-                            id: existingStudent ? existingStudent.id : 's_' + Date.now() + '_' + idx,
-                            number: num,
-                            name: name,
-                            stamps: existingStudent ? existingStudent.stamps : 0,
-                            memo: existingStudent ? existingStudent.memo : ''
-                        });
-                    });
-
-                    if (fetchedClasses.length > 0) {
-                        classes.value = fetchedClasses;
-                        studentsMap.value = fetchedMap;
+                    if (data && data.classes && data.students) {
+                        classes.value = data.classes;
+                        studentsMap.value = data.students;
                         if (!currentClassId.value || !classes.value.find(c => c.id === currentClassId.value)) {
-                            currentClassId.value = classes.value[0].id;
+                            currentClassId.value = classes.value[0]?.id || null;
                         }
-                        saveToLocalStorage();
+                    } else {
+                        // 서버 데이터가 비어있으면 로컬에서 복구 시도
+                        loadOfflineData(); 
                     }
                 } catch (e) {
                     console.error("구글 시트 연동 오류:", e);
+                    loadOfflineData();
                 } finally {
                     isLoading.value = false;
                 }
@@ -924,32 +909,40 @@
                 document.body.removeChild(link);
             };
 
-            // LOCAL STORAGE PERSISTENCE
+            // LOCAL STORAGE PERSISTENCE & SERVER SYNC
+            let saveTimeout = null;
             const saveToLocalStorage = () => {
+                // 기존처럼 로컬 기기에도 즉시 저장
                 localStorage.setItem('science_portfolio_classes', JSON.stringify(classes.value));
                 localStorage.setItem('science_portfolio_students', JSON.stringify(studentsMap.value));
+
+                // 서버(구글 앱스 스크립트)에도 전송 (텍스트 입력 시 요청 폭주 방지를 위해 1초 지연)
+                if (saveTimeout) clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(() => {
+                    try {
+                        const payload = {
+                            classes: classes.value,
+                            students: studentsMap.value
+                        };
+                        fetch(APP_SCRIPT_URL, {
+                            method: 'POST',
+                            body: JSON.stringify(payload),
+                            headers: {
+                                'Content-Type': 'text/plain;charset=utf-8',
+                            }
+                        }).catch(e => console.error("서버 백그라운드 저장 실패:", e));
+                    } catch(e) {
+                        console.error("서버 저장 실패:", e);
+                    }
+                }, 1000);
             };
 
             const loadFromLocalStorage = () => {
-                const savedClasses = localStorage.getItem('science_portfolio_classes');
-                const savedStudents = localStorage.getItem('science_portfolio_students');
                 const savedIcon = localStorage.getItem('science_portfolio_stamp_icon');
-
                 if (savedIcon) stampIcon.value = savedIcon;
 
-                if (savedClasses && savedStudents) {
-                    try {
-                        classes.value = JSON.parse(savedClasses);
-                        studentsMap.value = JSON.parse(savedStudents);
-                        if (classes.value.length > 0) {
-                            currentClassId.value = classes.value[0].id;
-                        }
-                    } catch(e) {
-                        createDefaultClasses();
-                    }
-                } else {
-                    createDefaultClasses();
-                }
+                // 원래 로컬 스토리지에서만 부르던 것을 서버에서 불러오도록 유도
+                loadFromGoogleSheet();
             };
 
             onMounted(() => {
