@@ -148,7 +148,7 @@
             <!-- 구글 시트 동기화 버튼 -->
             <button @click="loadFromGoogleSheet" :disabled="isLoading" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shrink-0 flex items-center space-x-1 shadow-2xs disabled:opacity-50">
                 <i class="fa-solid fa-rotate text-[10px]" :class="{'fa-spin': isLoading}"></i>
-                <span>{{ isLoading ? '시트 로딩 중...' : '시트 동기화' }}</span>
+                <span>{{ isLoading ? '시트 로딩 중...' : '명렬표 동기화' }}</span>
             </button>
 
             <button @click="openAddClassModal" class="px-2.5 py-1.5 bg-pastel-yellowDark text-white text-xs font-bold rounded-xl hover:opacity-90 transition shrink-0 flex items-center space-x-1 shadow-2xs">
@@ -585,8 +585,11 @@
 <script>
     const { createApp, ref, computed, onMounted } = Vue;
 
-    // 전달해주신 구글 앱스 스크립트 웹 앱 URL로 교체
+    // 1. 저장용 DB 주소 (방금 만드신 앱스 스크립트 웹 앱 주소)
     const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxd1BWBO4GStXV_RqqiQUaYPYiyycb-Pwz_5GsxsuIE1kES1tOf8HS1aFKVzf2HO2t_sA/exec";
+    
+    // 2. 명렬표 불러오기용 원본 시트 CSV (기존 주소 그대로 보존!)
+    const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJkRGaoYFHlBuea_f43BdfcdNeJjeP092kIl62FJgnVpkI5jqU_luL7ssMAyfnREIa635lvKo397J-/pub?gid=0&single=true&output=csv";
 
     createApp({
         setup() {
@@ -658,7 +661,7 @@
                 return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
             });
 
-            // 오프라인 로컬 데이터 폴백 함수
+            // 데이터 로드 폴백
             const loadOfflineData = () => {
                 const savedClasses = localStorage.getItem('science_portfolio_classes');
                 const savedStudents = localStorage.getItem('science_portfolio_students');
@@ -677,26 +680,85 @@
                 }
             };
 
-            // GOOGLE SHEET SYNC FUNCTION (서버에서 JSON 불러오기)
-            const loadFromGoogleSheet = async () => {
+            // 1. [초기 접속 시] DB 서버에서 모든 데이터(명단+자리+도장)를 불러오는 함수
+            const loadFromServer = async () => {
                 isLoading.value = true;
                 try {
                     const response = await fetch(APP_SCRIPT_URL);
                     const data = await response.json();
                     
-                    if (data && data.classes && data.students) {
+                    if (data && data.classes && data.classes.length > 0) {
                         classes.value = data.classes;
                         studentsMap.value = data.students;
                         if (!currentClassId.value || !classes.value.find(c => c.id === currentClassId.value)) {
                             currentClassId.value = classes.value[0]?.id || null;
                         }
                     } else {
-                        // 서버 데이터가 비어있으면 로컬에서 복구 시도
+                        // 서버가 텅 비어있으면 컴퓨터 로컬 기록 사용
                         loadOfflineData(); 
                     }
                 } catch (e) {
-                    console.error("구글 시트 연동 오류:", e);
+                    console.error("서버 로딩 실패, 로컬 데이터 사용:", e);
                     loadOfflineData();
+                } finally {
+                    isLoading.value = false;
+                }
+            };
+
+            // 2. [명렬표 동기화 클릭 시] 원본 구글 시트(CSV)에서 이름표를 읽어와서 병합하고 즉시 DB로 전송
+            const loadFromGoogleSheet = async () => {
+                isLoading.value = true;
+                try {
+                    const response = await fetch(GOOGLE_SHEET_CSV_URL);
+                    const csvText = await response.text();
+                    
+                    const rows = csvText.split(/\r?\n/).map(r => r.split(','));
+                    if (rows.length === 0) return;
+
+                    const fetchedClasses = [];
+                    const fetchedMap = {};
+
+                    rows.forEach((row, idx) => {
+                        if (!row || row.length === 0 || !row.join('').trim()) return;
+                        
+                        const className = row[0] ? row[0].replace(/"/g, '').trim() : '1학년 1반';
+                        const num = row[1] ? parseInt(row[1].replace(/"/g, '').trim()) || (idx + 1) : (idx + 1);
+                        const name = row[2] ? row[2].replace(/"/g, '').trim() : row[0].replace(/"/g, '').trim();
+
+                        if (!name || name === '이름' || name === '학급') return; 
+
+                        let targetClass = fetchedClasses.find(c => c.name === className);
+                        if (!targetClass) {
+                            const cId = 'cls_sheet_' + fetchedClasses.length;
+                            targetClass = { id: cId, name: className };
+                            fetchedClasses.push(targetClass);
+                            fetchedMap[cId] = [];
+                        }
+
+                        // 기존 도장 개수나 메모가 있으면 유지
+                        const existingStudent = (studentsMap.value[targetClass.id] || []).find(s => s.name === name);
+
+                        fetchedMap[targetClass.id].push({
+                            id: existingStudent ? existingStudent.id : 's_' + Date.now() + '_' + idx,
+                            number: num,
+                            name: name,
+                            stamps: existingStudent ? existingStudent.stamps : 0,
+                            memo: existingStudent ? existingStudent.memo : ''
+                        });
+                    });
+
+                    if (fetchedClasses.length > 0) {
+                        classes.value = fetchedClasses;
+                        studentsMap.value = fetchedMap;
+                        if (!currentClassId.value || !classes.value.find(c => c.id === currentClassId.value)) {
+                            currentClassId.value = classes.value[0].id;
+                        }
+                        
+                        // ★★★ 여기서 즉시 DB에 덮어쓰기 저장! (이름표 연동 완료) ★★★
+                        saveToLocalStorage();
+                    }
+                } catch (e) {
+                    console.error("명렬표 CSV 연동 오류:", e);
                 } finally {
                     isLoading.value = false;
                 }
@@ -740,14 +802,14 @@
             const incrementStamp = (student) => {
                 if (student.stamps < 100) {
                     student.stamps += 1;
-                    saveToLocalStorage();
+                    saveToLocalStorage(); // 누를 때마다 DB 저장
                 }
             };
 
             const decrementStamp = (student) => {
                 if (student.stamps > 0) {
                     student.stamps -= 1;
-                    saveToLocalStorage();
+                    saveToLocalStorage(); // 누를 때마다 DB 저장
                 }
             };
 
@@ -757,10 +819,10 @@
                 } else {
                     student.stamps = num;
                 }
-                saveToLocalStorage();
+                saveToLocalStorage(); // 누를 때마다 DB 저장
             };
 
-            // SEATING SWAP & PHOTO
+            // SEATING SWAP
             const handleSeatClick = (student) => {
                 if (!selectedForSwap.value) {
                     selectedForSwap.value = student;
@@ -774,7 +836,7 @@
                         const temp = list[idx1];
                         list[idx1] = list[idx2];
                         list[idx2] = temp;
-                        saveToLocalStorage();
+                        saveToLocalStorage(); // ★★★ 자리 이동 즉시 DB 저장 ★★★
                     }
                     selectedForSwap.value = null;
                 }
@@ -788,7 +850,7 @@
                     [array[i], array[j]] = [array[j], array[i]];
                 }
                 studentsMap.value[currentClassId.value] = array;
-                saveToLocalStorage();
+                saveToLocalStorage(); // ★★★ 랜덤 섞기 직후 DB 저장 ★★★
             };
 
             const handlePhotoUpload = (e) => {
@@ -841,7 +903,7 @@
                 });
 
                 studentsMap.value[currentClassId.value] = newStudents;
-                saveToLocalStorage();
+                saveToLocalStorage(); // ★★★ 복사/붙여넣기 등록 직후 DB 저장 ★★★
                 showImportModal.value = false;
             };
 
@@ -856,7 +918,7 @@
                 classes.value.push({ id: newId, name: newClassName.value.trim() });
                 studentsMap.value[newId] = [];
                 currentClassId.value = newId;
-                saveToLocalStorage();
+                saveToLocalStorage(); // 반 추가 즉시 DB 저장
                 showAddClassModal.value = false;
             };
 
@@ -875,7 +937,7 @@
                     }));
                 }
                 currentClassId.value = classes.value[0].id;
-                saveToLocalStorage();
+                saveToLocalStorage(); // 초기화 직후 DB 저장
             };
 
             const resetClassStamps = () => {
@@ -909,14 +971,16 @@
                 document.body.removeChild(link);
             };
 
-            // LOCAL STORAGE PERSISTENCE & SERVER SYNC
+            // ============================================
+            // ★ 모든 핵심 저장을 통제하는 함수 ★
+            // ============================================
             let saveTimeout = null;
             const saveToLocalStorage = () => {
-                // 기존처럼 로컬 기기에도 즉시 저장
+                // 1. 빠른 화면 반영을 위해 내 컴퓨터에 먼저 저장
                 localStorage.setItem('science_portfolio_classes', JSON.stringify(classes.value));
                 localStorage.setItem('science_portfolio_students', JSON.stringify(studentsMap.value));
 
-                // 서버(구글 앱스 스크립트)에도 전송 (텍스트 입력 시 요청 폭주 방지를 위해 1초 지연)
+                // 2. 다른 기기 동기화를 위해 백그라운드에서 구글 서버(DB)로 쏘기
                 if (saveTimeout) clearTimeout(saveTimeout);
                 saveTimeout = setTimeout(() => {
                     try {
@@ -926,6 +990,7 @@
                         };
                         fetch(APP_SCRIPT_URL, {
                             method: 'POST',
+                            mode: 'no-cors', // 브라우저 보안 경고 무시 옵션
                             body: JSON.stringify(payload),
                             headers: {
                                 'Content-Type': 'text/plain;charset=utf-8',
@@ -934,19 +999,16 @@
                     } catch(e) {
                         console.error("서버 저장 실패:", e);
                     }
-                }, 1000);
+                }, 800); // 0.8초 뒤에 전송 (너무 잦은 전송 방지)
             };
 
-            const loadFromLocalStorage = () => {
+            // 처음 시작할 때
+            onMounted(() => {
                 const savedIcon = localStorage.getItem('science_portfolio_stamp_icon');
                 if (savedIcon) stampIcon.value = savedIcon;
-
-                // 원래 로컬 스토리지에서만 부르던 것을 서버에서 불러오도록 유도
-                loadFromGoogleSheet();
-            };
-
-            onMounted(() => {
-                loadFromLocalStorage();
+                
+                // 앱을 켤 때 무조건 구글 DB 서버를 먼저 확인!
+                loadFromServer();
             });
 
             return {
@@ -967,6 +1029,7 @@
                 selectedForSwap,
                 presetTags,
                 isLoading,
+                loadFromServer,
                 loadFromGoogleSheet,
                 toggleStampIcon,
                 getStudentCount,
