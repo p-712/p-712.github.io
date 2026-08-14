@@ -144,6 +144,13 @@
                     <i class="fa-solid fa-chevron-down text-[10px]"></i>
                 </div>
             </div>
+            
+            <!-- 구글 시트 동기화 버튼 (추가) -->
+            <button @click="loadFromGoogleSheet" :disabled="isLoading" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shrink-0 flex items-center space-x-1 shadow-2xs disabled:opacity-50">
+                <i class="fa-solid fa-rotate text-[10px]" :class="{'fa-spin': isLoading}"></i>
+                <span>{{ isLoading ? '시트 로딩 중...' : '시트 동기화' }}</span>
+            </button>
+
             <button @click="openAddClassModal" class="px-2.5 py-1.5 bg-pastel-yellowDark text-white text-xs font-bold rounded-xl hover:opacity-90 transition shrink-0 flex items-center space-x-1 shadow-2xs">
                 <i class="fa-solid fa-plus text-[10px]"></i>
                 <span>반 추가</span>
@@ -578,6 +585,9 @@
 <script>
     const { createApp, ref, computed, onMounted } = Vue;
 
+    // 전달해주신 구글 시트 1단계 CSV URL
+    const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJkRGaoYFHlBuea_f43BdfcdNeJjeP092kIl62FJgnVpkI5jqU_luL7ssMAyfnREIa635lvKo397J-/pub?gid=0&single=true&output=csv";
+
     createApp({
         setup() {
             // STATE
@@ -587,6 +597,7 @@
             const viewMode = ref('grid'); // 'grid', 'seating', 'report'
             const stampIcon = ref('⭐'); // '⭐' or '❤️'
             const seatingPhoto = ref(null);
+            const isLoading = ref(false);
 
             const selectedStudentModal = ref(null);
             const showImportModal = ref(false);
@@ -646,6 +657,65 @@
                 const today = new Date();
                 return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
             });
+
+            // GOOGLE SHEET CSV SYNC FUNCTION
+            const loadFromGoogleSheet = async () => {
+                isLoading.value = true;
+                try {
+                    const response = await fetch(GOOGLE_SHEET_CSV_URL);
+                    const csvText = await response.text();
+                    
+                    const rows = csvText.split(/\r?\n/).map(r => r.split(','));
+                    if (rows.length === 0) return;
+
+                    // 구글 시트 데이터를 기반으로 학급 및 학생 자동 구성
+                    const fetchedClasses = [];
+                    const fetchedMap = {};
+
+                    rows.forEach((row, idx) => {
+                        if (!row || row.length === 0 || !row.join('').trim()) return;
+                        
+                        // 기본 시트 컬럼 구조 파싱 (1열: 학급, 2열: 번호, 3열: 이름)
+                        const className = row[0] ? row[0].replace(/"/g, '').trim() : '1학년 1반';
+                        const num = row[1] ? parseInt(row[1].replace(/"/g, '').trim()) || (idx + 1) : (idx + 1);
+                        const name = row[2] ? row[2].replace(/"/g, '').trim() : row[0].replace(/"/g, '').trim();
+
+                        if (!name || name === '이름' || name === '학급') return; // 헤더 제거
+
+                        let targetClass = fetchedClasses.find(c => c.name === className);
+                        if (!targetClass) {
+                            const cId = 'cls_sheet_' + fetchedClasses.length;
+                            targetClass = { id: cId, name: className };
+                            fetchedClasses.push(targetClass);
+                            fetchedMap[cId] = [];
+                        }
+
+                        // 기존 저장된 스탬프 수나 메모 보존
+                        const existingStudent = (studentsMap.value[targetClass.id] || []).find(s => s.name === name);
+
+                        fetchedMap[targetClass.id].push({
+                            id: existingStudent ? existingStudent.id : 's_' + Date.now() + '_' + idx,
+                            number: num,
+                            name: name,
+                            stamps: existingStudent ? existingStudent.stamps : 0,
+                            memo: existingStudent ? existingStudent.memo : ''
+                        });
+                    });
+
+                    if (fetchedClasses.length > 0) {
+                        classes.value = fetchedClasses;
+                        studentsMap.value = fetchedMap;
+                        if (!currentClassId.value || !classes.value.find(c => c.id === currentClassId.value)) {
+                            currentClassId.value = classes.value[0].id;
+                        }
+                        saveToLocalStorage();
+                    }
+                } catch (e) {
+                    console.error("구글 시트 연동 오류:", e);
+                } finally {
+                    isLoading.value = false;
+                }
+            };
 
             // METHODS
             const toggleStampIcon = () => {
@@ -903,6 +973,8 @@
                 newClassName,
                 selectedForSwap,
                 presetTags,
+                isLoading,
+                loadFromGoogleSheet,
                 toggleStampIcon,
                 getStudentCount,
                 getRewardForCell,
