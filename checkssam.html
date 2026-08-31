@@ -230,6 +230,22 @@
             // 자리표 영역만 이미지로 캡처하기 위한 ref
             const seatChartRef = useRef(null);
 
+            // 자리 교환 모드: 명단을 다시 붙여넣지 않고 자리 두 곳을 탭해서 서로 바꾸는 기능
+            const [seatSwapMode, setSeatSwapMode] = useState(false);
+            const [swapFirstSeatNo, setSwapFirstSeatNo] = useState(null);
+
+            // 월별 자리배치 기록: 현재 자리 배치를 이름표(보통 '2026-09' 같은 월)로 저장해두고 나중에 불러오는 기능
+            const [seatHistory, setSeatHistory] = useState(() => {
+                try {
+                    const saved = localStorage.getItem('checkssam_seat_history');
+                    return saved ? JSON.parse(saved) : [];
+                } catch (e) {
+                    console.error("Failed parsing seat history, starting empty.", e);
+                    return [];
+                }
+            });
+            const [seatHistoryLabel, setSeatHistoryLabel] = useState(() => getActualTodayDateString().slice(0, 7));
+
             // Data only needs to start from Aug 2026, but the archive should keep
             // working for years after that without ever needing another edit.
             const MIN_YEAR = 2026;
@@ -287,6 +303,7 @@
 
             useEffect(() => { localStorage.setItem('checkssam_students', JSON.stringify(students)); }, [students]);
             useEffect(() => { localStorage.setItem('checkssam_logs', JSON.stringify(attendanceLogs)); }, [attendanceLogs]);
+            useEffect(() => { localStorage.setItem('checkssam_seat_history', JSON.stringify(seatHistory)); }, [seatHistory]);
             useEffect(() => {
                 localStorage.setItem('checkssam_grid_rows', gridRows.toString());
                 localStorage.setItem('checkssam_grid_cols', gridCols.toString());
@@ -295,14 +312,14 @@
             const totalSeatsCount = useMemo(() => gridRows * gridCols, [gridRows, gridCols]);
 
             const seatLayout = useMemo(() => {
-                const layout = Array(totalSeatsCount).fill(null);
+                const layout = Array.from({ length: totalSeatsCount }, (_, i) => ({ seatNo: i + 1, student: null }));
                 students.forEach(student => {
                     if (student.seatNo && student.seatNo <= totalSeatsCount) {
-                        layout[student.seatNo - 1] = student;
+                        layout[student.seatNo - 1].student = student;
                     }
                 });
                 return layout;
-            }, [students, totalSeatsCount, gridRows, gridCols]);
+            }, [students, totalSeatsCount]);
 
             // 학생 시점(게시용)일 때는 각 줄(행)의 좌우 순서를 반전해서 보여준다.
             // 교탁에서 바라본 배치(teacher)와, 학생이 교탁을 마주보고 서서 바라본 배치(student)는
@@ -402,7 +419,11 @@
                 return cells;
             }, [selectedMonth]);
 
-            const handleSeatClick = (student) => {
+            const handleSeatClick = (seatNo, student) => {
+                if (seatSwapMode) {
+                    handleSeatSwapTap(seatNo);
+                    return;
+                }
                 if (!student) return;
 
                 setSelectedStudent(student);
@@ -423,6 +444,25 @@
                     setFormPeriod("조례");
                 }
                 setIsModalOpen(true);
+            };
+
+            // 좌석 교환 모드: 두 자리를 순서대로 탭하면 그 두 자리에 앉은 학생의 좌석번호를 맞바꾼다.
+            // 이름을 다시 입력할 필요 없이 출결 기록(studentId 기반)도 그대로 유지된다.
+            const handleSeatSwapTap = (seatNo) => {
+                if (swapFirstSeatNo === null) {
+                    setSwapFirstSeatNo(seatNo);
+                    return;
+                }
+                if (swapFirstSeatNo === seatNo) {
+                    setSwapFirstSeatNo(null);
+                    return;
+                }
+                setStudents(prev => prev.map(s => {
+                    if (s.seatNo === swapFirstSeatNo) return { ...s, seatNo: seatNo };
+                    if (s.seatNo === seatNo) return { ...s, seatNo: swapFirstSeatNo };
+                    return s;
+                }));
+                setSwapFirstSeatNo(null);
             };
 
             // Historical Log Edit trigger
@@ -462,35 +502,59 @@
 
             const handleSaveAttendance = () => {
                 if (!selectedStudent) return;
-                
-                const targetDate = editingLog ? editingLog.date : currentDate;
-                const existingLogIndex = attendanceLogs.findIndex(log => log.studentId === selectedStudent.id && log.date === targetDate);
 
-                if (formStatus === 'present') {
-                    if (existingLogIndex > -1) {
-                        const updated = [...attendanceLogs];
-                        updated.splice(existingLogIndex, 1);
-                        setAttendanceLogs(updated);
+                if (editingLog) {
+                    // 기존 기록을 수정하는 경우 (학생 재지정 포함) - 반드시 그 기록(id)만 갱신한다.
+                    // 날짜+학생으로 다시 찾으면, 재지정 대상 학생이 그 날짜에 이미 다른 기록을 갖고 있을 때
+                    // 엉뚱한 기록을 덮어쓰거나 원래 잘못된 기록이 안 지워지고 중복 남는 문제가 생긴다.
+                    if (formStatus === 'present') {
+                        setAttendanceLogs(prev => prev.filter(log => log.id !== editingLog.id));
+                    } else {
+                        const isLateOrEarly = formStatus === 'late' || formStatus === 'early';
+                        const updatedLog = {
+                            id: editingLog.id,
+                            studentId: selectedStudent.id,
+                            date: editingLog.date,
+                            status: formStatus,
+                            type: formType,
+                            memo: formMemo,
+                            isDocumentCompleted: formDocCompleted,
+                            period: isLateOrEarly ? formPeriod : null,
+                            createdAt: editingLog.createdAt
+                        };
+                        setAttendanceLogs(prev => prev.map(log => log.id === editingLog.id ? updatedLog : log));
                     }
                 } else {
-                    const isLateOrEarly = formStatus === 'late' || formStatus === 'early';
-                    const newLog = {
-                        id: editingLog ? editingLog.id : (existingLogIndex > -1 ? attendanceLogs[existingLogIndex].id : `log-${Date.now()}`),
-                        studentId: selectedStudent.id,
-                        date: targetDate,
-                        status: formStatus,
-                        type: formType,
-                        memo: formMemo,
-                        isDocumentCompleted: formDocCompleted,
-                        period: isLateOrEarly ? formPeriod : null,
-                        createdAt: editingLog ? editingLog.createdAt : (existingLogIndex > -1 ? attendanceLogs[existingLogIndex].createdAt : targetDate)
-                    };
-                    if (existingLogIndex > -1) {
-                        const updated = [...attendanceLogs];
-                        updated[existingLogIndex] = newLog;
-                        setAttendanceLogs(updated);
+                    // 좌석 클릭으로 당일 기록을 새로 작성/수정하는 경우
+                    const targetDate = currentDate;
+                    const existingLogIndex = attendanceLogs.findIndex(log => log.studentId === selectedStudent.id && log.date === targetDate);
+
+                    if (formStatus === 'present') {
+                        if (existingLogIndex > -1) {
+                            const updated = [...attendanceLogs];
+                            updated.splice(existingLogIndex, 1);
+                            setAttendanceLogs(updated);
+                        }
                     } else {
-                        setAttendanceLogs([...attendanceLogs, newLog]);
+                        const isLateOrEarly = formStatus === 'late' || formStatus === 'early';
+                        const newLog = {
+                            id: existingLogIndex > -1 ? attendanceLogs[existingLogIndex].id : `log-${Date.now()}`,
+                            studentId: selectedStudent.id,
+                            date: targetDate,
+                            status: formStatus,
+                            type: formType,
+                            memo: formMemo,
+                            isDocumentCompleted: formDocCompleted,
+                            period: isLateOrEarly ? formPeriod : null,
+                            createdAt: existingLogIndex > -1 ? attendanceLogs[existingLogIndex].createdAt : targetDate
+                        };
+                        if (existingLogIndex > -1) {
+                            const updated = [...attendanceLogs];
+                            updated[existingLogIndex] = newLog;
+                            setAttendanceLogs(updated);
+                        } else {
+                            setAttendanceLogs([...attendanceLogs, newLog]);
+                        }
                     }
                 }
                 closeModal();
@@ -560,6 +624,41 @@
                     return { id, name, seatNo: seatNumbers[index] };
                 });
                 return { students: merged, matchedCount };
+            };
+
+            // 현재 자리 배치를 이름표(예: '2026-09')로 저장 - 학생 명단이 그대로일 때
+            // 매번 이름을 다시 붙여넣지 않고, 나중에 그 달의 배치를 그대로 불러오기 위한 기능.
+            const handleSaveSeatHistory = () => {
+                const label = seatHistoryLabel.trim() || getActualTodayDateString().slice(0, 7);
+                const record = {
+                    id: `seat-${Date.now()}`,
+                    label,
+                    savedAt: getActualTodayDateString(),
+                    students: students.map(s => ({ id: s.id, name: s.name, seatNo: s.seatNo })),
+                    gridRows,
+                    gridCols
+                };
+                setSeatHistory(prev => [record, ...prev]);
+                setSettingsStatusMessage(`✅ '${label}' 자리배치를 저장했습니다.`);
+            };
+
+            // 저장된 자리배치를 불러와 복원 - 학생 id가 그대로 유지되므로 출결 기록에는 영향이 없다.
+            // 그 사이에 새로 들어오거나 나간 학생은 자동으로 반영되지 않으니 별도로 확인이 필요하다.
+            const handleRestoreSeatHistory = (record) => {
+                if (!window.confirm(`'${record.label}' 자리배치로 복원할까요? 현재 좌석 번호가 이 기록의 좌석 번호로 바뀝니다. (학생 명단과 출결 기록은 그대로 유지됩니다)`)) return;
+                setStudents(prev => prev.map(s => {
+                    const match = record.students.find(rs => rs.id === s.id);
+                    return match ? { ...s, seatNo: match.seatNo } : s;
+                }));
+                setGridRows(record.gridRows);
+                setGridCols(record.gridCols);
+                setSettingsRows(record.gridRows);
+                setSettingsCols(record.gridCols);
+                setSettingsStatusMessage(`✅ '${record.label}' 자리배치를 복원했습니다.`);
+            };
+
+            const handleDeleteSeatHistory = (id) => {
+                setSeatHistory(prev => prev.filter(r => r.id !== id));
             };
 
             const handleCSVUpload = (e) => {
@@ -743,6 +842,8 @@
                                         <button onClick={() => setViewMode('student')} title="학생이 교탁을 바라보는 시점(좌우반전, 게시용)" class={`text-[10px] font-bold px-2 py-1 rounded-md transition-all ${viewMode === 'student' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:text-slate-700'}`}>🧒 학생 시점</button>
                                     </div>
                                     <div class="w-[1px] h-4 bg-slate-200 mx-1"></div>
+                                    <button onClick={() => { setSeatSwapMode(!seatSwapMode); setSwapFirstSeatNo(null); }} class={`p-1.5 rounded-lg border flex items-center gap-1.5 text-xs font-bold transition-all ${seatSwapMode ? 'bg-blue-500 border-blue-500 text-white' : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700'}`} title="명단을 다시 입력하지 않고 자리 두 곳을 탭해서 서로 바꿉니다">🔄<span>자리 교환</span></button>
+                                    <div class="w-[1px] h-4 bg-slate-200 mx-1"></div>
                                     <button onClick={handleTriggerPrint} class="bg-white hover:bg-slate-100 border border-slate-200 p-1.5 rounded-lg text-slate-700 font-bold text-xs flex items-center gap-1"><IconPrinter /><span>PDF 인쇄</span></button>
                                     <button onClick={handleSaveAsImage} class="bg-white hover:bg-slate-100 border border-slate-200 p-1.5 rounded-lg text-slate-700 font-bold text-xs flex items-center gap-1">🖼️<span>이미지 저장</span></button>
                                     <button onClick={() => setIsSettingsOpen(!isSettingsOpen)} class={`p-1.5 rounded-lg border flex items-center gap-1.5 text-xs font-bold transition-all ${isSettingsOpen ? 'bg-blue-50 border-blue-200 text-blue-600' : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700'}`}><IconSettings /><span>배치/명렬 설정</span></button>
@@ -818,6 +919,37 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* 월별 자리배치 기록: 명단을 다시 붙여넣지 않고, 자리 교환으로 바꾼 배치를 이름표로 저장해두는 영역 */}
+                                <div class="mt-6 pt-4 border-t border-slate-100 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                    <div class="lg:col-span-1 bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col gap-2">
+                                        <h4 class="text-xs font-bold text-slate-700">④ 현재 자리배치 기록으로 저장</h4>
+                                        <p class="text-[10px] text-slate-400">🔄 자리 교환으로 배치를 바꾼 뒤, 이름표(보통 '9월'처럼)를 붙여 저장해두면 나중에 그대로 불러올 수 있어요.</p>
+                                        <input type="text" value={seatHistoryLabel} onChange={(e) => setSeatHistoryLabel(e.target.value)} placeholder="예) 2026-09" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-bold focus:outline-none" />
+                                        <button onClick={handleSaveSeatHistory} class="bg-blue-500 hover:bg-blue-600 text-white text-[11px] font-bold py-2 rounded-lg transition-all">📌 현재 배치 저장</button>
+                                    </div>
+                                    <div class="lg:col-span-2 bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col gap-2">
+                                        <h4 class="text-xs font-bold text-slate-700">저장된 자리배치 목록</h4>
+                                        {seatHistory.length === 0 ? (
+                                            <p class="text-[11px] text-slate-400 py-2">아직 저장된 자리배치가 없습니다.</p>
+                                        ) : (
+                                            <div class="flex flex-col gap-1.5 max-h-32 overflow-y-auto pr-1">
+                                                {seatHistory.map(record => (
+                                                    <div key={record.id} class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-1.5">
+                                                        <div class="text-[11px]">
+                                                            <span class="font-bold text-slate-700">{record.label}</span>
+                                                            <span class="text-slate-400 ml-1.5">({record.savedAt} 저장 · {record.students.length}명)</span>
+                                                        </div>
+                                                        <div class="flex items-center gap-1.5 shrink-0">
+                                                            <button onClick={() => handleRestoreSeatHistory(record)} class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-100 text-[10px] font-bold py-1 px-2 rounded-md">🔁 불러오기</button>
+                                                            <button onClick={() => handleDeleteSeatHistory(record.id)} class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-100 text-[10px] font-bold py-1 px-2 rounded-md"><IconTrash /></button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                                 {settingsStatusMessage && <div class="mt-3 bg-blue-50/50 border border-blue-100 text-blue-700 text-xs font-bold p-2 rounded-lg">{settingsStatusMessage}</div>}
                             </section>
                         )}
@@ -825,7 +957,7 @@
                         {/* Top Main: Seating Grid Chart */}
                         <section class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-none flex flex-col gap-4">
                             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-100 pb-3 no-print">
-                                <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">🏫 우리 반 교실 자리배치 현황판 {viewMode === 'student' && <span class="text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-200 py-0.5 px-2 rounded-full">좌우반전 · 학생 시점</span>}</h2>
+                                <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">🏫 우리 반 교실 자리배치 현황판 {viewMode === 'student' && <span class="text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-200 py-0.5 px-2 rounded-full">좌우반전 · 학생 시점</span>} {seatSwapMode && <span class="text-[10px] font-bold bg-blue-50 text-blue-600 border border-blue-200 py-0.5 px-2 rounded-full">🔄 자리 교환 모드 · 두 자리를 순서대로 탭하세요</span>}</h2>
                                 <div class="flex flex-wrap items-center gap-2 text-[10px] font-bold">
                                     <span class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-50 border border-slate-200 text-slate-400"><span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>출석</span>
                                     <span class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-rose-50 border border-rose-200 text-rose-600"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>결석</span>
@@ -836,14 +968,20 @@
 
                             <div ref={seatChartRef} class="flex flex-col gap-4">
                                 <div class="grid gap-3 print-grid" style={{ gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))` }}>
-                                    {displaySeatLayout.map((student, index) => {
+                                    {displaySeatLayout.map((cell) => {
+                                        const student = cell.student;
                                         const todayLog = student ? todaysLogsMap[student.id] : null;
+                                        const isSwapSelected = seatSwapMode && swapFirstSeatNo === cell.seatNo;
                                         return (
-                                            <div key={student ? student.id : `empty-${index}`} onClick={() => handleSeatClick(student)} class={`tap-target h-20 border rounded-xl p-2 flex flex-col justify-between cursor-pointer transition-all active:scale-95 ${student ? 'bg-white hover:bg-slate-50/50 active:bg-blue-50 border-slate-200 shadow-sm' : 'bg-slate-50 border-dashed border-slate-200 text-slate-300 cursor-not-allowed justify-center items-center'}`}>
+                                            <div
+                                                key={cell.seatNo}
+                                                onClick={() => handleSeatClick(cell.seatNo, student)}
+                                                class={`tap-target h-20 border rounded-xl p-2 flex flex-col justify-between transition-all active:scale-95 ${seatSwapMode ? 'cursor-pointer' : (student ? 'cursor-pointer' : 'cursor-not-allowed')} ${isSwapSelected ? 'ring-2 ring-blue-500 border-blue-400 bg-blue-50' : (student ? 'bg-white hover:bg-slate-50/50 active:bg-blue-50 border-slate-200 shadow-sm' : `bg-slate-50 border-dashed border-slate-200 text-slate-300 ${seatSwapMode ? 'hover:bg-blue-50/40' : ''} justify-center items-center`)} ${seatSwapMode && !isSwapSelected ? 'hover:border-blue-300' : ''}`}
+                                            >
                                                 {student ? (
                                                     <>
                                                         <div class="flex justify-between items-center text-[9px]">
-                                                            <span class="font-mono text-slate-300">#{student.seatNo}</span>
+                                                            <span class="font-mono text-slate-300">#{cell.seatNo}</span>
                                                             {todayLog && <span class={`font-bold px-1 rounded-[4px] text-[8px] ${getStatusBadgeStyle(todayLog.status)}`}>{todayLog.status === 'absent' ? '결석' : todayLog.status === 'late' ? `지각(${todayLog.period})` : `조퇴(${todayLog.period})`}</span>}
                                                         </div>
                                                         <div class="text-center font-bold text-sm text-slate-700">{student.name}</div>
@@ -856,7 +994,7 @@
                                                             ) : <span class="text-slate-300 font-medium flex items-center gap-0.5"><IconUserCheck />정상등교</span>}
                                                         </div>
                                                     </>
-                                                ) : <span class="text-[9px] font-medium text-slate-300">빈자리</span>}
+                                                ) : <span class="text-[9px] font-medium text-slate-300">{seatSwapMode ? `#${cell.seatNo} 빈자리` : '빈자리'}</span>}
                                             </div>
                                         );
                                     })}
@@ -868,7 +1006,7 @@
                                         💻 교 탁 (선생님 위치)
                                     </div>
                                     <div class="text-[9px] text-slate-400 font-medium no-print">
-                                        {viewMode === 'student' ? '학생이 교탁을 바라보고 섰을 때 기준으로 좌우가 반전된 배치도입니다. (게시용)' : '교실 정면 교탁에서 학생들을 바라보는 시야 기준 배치도입니다.'}
+                                        {seatSwapMode ? '자리 두 곳을 순서대로 탭하면 그 두 학생의 자리가 서로 바뀝니다. (출결 기록은 학생을 그대로 따라갑니다)' : (viewMode === 'student' ? '학생이 교탁을 바라보고 섰을 때 기준으로 좌우가 반전된 배치도입니다. (게시용)' : '교실 정면 교탁에서 학생들을 바라보는 시야 기준 배치도입니다.')}
                                     </div>
                                 </div>
                             </div>
@@ -901,8 +1039,8 @@
                                                     <span class="text-[9px] font-mono bg-white px-1.5 py-0.5 border border-slate-200 rounded text-slate-500">{log.date}</span>
                                                 </div>
                                                 <div class="flex items-center gap-1.5 text-[9px] font-bold">
-                                                    <span class={`px-1 py-0.2 rounded ${getStatusBadgeStyle(log.status)}`}>{getStatusLabel(log.status)}{log.period ? `(${log.period})` : ''}</span>
-                                                    <span class={`px-1 py-0.2 rounded ${getTypeColorClass(log.type)}`}>{getTypeLabel(log.type)}</span>
+                                                    <span class={`px-1 py-0.5 rounded ${getStatusBadgeStyle(log.status)}`}>{getStatusLabel(log.status)}{log.period ? `(${log.period})` : ''}</span>
+                                                    <span class={`px-1 py-0.5 rounded ${getTypeColorClass(log.type)}`}>{getTypeLabel(log.type)}</span>
                                                     {log.calculatedStatus === 'overdue' && <span class="text-rose-600 bg-white border border-rose-100 px-1 rounded font-bold">🚨 3일 경과! 미제출</span>}
                                                 </div>
                                                 <p class="text-[10px] text-slate-400 bg-white/80 p-1.5 rounded border border-slate-100 italic">"{log.memo || '사유가 기록되지 않았습니다.'}"</p>
@@ -1004,7 +1142,7 @@
                                                                     <div 
                                                                         key={log.id} 
                                                                         onClick={(e) => { e.stopPropagation(); handleEditLog(log); }}
-                                                                        class={`text-[8px] leading-tight px-1 py-0.2 rounded border truncate cursor-pointer hover:brightness-95 ${badgeStyle}`}
+                                                                        class={`text-[8px] leading-tight px-1 py-0.5 rounded border truncate cursor-pointer hover:brightness-95 ${badgeStyle}`}
                                                                         title={`${name} (${getStatusLabel(log.status)}) - 클릭 시 수정`}
                                                                     >
                                                                         {name}({statusChar})
@@ -1031,14 +1169,14 @@
                                                         </div>
                                                         <div class="divide-y divide-slate-100 bg-white">
                                                             {group.logs.map(log => (
-                                                                <div key={log.id} class="p-2.5 flex items-center justify-between gap-2 text-xs">
-                                                                    <div class="flex flex-wrap items-center gap-1.5">
+                                                                <div key={log.id} class="p-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs">
+                                                                    <div class="flex flex-wrap items-center gap-1.5 min-w-0">
                                                                         <span class="font-bold text-slate-800 min-w-[50px]">{log.studentName}</span>
-                                                                        <span class={`text-[9px] font-bold px-1.5 py-0.2 rounded ${getStatusBadgeStyle(log.status)}`}>{log.status === 'absent' ? '결석' : log.status === 'late' ? `지각(${log.period})` : `조퇴(${log.period})`}</span>
-                                                                        <span class={`text-[9px] font-bold px-1.5 py-0.2 rounded ${getTypeColorClass(log.type)}`}>{getTypeLabel(log.type)}</span>
-                                                                        <span class="text-slate-400 text-[10px] italic">"{log.memo || '비고 없음'}"</span>
+                                                                        <span class={`text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 ${getStatusBadgeStyle(log.status)}`}>{log.status === 'absent' ? '결석' : log.status === 'late' ? `지각(${log.period})` : `조퇴(${log.period})`}</span>
+                                                                        <span class={`text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 ${getTypeColorClass(log.type)}`}>{getTypeLabel(log.type)}</span>
+                                                                        <span class="text-slate-400 text-[10px] italic break-words">"{log.memo || '비고 없음'}"</span>
                                                                     </div>
-                                                                    <div class="flex items-center gap-1.5 no-print">
+                                                                    <div class="flex flex-wrap items-center gap-1.5 no-print shrink-0">
                                                                         <button onClick={() => toggleDocumentCompletion(log.id)} class={`text-[9px] font-bold py-1 px-2 rounded-md border ${log.isDocumentCompleted ? 'bg-slate-50 border-slate-200 text-slate-500' : 'bg-emerald-50 border-emerald-200 text-emerald-700'}`}>
                                                                             {log.isDocumentCompleted ? '제출취소' : '수거완료'}
                                                                         </button>
@@ -1074,6 +1212,24 @@
                                     <button onClick={closeModal} class="text-slate-400 hover:text-white p-1"><IconX /></button>
                                 </div>
                                 <div class="p-5 flex flex-col gap-4">
+                                    {editingLog && (
+                                        <div class="bg-amber-50 border border-amber-100 rounded-xl p-3 flex flex-col gap-1.5">
+                                            <label class="block text-[10px] font-bold text-amber-700">⚠️ 이 기록이 다른 학생 것이라면 여기서 재지정하세요</label>
+                                            <select
+                                                value={selectedStudent.id}
+                                                onChange={(e) => {
+                                                    const newStudent = students.find(s => s.id === parseInt(e.target.value, 10));
+                                                    if (newStudent) setSelectedStudent(newStudent);
+                                                }}
+                                                class="w-full bg-white border border-amber-200 rounded-lg p-2 text-xs font-bold focus:outline-none"
+                                            >
+                                                {students.slice().sort((a, b) => a.seatNo - b.seatNo).map(s => (
+                                                    <option key={s.id} value={s.id}>{s.name} (#{s.seatNo}번 자리)</option>
+                                                ))}
+                                            </select>
+                                            <p class="text-[9px] text-amber-600">자리 재배정 이전 기록 중 엉뚱한 학생에게 붙은 경우, 나이스나 결석계 등 실제 기록과 대조해서 올바른 학생으로 바꾼 뒤 저장하세요. 팁: 🔄 자리 교환 모드로 그 날짜 당시의 배치로 맞춰두면, 위 목록의 자리번호가 그 당시 자리와 같아져서 훨씬 헷갈리지 않아요.</p>
+                                        </div>
+                                    )}
                                     <div>
                                         <label class="block text-[10px] font-bold text-slate-400 mb-1">출결 변동 사항</label>
                                         <div class="grid grid-cols-4 gap-1.5">
