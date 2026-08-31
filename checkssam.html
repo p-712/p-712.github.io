@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js" crossorigin></script>
     <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.22.20/babel.min.js" crossorigin></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" crossorigin></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap');
         body {
@@ -107,7 +108,7 @@
     </script>
 
     <script type="text/babel">
-        const { useState, useMemo, useEffect } = React;
+        const { useState, useMemo, useEffect, useRef } = React;
 
         // Hide fallback helper immediately once React starts compilation and execution successfully
         document.getElementById('fallback-helper').style.display = 'none';
@@ -205,7 +206,6 @@
             });
 
             const [currentDate, setCurrentDate] = useState(getActualTodayDateString);
-            const [selectedSeatIndex, setSelectedSeatIndex] = useState(null);
             const [selectedStudent, setSelectedStudent] = useState(null);
             const [isModalOpen, setIsModalOpen] = useState(false);
             const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -224,6 +224,11 @@
             const [settingsCols, setSettingsCols] = useState(gridCols);
             const [excelPasteText, setExcelPasteText] = useState("");
             const [settingsStatusMessage, setSettingsStatusMessage] = useState("");
+
+            // 'teacher' = 교탁에서 학생을 바라보는 시점(기본), 'student' = 학생이 교탁을 바라보는 시점(좌우 반전, 게시용)
+            const [viewMode, setViewMode] = useState('teacher');
+            // 자리표 영역만 이미지로 캡처하기 위한 ref
+            const seatChartRef = useRef(null);
 
             // Data only needs to start from Aug 2026, but the archive should keep
             // working for years after that without ever needing another edit.
@@ -298,6 +303,19 @@
                 });
                 return layout;
             }, [students, totalSeatsCount, gridRows, gridCols]);
+
+            // 학생 시점(게시용)일 때는 각 줄(행)의 좌우 순서를 반전해서 보여준다.
+            // 교탁에서 바라본 배치(teacher)와, 학생이 교탁을 마주보고 서서 바라본 배치(student)는
+            // 좌우가 반대이기 때문에 실제 자리 번호/데이터는 그대로 두고 화면에 그려지는 순서만 뒤집는다.
+            const displaySeatLayout = useMemo(() => {
+                if (viewMode !== 'student') return seatLayout;
+                const mirrored = [];
+                for (let r = 0; r < gridRows; r++) {
+                    const rowItems = seatLayout.slice(r * gridCols, r * gridCols + gridCols);
+                    mirrored.push(...rowItems.slice().reverse());
+                }
+                return mirrored;
+            }, [seatLayout, viewMode, gridRows, gridCols]);
 
             const todaysLogsMap = useMemo(() => {
                 const map = {};
@@ -384,11 +402,9 @@
                 return cells;
             }, [selectedMonth]);
 
-            const handleSeatClick = (seatIndex) => {
-                const student = seatLayout[seatIndex];
+            const handleSeatClick = (student) => {
                 if (!student) return;
-                
-                setSelectedSeatIndex(seatIndex);
+
                 setSelectedStudent(student);
                 setEditingLog(null);
                 
@@ -509,12 +525,41 @@
                     }
                 }
 
-                const newStudents = names.map((name, index) => ({ id: index + 1, name, seatNo: seatIndices[index] }));
+                // 출결 기록은 studentId를 기준으로 저장되므로, 자리를 새로 배정할 때도
+                // 이름이 같은 학생은 기존 id를 그대로 유지해야 한다. 그렇지 않으면
+                // 예전에는 순서(index)로 id를 새로 매겼기 때문에, 자리를 바꾸거나
+                // 명단 순서를 바꿔서 다시 붙여넣을 때마다 id가 재배정되어
+                // 기존 출결 기록이 엉뚱한 학생에게 옮겨붙는 문제가 있었다.
+                const { students: newStudents, matchedCount } = mergeStudentsWithExistingIds(names, seatIndices);
                 setStudents(newStudents);
                 setGridRows(settingsRows);
                 setGridCols(settingsCols);
                 setExcelPasteText("");
-                setSettingsStatusMessage("✅ 자리배정이 끝났습니다!");
+                const newCount = names.length - matchedCount;
+                setSettingsStatusMessage(`✅ 자리배정 완료! (기존 학생 ${matchedCount}명 출결기록 유지 · 신규 ${newCount}명)`);
+            };
+
+            // 이름이 일치하는 기존 학생의 id를 재사용해서 출결 기록(studentId 기반)이
+            // 자리가 아니라 학생을 계속 따라가도록 병합하는 헬퍼.
+            const mergeStudentsWithExistingIds = (names, seatNumbers) => {
+                const usedIds = new Set();
+                let idCounter = students.length > 0 ? Math.max(...students.map(s => s.id)) : 0;
+                let matchedCount = 0;
+                const merged = names.map((rawName, index) => {
+                    const name = rawName.trim();
+                    const existing = students.find(s => s.name === name && !usedIds.has(s.id));
+                    let id;
+                    if (existing) {
+                        id = existing.id;
+                        matchedCount += 1;
+                    } else {
+                        idCounter += 1;
+                        id = idCounter;
+                    }
+                    usedIds.add(id);
+                    return { id, name, seatNo: seatNumbers[index] };
+                });
+                return { students: merged, matchedCount };
             };
 
             const handleCSVUpload = (e) => {
@@ -536,10 +581,13 @@
                             setSettingsStatusMessage("❌ 칸수 초과!");
                             return;
                         }
-                        const newStudents = parsedNames.map((name, index) => ({ id: index + 1, name, seatNo: index + 1 }));
+                        const seatNumbers = parsedNames.map((_, index) => index + 1);
+                        const { students: newStudents, matchedCount } = mergeStudentsWithExistingIds(parsedNames, seatNumbers);
                         setStudents(newStudents);
                         setGridRows(settingsRows);
                         setGridCols(settingsCols);
+                        const newCount = parsedNames.length - matchedCount;
+                        setSettingsStatusMessage(`✅ CSV 업로드 완료! (기존 학생 ${matchedCount}명 출결기록 유지 · 신규 ${newCount}명)`);
                     }
                 };
                 reader.readAsText(file);
@@ -611,11 +659,29 @@
 
             const closeModal = () => { 
                 setIsModalOpen(false); 
-                setSelectedSeatIndex(null); 
                 setSelectedStudent(null); 
                 setEditingLog(null);
             };
             const handleTriggerPrint = () => { window.print(); };
+
+            // 현재 화면에 보이는 자리표(교사/학생 시점 그대로)를 PNG 이미지 파일로 저장
+            const handleSaveAsImage = () => {
+                if (!window.html2canvas || !seatChartRef.current) {
+                    setSettingsStatusMessage("❌ 이미지 저장 기능을 아직 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+                    return;
+                }
+                window.html2canvas(seatChartRef.current, { backgroundColor: '#ffffff', scale: 2 }).then((canvas) => {
+                    const link = document.createElement('a');
+                    const viewLabel = viewMode === 'student' ? '학생게시용' : '교사용';
+                    link.download = `자리표_${viewLabel}_${currentDate}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }).catch(() => {
+                    setSettingsStatusMessage("❌ 이미지 저장 중 오류가 발생했습니다.");
+                });
+            };
             const handleDateShift = (d) => {
                 const dateObj = new Date(currentDate);
                 dateObj.setDate(dateObj.getDate() + d);
@@ -672,7 +738,13 @@
                                     <button onClick={() => handleDateShift(1)} class="bg-white hover:bg-slate-100 border border-slate-200 text-xs font-medium py-1 px-2.5 rounded-lg flex items-center gap-0.5">1일<IconChevronRight /></button>
                                     <button onClick={() => setCurrentDate(getActualTodayDateString())} class="bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-100 text-xs font-bold py-1 px-2.5 rounded-lg">오늘</button>
                                     <div class="w-[1px] h-4 bg-slate-200 mx-1"></div>
+                                    <div class="flex bg-white border border-slate-200 rounded-lg p-0.5">
+                                        <button onClick={() => setViewMode('teacher')} title="교탁에서 학생들을 바라보는 시점" class={`text-[10px] font-bold px-2 py-1 rounded-md transition-all ${viewMode === 'teacher' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:text-slate-700'}`}>🧑‍🏫 교사 시점</button>
+                                        <button onClick={() => setViewMode('student')} title="학생이 교탁을 바라보는 시점(좌우반전, 게시용)" class={`text-[10px] font-bold px-2 py-1 rounded-md transition-all ${viewMode === 'student' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:text-slate-700'}`}>🧒 학생 시점</button>
+                                    </div>
+                                    <div class="w-[1px] h-4 bg-slate-200 mx-1"></div>
                                     <button onClick={handleTriggerPrint} class="bg-white hover:bg-slate-100 border border-slate-200 p-1.5 rounded-lg text-slate-700 font-bold text-xs flex items-center gap-1"><IconPrinter /><span>PDF 인쇄</span></button>
+                                    <button onClick={handleSaveAsImage} class="bg-white hover:bg-slate-100 border border-slate-200 p-1.5 rounded-lg text-slate-700 font-bold text-xs flex items-center gap-1">🖼️<span>이미지 저장</span></button>
                                     <button onClick={() => setIsSettingsOpen(!isSettingsOpen)} class={`p-1.5 rounded-lg border flex items-center gap-1.5 text-xs font-bold transition-all ${isSettingsOpen ? 'bg-blue-50 border-blue-200 text-blue-600' : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700'}`}><IconSettings /><span>배치/명렬 설정</span></button>
                                 </div>
                             </div>
@@ -683,8 +755,9 @@
                     <div class="hidden print:block print-report-header">
                         <div class="flex justify-between items-end">
                             <div>
-                                <h1 class="text-lg font-bold text-black">출결체크쌤 학급 일일 출결 리포트</h1>
+                                <h1 class="text-lg font-bold text-black">출결체크쌤 학급 일일 출결 리포트 {viewMode === 'student' ? '(학생 게시용 · 좌우반전)' : '(교사 관리용)'}</h1>
                                 <p class="text-xs text-slate-500 mt-0.5">우리 반 학생들의 좌석 배치도 및 사후 증빙서류 보관 대장</p>
+                                {viewMode === 'student' && <p class="text-[10px] text-slate-400 mt-0.5">※ 학생이 교탁을 바라보고 섰을 때 기준으로 좌우가 반전되어 있습니다. 교실 게시용입니다.</p>}
                             </div>
                             <div class="text-right text-xs">
                                 <p><strong>조사 일자:</strong> {currentDate}</p>
@@ -752,7 +825,7 @@
                         {/* Top Main: Seating Grid Chart */}
                         <section class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-none flex flex-col gap-4">
                             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-100 pb-3 no-print">
-                                <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">🏫 우리 반 교실 자리배치 현황판</h2>
+                                <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">🏫 우리 반 교실 자리배치 현황판 {viewMode === 'student' && <span class="text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-200 py-0.5 px-2 rounded-full">좌우반전 · 학생 시점</span>}</h2>
                                 <div class="flex flex-wrap items-center gap-2 text-[10px] font-bold">
                                     <span class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-slate-50 border border-slate-200 text-slate-400"><span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>출석</span>
                                     <span class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-rose-50 border border-rose-200 text-rose-600"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>결석</span>
@@ -761,39 +834,43 @@
                                 </div>
                             </div>
 
-                            <div class="grid gap-3 print-grid" style={{ gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))` }}>
-                                {seatLayout.map((student, index) => {
-                                    const todayLog = student ? todaysLogsMap[student.id] : null;
-                                    return (
-                                        <div key={index} onClick={() => handleSeatClick(index)} class={`tap-target h-20 border rounded-xl p-2 flex flex-col justify-between cursor-pointer transition-all active:scale-95 ${student ? 'bg-white hover:bg-slate-50/50 active:bg-blue-50 border-slate-200 shadow-sm' : 'bg-slate-50 border-dashed border-slate-200 text-slate-300 cursor-not-allowed justify-center items-center'}`}>
-                                            {student ? (
-                                                <>
-                                                    <div class="flex justify-between items-center text-[9px]">
-                                                        <span class="font-mono text-slate-300">#{student.seatNo}</span>
-                                                        {todayLog && <span class={`font-bold px-1 rounded-[4px] text-[8px] ${getStatusBadgeStyle(todayLog.status)}`}>{todayLog.status === 'absent' ? '결석' : todayLog.status === 'late' ? `지각(${todayLog.period})` : `조퇴(${todayLog.period})`}</span>}
-                                                    </div>
-                                                    <div class="text-center font-bold text-sm text-slate-700">{student.name}</div>
-                                                    <div class="flex justify-center items-center h-3 text-[8px]">
-                                                        {todayLog ? (
-                                                            todayLog.isDocumentCompleted ? <span class="text-emerald-600 font-medium flex items-center gap-0.5"><IconCheckCircle />서류완료</span> :
-                                                            calculateDocStatus(todayLog.date, todayLog.isDocumentCompleted, currentDate) === 'overdue' ? 
-                                                            <span class="text-rose-600 font-bold flex items-center gap-0.5 animate-pulse"><IconAlertTriangle />미제출!</span> :
-                                                            <span class="text-amber-600 font-medium flex items-center gap-0.5"><IconClock />서류대기</span>
-                                                        ) : <span class="text-slate-300 font-medium flex items-center gap-0.5"><IconUserCheck />정상등교</span>}
-                                                    </div>
-                                                </>
-                                            ) : <span class="text-[9px] font-medium text-slate-300">빈자리</span>}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            {/* 교탁(선생님 시선 위치) 대표 영역 배치 - 요청에 따라 격자 아래로 이동! */}
-                            <div class="w-full flex flex-col items-center gap-1 mt-4">
-                                <div class="w-36 h-7 bg-slate-100 border border-slate-200 rounded-b-xl flex items-center justify-center text-[10px] font-bold text-slate-500 tracking-wider shadow-sm">
-                                    💻 교 탁 (선생님 위치)
+                            <div ref={seatChartRef} class="flex flex-col gap-4">
+                                <div class="grid gap-3 print-grid" style={{ gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))` }}>
+                                    {displaySeatLayout.map((student, index) => {
+                                        const todayLog = student ? todaysLogsMap[student.id] : null;
+                                        return (
+                                            <div key={student ? student.id : `empty-${index}`} onClick={() => handleSeatClick(student)} class={`tap-target h-20 border rounded-xl p-2 flex flex-col justify-between cursor-pointer transition-all active:scale-95 ${student ? 'bg-white hover:bg-slate-50/50 active:bg-blue-50 border-slate-200 shadow-sm' : 'bg-slate-50 border-dashed border-slate-200 text-slate-300 cursor-not-allowed justify-center items-center'}`}>
+                                                {student ? (
+                                                    <>
+                                                        <div class="flex justify-between items-center text-[9px]">
+                                                            <span class="font-mono text-slate-300">#{student.seatNo}</span>
+                                                            {todayLog && <span class={`font-bold px-1 rounded-[4px] text-[8px] ${getStatusBadgeStyle(todayLog.status)}`}>{todayLog.status === 'absent' ? '결석' : todayLog.status === 'late' ? `지각(${todayLog.period})` : `조퇴(${todayLog.period})`}</span>}
+                                                        </div>
+                                                        <div class="text-center font-bold text-sm text-slate-700">{student.name}</div>
+                                                        <div class="flex justify-center items-center h-3 text-[8px]">
+                                                            {todayLog ? (
+                                                                todayLog.isDocumentCompleted ? <span class="text-emerald-600 font-medium flex items-center gap-0.5"><IconCheckCircle />서류완료</span> :
+                                                                calculateDocStatus(todayLog.date, todayLog.isDocumentCompleted, currentDate) === 'overdue' ? 
+                                                                <span class="text-rose-600 font-bold flex items-center gap-0.5 animate-pulse"><IconAlertTriangle />미제출!</span> :
+                                                                <span class="text-amber-600 font-medium flex items-center gap-0.5"><IconClock />서류대기</span>
+                                                            ) : <span class="text-slate-300 font-medium flex items-center gap-0.5"><IconUserCheck />정상등교</span>}
+                                                        </div>
+                                                    </>
+                                                ) : <span class="text-[9px] font-medium text-slate-300">빈자리</span>}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
-                                <div class="text-[9px] text-slate-400 font-medium no-print">교실 정면 교탁에서 학생들을 바라보는 시야 기준 배치도입니다.</div>
+
+                                {/* 교탁(선생님 시선 위치) 대표 영역 배치 - 요청에 따라 격자 아래로 이동! */}
+                                <div class="w-full flex flex-col items-center gap-1">
+                                    <div class="w-36 h-7 bg-slate-100 border border-slate-200 rounded-b-xl flex items-center justify-center text-[10px] font-bold text-slate-500 tracking-wider shadow-sm">
+                                        💻 교 탁 (선생님 위치)
+                                    </div>
+                                    <div class="text-[9px] text-slate-400 font-medium no-print">
+                                        {viewMode === 'student' ? '학생이 교탁을 바라보고 섰을 때 기준으로 좌우가 반전된 배치도입니다. (게시용)' : '교실 정면 교탁에서 학생들을 바라보는 시야 기준 배치도입니다.'}
+                                    </div>
+                                </div>
                             </div>
                         </section>
 
