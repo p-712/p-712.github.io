@@ -246,6 +246,12 @@
             });
             const [seatHistoryLabel, setSeatHistoryLabel] = useState(() => getActualTodayDateString().slice(0, 7));
 
+            // 자리 번호 일괄 입력: 학생이 많을 때 한 명씩 탭으로 바꾸는 대신
+            // 이름 옆에 자리 번호를 쭉 입력해서 한 번에 반 전체 배치를 바꾸는 기능.
+            const [isBulkSeatEditOpen, setIsBulkSeatEditOpen] = useState(false);
+            const [bulkSeatDraft, setBulkSeatDraft] = useState([]); // [{ id, name, seatNo(문자열) }]
+            const [bulkSeatError, setBulkSeatError] = useState("");
+
             // Data only needs to start from Aug 2026, but the archive should keep
             // working for years after that without ever needing another edit.
             const MIN_YEAR = 2026;
@@ -661,6 +667,58 @@
                 setSeatHistory(prev => prev.filter(r => r.id !== id));
             };
 
+            // 자리 번호 일괄 입력 - 학생이 많을 때 한 명씩 탭으로 바꾸지 않고
+            // 이름 옆에 번호를 쭉 입력해서 반 전체 자리를 한 번에 바꾸는 기능.
+            const openBulkSeatEdit = () => {
+                const draft = students
+                    .slice()
+                    .sort((a, b) => a.name.localeCompare(b.name, 'ko'))
+                    .map(s => ({ id: s.id, name: s.name, seatNo: s.seatNo != null ? String(s.seatNo) : "" }));
+                setBulkSeatDraft(draft);
+                setBulkSeatError("");
+                setIsBulkSeatEditOpen(true);
+            };
+
+            const updateBulkSeatValue = (id, value) => {
+                const cleaned = value.replace(/[^0-9]/g, "");
+                setBulkSeatDraft(prev => prev.map(d => d.id === id ? { ...d, seatNo: cleaned } : d));
+            };
+
+            const applyBulkSeatEdit = () => {
+                const seenSeatOwners = new Map(); // seatNo -> name
+                const conflicts = [];
+                bulkSeatDraft.forEach(d => {
+                    if (d.seatNo === "") return;
+                    const num = parseInt(d.seatNo, 10);
+                    if (num < 1 || num > totalSeatsCount) {
+                        conflicts.push(`${d.name}: 1~${totalSeatsCount} 범위를 벗어났어요`);
+                        return;
+                    }
+                    if (seenSeatOwners.has(num)) {
+                        conflicts.push(`${d.name} / ${seenSeatOwners.get(num)} 둘 다 #${num}번으로 겹쳐요`);
+                    } else {
+                        seenSeatOwners.set(num, d.name);
+                    }
+                });
+                if (conflicts.length > 0) {
+                    setBulkSeatError(conflicts.join('  ·  '));
+                    return;
+                }
+                setStudents(prev => prev.map(s => {
+                    const match = bulkSeatDraft.find(d => d.id === s.id);
+                    if (!match) return s;
+                    return { ...s, seatNo: match.seatNo === "" ? null : parseInt(match.seatNo, 10) };
+                }));
+                setIsBulkSeatEditOpen(false);
+                setBulkSeatError("");
+                setSettingsStatusMessage("✅ 자리 번호를 일괄 적용했습니다.");
+            };
+
+            const cancelBulkSeatEdit = () => {
+                setIsBulkSeatEditOpen(false);
+                setBulkSeatError("");
+            };
+
             const handleCSVUpload = (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
@@ -843,6 +901,7 @@
                                     </div>
                                     <div class="w-[1px] h-4 bg-slate-200 mx-1"></div>
                                     <button onClick={() => { setSeatSwapMode(!seatSwapMode); setSwapFirstSeatNo(null); }} class={`p-1.5 rounded-lg border flex items-center gap-1.5 text-xs font-bold transition-all ${seatSwapMode ? 'bg-blue-500 border-blue-500 text-white' : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700'}`} title="명단을 다시 입력하지 않고 자리 두 곳을 탭해서 서로 바꿉니다">🔄<span>자리 교환</span></button>
+                                    <button onClick={openBulkSeatEdit} class="bg-white hover:bg-slate-100 border border-slate-200 p-1.5 rounded-lg text-slate-700 font-bold text-xs flex items-center gap-1" title="여러 명의 자리를 한 번에 번호로 입력합니다">📝<span>자리 일괄 입력</span></button>
                                     <div class="w-[1px] h-4 bg-slate-200 mx-1"></div>
                                     <button onClick={handleTriggerPrint} class="bg-white hover:bg-slate-100 border border-slate-200 p-1.5 rounded-lg text-slate-700 font-bold text-xs flex items-center gap-1"><IconPrinter /><span>PDF 인쇄</span></button>
                                     <button onClick={handleSaveAsImage} class="bg-white hover:bg-slate-100 border border-slate-200 p-1.5 rounded-lg text-slate-700 font-bold text-xs flex items-center gap-1">🖼️<span>이미지 저장</span></button>
@@ -1076,6 +1135,25 @@
                                         <select value={selectedMonthNum} onChange={(e) => setSelectedMonthNum(parseInt(e.target.value, 10))} class="bg-white border border-slate-200 font-bold text-[10px] py-1.5 px-2 rounded-lg focus:outline-none min-h-[32px]">
                                             {monthNumOptions.map(m => <option key={m} value={m}>{m}월</option>)}
                                         </select>
+                                        {seatHistory.length > 0 && (
+                                            <select
+                                                value=""
+                                                onChange={(e) => {
+                                                    const record = seatHistory.find(r => r.id === e.target.value);
+                                                    if (record) handleRestoreSeatHistory(record);
+                                                }}
+                                                title="보고 있는 달에 맞춰 저장해둔 자리배치를 불러옵니다"
+                                                class="bg-white border border-slate-200 font-bold text-[10px] py-1.5 px-2 rounded-lg focus:outline-none min-h-[32px] max-w-[130px]"
+                                            >
+                                                <option value="" disabled>🪑 자리배치 불러오기</option>
+                                                {seatHistory
+                                                    .slice()
+                                                    .sort((a, b) => (a.label === selectedMonth ? -1 : b.label === selectedMonth ? 1 : 0))
+                                                    .map(r => (
+                                                        <option key={r.id} value={r.id}>{r.label === selectedMonth ? `⭐ ${r.label}` : r.label} ({r.savedAt})</option>
+                                                    ))}
+                                            </select>
+                                        )}
                                     </div>
                                 </div>
 
@@ -1121,18 +1199,18 @@
                                             <div class="text-blue-500">토</div>
                                         </div>
                                         {/* Calendar Grid cells */}
-                                        <div class="grid grid-cols-7 gap-1">
+                                        <div class="grid grid-cols-7 gap-1 items-stretch">
                                             {calendarCells.map((cell, idx) => {
                                                 if (!cell.day) {
-                                                    return <div key={`empty-${idx}`} class="h-16 bg-slate-50/50 rounded-lg border border-slate-100/50"></div>;
+                                                    return <div key={`empty-${idx}`} class="min-h-[64px] bg-slate-50/50 rounded-lg border border-slate-100/50"></div>;
                                                 }
                                                 const dayLogs = attendanceLogs.filter(log => log.date === cell.dateStr);
                                                 const isToday = cell.dateStr === currentDate;
 
                                                 return (
-                                                    <div key={cell.dateStr} class={`h-16 border rounded-lg p-1 flex flex-col justify-between transition-colors ${isToday ? 'border-blue-300 bg-blue-50/30' : 'border-slate-100 bg-white hover:bg-slate-50/80'}`}>
+                                                    <div key={cell.dateStr} class={`min-h-[64px] border rounded-lg p-1 flex flex-col gap-0.5 transition-colors ${isToday ? 'border-blue-300 bg-blue-50/30' : 'border-slate-100 bg-white hover:bg-slate-50/80'}`}>
                                                         <span class={`text-[9px] font-bold ${isToday ? 'text-blue-600 font-extrabold' : 'text-slate-400'}`}>{cell.day}</span>
-                                                        <div class="flex-1 overflow-y-auto flex flex-col gap-0.5 mt-1 max-h-[38px] pr-0.5">
+                                                        <div class="flex flex-col gap-0.5">
                                                             {dayLogs.map(log => {
                                                                 const student = students.find(s => s.id === log.studentId);
                                                                 const name = student ? student.name : "알수없음";
@@ -1142,7 +1220,7 @@
                                                                     <div 
                                                                         key={log.id} 
                                                                         onClick={(e) => { e.stopPropagation(); handleEditLog(log); }}
-                                                                        class={`text-[8px] leading-tight px-1 py-0.5 rounded border truncate cursor-pointer hover:brightness-95 ${badgeStyle}`}
+                                                                        class={`text-[8px] leading-tight px-1 py-0.5 rounded border break-words cursor-pointer hover:brightness-95 ${badgeStyle}`}
                                                                         title={`${name} (${getStatusLabel(log.status)}) - 클릭 시 수정`}
                                                                     >
                                                                         {name}({statusChar})
@@ -1301,6 +1379,43 @@
                                         <button type="button" onClick={closeModal} class="flex-1 bg-white hover:bg-slate-50 text-slate-600 font-bold text-xs py-2 rounded-xl border border-slate-200">취소</button>
                                         <button type="button" onClick={handleSaveAttendance} class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs py-2 rounded-xl">저장 및 업데이트</button>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 자리 번호 일괄 입력 모달 */}
+                    {isBulkSeatEditOpen && (
+                        <div class="fixed inset-0 bg-slate-900/30 backdrop-blur-[1px] flex items-center justify-center p-4 z-50 no-print">
+                            <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-100 flex flex-col max-h-[85vh]">
+                                <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
+                                    <div>
+                                        <h4 class="text-sm font-bold">자리 번호 일괄 입력</h4>
+                                        <p class="text-[10px] text-slate-400 mt-0.5">이름 옆에 자리 번호만 쭉 적어주세요. 비워두면 '자리 없음' 처리됩니다.</p>
+                                    </div>
+                                    <button onClick={cancelBulkSeatEdit} class="text-slate-400 hover:text-white p-1"><IconX /></button>
+                                </div>
+                                <div class="p-4 flex-1 overflow-y-auto">
+                                    <div class="grid grid-cols-2 gap-2">
+                                        {bulkSeatDraft.map(d => (
+                                            <div key={d.id} class="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-lg px-2 py-1.5">
+                                                <span class="text-xs font-bold text-slate-700 flex-1 truncate">{d.name}</span>
+                                                <input
+                                                    type="text"
+                                                    inputMode="numeric"
+                                                    value={d.seatNo}
+                                                    onChange={(e) => updateBulkSeatValue(d.id, e.target.value)}
+                                                    placeholder="번호"
+                                                    class="w-14 bg-white border border-slate-200 rounded-md px-1.5 py-1 text-xs font-bold text-center focus:outline-none"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                {bulkSeatError && <div class="mx-4 mb-2 bg-rose-50 border border-rose-100 text-rose-600 text-[10px] font-bold p-2 rounded-lg">{bulkSeatError}</div>}
+                                <div class="p-4 pt-2 flex gap-2 border-t border-slate-100">
+                                    <button onClick={cancelBulkSeatEdit} class="flex-1 bg-white hover:bg-slate-50 text-slate-600 font-bold text-xs py-2 rounded-xl border border-slate-200">취소</button>
+                                    <button onClick={applyBulkSeatEdit} class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs py-2 rounded-xl">일괄 적용</button>
                                 </div>
                             </div>
                         </div>
