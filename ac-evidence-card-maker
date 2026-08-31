@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>근거카드 제작기</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/webfontworld/freesentation/Freesentation.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  * { font-family: 'Freesentation', 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
+  body { background-color: #f8fafc; color: #0f172a; }
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 9999px; }
+  .method-btn.selected-indigo { background:#4f46e5; border-color:#4f46e5; color:#fff; box-shadow:0 10px 15px -3px rgba(79,70,229,.2);}
+  .method-btn.selected-violet { background:#7c3aed; border-color:#7c3aed; color:#fff; box-shadow:0 10px 15px -3px rgba(124,58,237,.2);}
+  .method-btn.selected-sky { background:#0284c7; border-color:#0284c7; color:#fff; box-shadow:0 10px 15px -3px rgba(2,132,199,.2);}
+  .method-btn.selected-amber { background:#f59e0b; border-color:#f59e0b; color:#fff; box-shadow:0 10px 15px -3px rgba(245,158,11,.2);}
+  .method-btn .desc-idle { color:#94a3b8; }
+  .method-btn .desc-selected { color:rgba(255,255,255,.85); }
+  .pos-btn.pos-selected-for { background:#0284c7; border-color:#0284c7; color:#fff; box-shadow:0 10px 15px -3px rgba(2,132,199,.2);}
+  .pos-btn.pos-selected-against { background:#e11d48; border-color:#e11d48; color:#fff; box-shadow:0 10px 15px -3px rgba(225,29,72,.2);}
+</style>
+</head>
+<body class="min-h-screen pb-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+
+    <div id="toast" class="fixed top-5 right-5 z-50 px-5 py-3 rounded-2xl shadow-xl border text-sm font-bold items-center gap-2 hidden"></div>
+
+    <!-- Header -->
+    <header class="mb-8 text-center border-b border-slate-200 pb-6">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold rounded-full mb-3">
+        <i class="fa-solid fa-scale-balanced text-indigo-500"></i>
+        <span>교실 에어컨 26도 제한, 찬성일까 반대일까? (2차시)</span>
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">근거카드 제작기</h1>
+      <p class="text-slate-600 text-sm sm:text-base mt-2 max-w-3xl mx-auto leading-relaxed">
+        에어컨 온도 제한에 대한 나의 입장을 정하고, AI가 찾아준 근거를 팩트체크한 뒤 검증 과정을 캡처해 첨부하여 근거 카드를 완성하세요.
+      </p>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+      <!-- LEFT: Input Form -->
+      <div class="lg:col-span-6 bg-white p-6 sm:p-7 rounded-3xl shadow-sm border border-slate-200 space-y-6">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+          <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-file-pen text-indigo-600"></i><span>내용 입력하기</span>
+          </h2>
+          <span class="text-xs text-slate-400">Ctrl + V 키로 이미지 붙여넣기 가능</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1.5">학년 / 반 / 번호</label>
+            <input id="schoolClass" type="text" placeholder="예: 1학년 2반 15번"
+              class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1.5">이름</label>
+            <input id="studentName" type="text" placeholder="이름 입력"
+              class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1.5">⚖️ 나의 입장 — 에어컨 26도 제한에 대해</label>
+          <div class="grid grid-cols-2 gap-3">
+            <button type="button" data-pos="찬성" class="pos-btn py-3 rounded-xl border-2 font-extrabold text-sm transition-all flex items-center justify-center gap-2 bg-white border-slate-200 text-slate-500 hover:border-sky-300 hover:bg-sky-50/50">
+              <i class="fa-solid fa-thumbs-up"></i><span>찬성</span>
+            </button>
+            <button type="button" data-pos="반대" class="pos-btn py-3 rounded-xl border-2 font-extrabold text-sm transition-all flex items-center justify-center gap-2 bg-white border-slate-200 text-slate-500 hover:border-rose-300 hover:bg-rose-50/50">
+              <i class="fa-solid fa-thumbs-down"></i><span>반대</span>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1.5">📝 나의 근거 (AI에게 찾은 근거 중 1개)</label>
+          <textarea id="reason" rows="3" placeholder="예: 실내외 온도 차이가 5도를 넘으면 냉방병 위험이 커지므로, 26도 제한은 건강 보호에 도움이 된다."
+            class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition outline-none resize-none"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1.5">🔍 팩트체크 방법 (사용한 방법 1개 선택)</label>
+          <div class="grid grid-cols-2 gap-2.5" id="methodGrid">
+            <button type="button" data-method="reference" data-color="indigo" class="method-btn text-left p-3 rounded-xl border-2 transition-all bg-white border-slate-200 text-slate-600 hover:border-indigo-300 hover:bg-indigo-50/50">
+              <div class="flex items-center gap-2 mb-0.5">
+                <i class="fa-solid fa-book text-sm icon-idle text-indigo-500"></i>
+                <span class="text-xs font-extrabold">전문 자료 대조</span>
+              </div>
+              <p class="text-[11px] leading-snug desc-idle">교과서·전문 서적과 비교</p>
+            </button>
+            <button type="button" data-method="crossAI" data-color="violet" class="method-btn text-left p-3 rounded-xl border-2 transition-all bg-white border-slate-200 text-slate-600 hover:border-violet-300 hover:bg-violet-50/50">
+              <div class="flex items-center gap-2 mb-0.5">
+                <i class="fa-solid fa-robot text-sm icon-idle text-violet-500"></i>
+                <span class="text-xs font-extrabold">다른 AI로 교차 확인</span>
+              </div>
+              <p class="text-[11px] leading-snug desc-idle">다른 AI에게 같은 질문 재확인</p>
+            </button>
+            <button type="button" data-method="webSearch" data-color="sky" class="method-btn text-left p-3 rounded-xl border-2 transition-all bg-white border-slate-200 text-slate-600 hover:border-sky-300 hover:bg-sky-50/50">
+              <div class="flex items-center gap-2 mb-0.5">
+                <i class="fa-solid fa-globe text-sm icon-idle text-sky-500"></i>
+                <span class="text-xs font-extrabold">인터넷 자료 탐색</span>
+              </div>
+              <p class="text-[11px] leading-snug desc-idle">뉴스·공공데이터 등 검색</p>
+            </button>
+            <button type="button" data-method="reprompt" data-color="amber" class="method-btn text-left p-3 rounded-xl border-2 transition-all bg-white border-slate-200 text-slate-600 hover:border-amber-300 hover:bg-amber-50/50">
+              <div class="flex items-center gap-2 mb-0.5">
+                <i class="fa-solid fa-rotate text-sm icon-idle text-amber-500"></i>
+                <span class="text-xs font-extrabold">다시 질문하기</span>
+              </div>
+              <p class="text-[11px] leading-snug desc-idle">질문을 바꿔 같은 AI에 재질문</p>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1.5">📸 팩트체크 증거 캡처 (검증 과정이 보이는 화면)</label>
+          <div class="border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center bg-slate-50/70 hover:bg-slate-50 transition">
+            <p class="text-xs font-semibold text-slate-600 mb-2">
+              <i class="fa-solid fa-images mr-1.5 text-indigo-500"></i> 이미지 파일 선택 (여러 장 선택 가능) 또는 Ctrl+V
+            </p>
+            <input id="imageInput" type="file" accept="image/*" multiple
+              class="block w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+            <div id="thumbWrap" class="mt-4 space-y-2 hidden">
+              <p class="text-xs text-slate-500 font-bold text-left">첨부된 이미지 (<span id="thumbCount">0</span>장)</p>
+              <div id="thumbGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-60 overflow-y-auto p-1 custom-scrollbar"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Preview -->
+      <div class="lg:col-span-6 lg:sticky lg:top-8 space-y-4">
+        <div class="flex justify-between items-center">
+          <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-eye text-emerald-600"></i><span>저장용 근거 카드 미리보기</span>
+          </h2>
+          <span class="text-xs font-medium text-slate-400 bg-slate-200/60 px-2.5 py-1 rounded-full">실시간 반영 중</span>
+        </div>
+
+        <div id="evidence-card" class="bg-white p-7 sm:p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200 space-y-6">
+          <div class="flex justify-between items-start border-b border-slate-100 pb-4">
+            <div>
+              <span class="inline-block px-2.5 py-1 bg-rose-100 text-rose-700 text-[11px] font-black rounded-md tracking-wider uppercase mb-1">에어컨 26도 제한 찬반 근거</span>
+              <h3 class="text-xl sm:text-2xl font-black text-slate-900 leading-snug">근거 카드</h3>
+            </div>
+            <div class="text-right shrink-0">
+              <p id="pv-class" class="text-xs text-slate-500 font-semibold">학년/반/번 미입력</p>
+              <p id="pv-name" class="text-sm font-bold text-slate-800">학생 이름</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <span id="pv-position" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-black bg-slate-100 text-slate-400">
+              <i class="fa-solid fa-circle-question"></i><span>입장 미선택</span>
+            </span>
+            <span id="pv-method" class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border"></span>
+          </div>
+
+          <div class="bg-slate-50 border border-slate-100 p-5 rounded-2xl space-y-1.5">
+            <p class="text-xs font-bold text-slate-500 flex items-center gap-1.5">
+              <i class="fa-solid fa-quote-left text-slate-400"></i><span>나의 근거</span>
+            </p>
+            <p id="pv-reason" class="text-sm sm:text-base text-slate-900 leading-relaxed whitespace-pre-wrap font-semibold">근거를 입력하면 이 곳에 표시됩니다.</p>
+          </div>
+
+          <div class="space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+              <p class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <i class="fa-solid fa-photo-film text-indigo-500"></i><span>팩트체크 증거 캡처</span>
+              </p>
+              <span class="text-[11px] font-semibold text-slate-400">총 <span id="pv-imgcount">0</span>장</span>
+            </div>
+            <div id="pv-images-empty" class="py-8 px-4 border-2 border-dashed border-slate-200 rounded-2xl text-center bg-slate-50/50">
+              <i class="fa-solid fa-image text-slate-300 text-3xl mb-2 block"></i>
+              <p class="text-xs text-slate-400 font-medium">팩트체크 과정이 담긴 캡처 이미지를 왼쪽 폼에 첨부해주세요.</p>
+            </div>
+            <div id="pv-images" class="space-y-3"></div>
+          </div>
+
+          <div class="pt-3 border-t border-dashed border-slate-200 text-center">
+            <p class="text-[11px] font-medium text-slate-400">에어컨과 우리 교실의 과학 · 근거카드 제작기</p>
+          </div>
+        </div>
+
+        <div class="pt-2 space-y-2.5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button id="btnDownload" class="py-3.5 px-4 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-extrabold rounded-2xl shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50">
+              <i class="fa-solid fa-download"></i><span>이미지 카드로 저장하기 (.png)</span>
+            </button>
+            <button id="btnCopy" class="py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-extrabold rounded-2xl shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50">
+              <i class="fa-solid fa-copy"></i><span>클립보드에 복사하기</span>
+            </button>
+          </div>
+          <p class="text-xs text-center text-slate-500 flex items-center justify-center gap-1 pt-1">
+            <i class="fa-solid fa-circle-info text-indigo-400"></i>
+            <span>저장 또는 복사한 이미지를 패들렛(Padlet) 등에 업로드해 친구들과 공유해보세요!</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <footer class="mt-12 text-center text-xs text-slate-400 font-medium">교사 김가은 제작</footer>
+  </div>
+
+<script>
+  const METHODS = {
+    reference: { label: '전문 자료 대조', icon: 'fa-book', color: 'indigo' },
+    crossAI:   { label: '다른 AI로 교차 확인', icon: 'fa-robot', color: 'violet' },
+    webSearch: { label: '인터넷 자료 탐색', icon: 'fa-globe', color: 'sky' },
+    reprompt:  { label: '다시 질문하기', icon: 'fa-rotate', color: 'amber' },
+  };
+  const TAG_CLASSES = {
+    indigo: 'bg-indigo-50 text-indigo-700 border-indigo-100',
+    violet: 'bg-violet-50 text-violet-700 border-violet-100',
+    sky: 'bg-sky-50 text-sky-700 border-sky-100',
+    amber: 'bg-amber-50 text-amber-700 border-amber-100',
+  };
+
+  const state = { position: '', method: '', images: [] };
+
+  const $ = (id) => document.getElementById(id);
+
+  function showToast(message, type) {
+    const el = $('toast');
+    const palette = {
+      success: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+      error: 'bg-rose-50 text-rose-800 border-rose-200',
+      info: 'bg-indigo-50 text-indigo-800 border-indigo-200',
+    };
+    const icon = { success: 'fa-circle-check text-emerald-500', error: 'fa-circle-exclamation text-rose-500', info: 'fa-circle-info text-indigo-500' }[type || 'info'];
+    el.className = 'fixed top-5 right-5 z-50 px-5 py-3 rounded-2xl shadow-xl border text-sm font-bold flex items-center gap-2 ' + palette[type || 'info'];
+    el.innerHTML = '<i class="fa-solid ' + icon + '"></i><span>' + message + '</span>';
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => { el.className += ' hidden'; }, 3500);
+  }
+
+  function updatePreview() {
+    $('pv-class').textContent = $('schoolClass').value || '학년/반/번 미입력';
+    $('pv-name').textContent = $('studentName').value || '학생 이름';
+    $('pv-reason').textContent = $('reason').value || '근거를 입력하면 이 곳에 표시됩니다.';
+
+    const posEl = $('pv-position');
+    if (state.position === '찬성') {
+      posEl.className = 'inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-black bg-sky-100 text-sky-700';
+      posEl.innerHTML = '<i class="fa-solid fa-thumbs-up"></i><span>찬성</span>';
+    } else if (state.position === '반대') {
+      posEl.className = 'inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-black bg-rose-100 text-rose-700';
+      posEl.innerHTML = '<i class="fa-solid fa-thumbs-down"></i><span>반대</span>';
+    } else {
+      posEl.className = 'inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-black bg-slate-100 text-slate-400';
+      posEl.innerHTML = '<i class="fa-solid fa-circle-question"></i><span>입장 미선택</span>';
+    }
+
+    const methodEl = $('pv-method');
+    if (state.method && METHODS[state.method]) {
+      const m = METHODS[state.method];
+      methodEl.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border ' + TAG_CLASSES[m.color];
+      methodEl.innerHTML = '<i class="fa-solid ' + m.icon + '"></i><span>' + m.label + '</span>';
+      methodEl.classList.remove('hidden');
+    } else {
+      methodEl.classList.add('hidden');
+    }
+
+    $('pv-imgcount').textContent = state.images.length;
+    const imgWrap = $('pv-images');
+    const emptyWrap = $('pv-images-empty');
+    if (state.images.length > 0) {
+      emptyWrap.classList.add('hidden');
+      imgWrap.innerHTML = state.images.map((src) =>
+        '<div class="rounded-2xl overflow-hidden border border-slate-200/80 shadow-xs bg-slate-50/50 p-1">' +
+        '<img src="' + src + '" class="w-full h-auto max-w-full rounded-xl object-contain mx-auto">' +
+        '</div>'
+      ).join('');
+    } else {
+      emptyWrap.classList.remove('hidden');
+      imgWrap.innerHTML = '';
+    }
+  }
+
+  // Position buttons
+  document.querySelectorAll('.pos-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      state.position = btn.dataset.pos;
+      document.querySelectorAll('.pos-btn').forEach((b) => {
+        b.classList.remove('pos-selected-for', 'pos-selected-against');
+        b.className = 'pos-btn py-3 rounded-xl border-2 font-extrabold text-sm transition-all flex items-center justify-center gap-2 bg-white border-slate-200 text-slate-500 ' +
+          (b.dataset.pos === '찬성' ? 'hover:border-sky-300 hover:bg-sky-50/50' : 'hover:border-rose-300 hover:bg-rose-50/50');
+      });
+      btn.classList.add(btn.dataset.pos === '찬성' ? 'pos-selected-for' : 'pos-selected-against');
+      updatePreview();
+    });
+  });
+
+  // Method buttons
+  document.querySelectorAll('.method-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      state.method = btn.dataset.method;
+      document.querySelectorAll('.method-btn').forEach((b) => {
+        const color = b.dataset.color;
+        b.classList.remove('selected-indigo', 'selected-violet', 'selected-sky', 'selected-amber');
+        b.className = 'method-btn text-left p-3 rounded-xl border-2 transition-all bg-white border-slate-200 text-slate-600 hover:border-' + color + '-300 hover:bg-' + color + '-50/50';
+        const desc = b.querySelector('p');
+        desc.className = 'text-[11px] leading-snug desc-idle';
+      });
+      btn.classList.add('selected-' + btn.dataset.color);
+      btn.querySelector('p').className = 'text-[11px] leading-snug desc-selected';
+      updatePreview();
+    });
+  });
+
+  $('schoolClass').addEventListener('input', updatePreview);
+  $('studentName').addEventListener('input', updatePreview);
+  $('reason').addEventListener('input', updatePreview);
+
+  function addImageFiles(files) {
+    if (!files || files.length === 0) return;
+    Array.from(files).forEach((file) => {
+      if (!file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        state.images.push(reader.result);
+        renderThumbs();
+        updatePreview();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderThumbs() {
+    const wrap = $('thumbWrap');
+    const grid = $('thumbGrid');
+    $('thumbCount').textContent = state.images.length;
+    if (state.images.length > 0) {
+      wrap.classList.remove('hidden');
+      grid.innerHTML = state.images.map((src, idx) =>
+        '<div class="relative group rounded-xl overflow-hidden border border-slate-200 bg-white shadow-xs">' +
+        '<img src="' + src + '" class="w-full h-24 object-cover">' +
+        '<span class="absolute bottom-1 left-1 bg-slate-900/70 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">#' + (idx + 1) + '</span>' +
+        '<button data-idx="' + idx + '" class="remove-img absolute top-1 right-1 bg-rose-500 hover:bg-rose-600 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center shadow transition">✕</button>' +
+        '</div>'
+      ).join('');
+      grid.querySelectorAll('.remove-img').forEach((b) => {
+        b.addEventListener('click', () => {
+          state.images.splice(parseInt(b.dataset.idx, 10), 1);
+          renderThumbs();
+          updatePreview();
+        });
+      });
+    } else {
+      wrap.classList.add('hidden');
+      grid.innerHTML = '';
+    }
+  }
+
+  $('imageInput').addEventListener('change', (e) => {
+    addImageFiles(e.target.files);
+    e.target.value = '';
+  });
+
+  document.addEventListener('paste', (e) => {
+    const items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    const files = [];
+    for (const item of items) {
+      if (item.type.indexOf('image') !== -1) {
+        const file = item.getAsFile();
+        if (file) files.push(file);
+      }
+    }
+    if (files.length > 0) {
+      addImageFiles(files);
+      showToast('클립보드 이미지가 추가되었습니다!', 'success');
+    }
+  });
+
+  function withGenerating(btn, fn) {
+    btn.disabled = true;
+    const original = btn.innerHTML;
+    return fn().finally(() => {
+      btn.disabled = false;
+      btn.innerHTML = original;
+    });
+  }
+
+  $('btnDownload').addEventListener('click', function () {
+    const btn = this;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>생성 중...</span>';
+    withGenerating(btn, () =>
+      html2canvas(document.getElementById('evidence-card'), { scale: 3, useCORS: true, backgroundColor: '#ffffff', logging: false })
+        .then((canvas) => {
+          const link = document.createElement('a');
+          link.href = canvas.toDataURL('image/png');
+          link.download = '근거카드_' + ($('studentName').value || '학생') + '.png';
+          link.click();
+          showToast('근거 카드가 PNG 파일로 저장되었습니다.', 'success');
+        })
+        .catch((err) => {
+          console.error(err);
+          showToast('이미지 저장 중 오류가 발생했습니다.', 'error');
+        })
+    );
+  });
+
+  $('btnCopy').addEventListener('click', function () {
+    const btn = this;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>생성 중...</span>';
+    withGenerating(btn, () =>
+      html2canvas(document.getElementById('evidence-card'), { scale: 3, useCORS: true, backgroundColor: '#ffffff', logging: false })
+        .then((canvas) => new Promise((resolve, reject) => {
+          canvas.toBlob((blob) => {
+            if (!blob) { reject(new Error('no blob')); return; }
+            navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+              .then(() => { showToast('클립보드에 이미지가 복사되었습니다!', 'success'); resolve(); })
+              .catch((err) => {
+                console.error(err);
+                showToast('클립보드 복사 기능을 지원하지 않거나 권한이 없습니다. 이미지 저장 버튼을 사용해 주세요.', 'error');
+                resolve();
+              });
+          }, 'image/png');
+        }))
+        .catch((err) => {
+          console.error(err);
+          showToast('클립보드 복사 중 오류가 발생했습니다.', 'error');
+        })
+    );
+  });
+
+  updatePreview();
+</script>
+</body>
+</html>
