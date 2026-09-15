@@ -176,6 +176,8 @@
             }
         };
 
+        const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
+
         function App() {
             // LocalStorage Core - Safely wrapped in Try/Catch to prevent crash
             const [students, setStudents] = useState(() => {
@@ -212,6 +214,9 @@
 
             // Timeline/Calendar View toggle: 'calendar' | 'timeline'
             const [rightPanelTab, setRightPanelTab] = useState('calendar');
+            // 타임라인 뷰는 기본적으로 그 달 1일~말일을 전부 보여준다.
+            // 목록이 길어서 스크롤이 부담스러울 때만 이 옵션으로 기록 있는 날만 추려본다.
+            const [hideEmptyDays, setHideEmptyDays] = useState(false);
 
             // Timeline Edit states
             const [editingLog, setEditingLog] = useState(null);
@@ -384,6 +389,59 @@
                     .sort((a, b) => new Date(b) - new Date(a))
                     .map(date => ({ date, logs: groups[date] }));
             }, [attendanceLogs, selectedMonth, currentDate, students]);
+
+            // 타임라인 뷰 전용: 선택한 달의 1일부터 말일까지 '모든 날짜'를 빠짐없이 만들고,
+            // 각 날짜에 그날의 출결 기록(교시·사유분류·상세사유·서류 제출 상태 포함)을 붙여준다.
+            // 기록이 없는 날도 '전원 정상 등교' 줄로 남겨서 달 전체를 한눈에 확인할 수 있게 한다.
+            const monthlyDailyRows = useMemo(() => {
+                const [year, month] = selectedMonth.split('-').map(Number);
+                const daysInMonth = new Date(year, month, 0).getDate();
+                const rows = [];
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                    const weekdayIndex = new Date(year, month - 1, d).getDay();
+                    const logs = attendanceLogs
+                        .filter(log => log.date === dateStr)
+                        .map(log => {
+                            const student = students.find(s => s.id === log.studentId);
+                            return {
+                                ...log,
+                                studentName: student ? student.name : "이름 없음",
+                                seatNo: student ? student.seatNo : null,
+                                calculatedStatus: calculateDocStatus(log.date, log.isDocumentCompleted, currentDate)
+                            };
+                        })
+                        .sort((a, b) => {
+                            const order = { absent: 0, late: 1, early: 2 };
+                            const diff = (order[a.status] ?? 9) - (order[b.status] ?? 9);
+                            if (diff !== 0) return diff;
+                            return (a.seatNo || 999) - (b.seatNo || 999);
+                        });
+                    const counts = { absent: 0, late: 0, early: 0, pendingDoc: 0 };
+                    logs.forEach(log => {
+                        counts[log.status] = (counts[log.status] || 0) + 1;
+                        if (!log.isDocumentCompleted) counts.pendingDoc += 1;
+                    });
+                    rows.push({ dateStr, day: d, weekdayIndex, weekday: WEEKDAY_LABELS[weekdayIndex], logs, counts });
+                }
+                return rows;
+            }, [attendanceLogs, selectedMonth, currentDate, students]);
+
+            const visibleDailyRows = useMemo(() => {
+                return hideEmptyDays ? monthlyDailyRows.filter(row => row.logs.length > 0) : monthlyDailyRows;
+            }, [monthlyDailyRows, hideEmptyDays]);
+
+            // 해당 월 전체 합계 (타임라인 상단 요약줄에 표시)
+            const monthlyTotals = useMemo(() => {
+                const totals = { absent: 0, late: 0, early: 0, pendingDoc: 0 };
+                monthlyDailyRows.forEach(row => {
+                    totals.absent += row.counts.absent || 0;
+                    totals.late += row.counts.late || 0;
+                    totals.early += row.counts.early || 0;
+                    totals.pendingDoc += row.counts.pendingDoc || 0;
+                });
+                return totals;
+            }, [monthlyDailyRows]);
 
             // Per-student monthly stats (absence/late/early counts) for the '통계' tab
             const studentMonthlyStats = useMemo(() => {
@@ -759,6 +817,31 @@
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = `출결통계_${selectedMonth}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            };
+
+            // 타임라인 뷰 내용을 그대로 CSV로 내보내기 (날짜 · 요일 · 이름 · 구분 · 교시 · 사유분류 · 상세사유 · 서류상태)
+            const handleExportTimelineCSV = () => {
+                const header = "날짜,요일,이름,구분,교시,사유분류,상세사유,서류상태\n";
+                const lines = [];
+                monthlyDailyRows.forEach(row => {
+                    if (row.logs.length === 0) return;
+                    row.logs.forEach(log => {
+                        const docText = log.isDocumentCompleted ? "제출완료" : (log.calculatedStatus === 'overdue' ? "미제출(3일경과)" : "대기");
+                        const periodText = log.status === 'absent' ? "종일" : (log.period || "-");
+                        const memoText = (log.memo || "").replace(/,/g, ' ');
+                        lines.push(`${row.dateStr},${row.weekday},${log.studentName},${getStatusLabel(log.status)},${periodText},${getTypeLabel(log.type)},${memoText},${docText}`);
+                    });
+                });
+                const csv = "\uFEFF" + header + lines.join("\n");
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `출결타임라인_${selectedMonth}.csv`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -1234,38 +1317,96 @@
                                         </div>
                                     </div>
                                 ) : (
-                                    /* TIMELINE VIEW (ORIGINAL LIST VIEW) */
-                                    <div>
-                                        {monthlyGroupedLogs.length === 0 ? (
-                                            <div class="py-16 text-center text-slate-400 font-medium bg-slate-50/50 rounded-xl border border-dashed border-slate-200 text-xs">선택하신 월에 집계된 조퇴/결석 히스토리가 없습니다.</div>
+                                    /* TIMELINE VIEW: 선택한 달 1일 ~ 말일 전체를 날짜순으로, 교시·사유·서류 현황까지 모두 표시 */
+                                    <div class="flex flex-col gap-3">
+                                        {/* 상단 요약 + 보기 옵션 */}
+                                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
+                                            <div class="flex flex-wrap items-center gap-1.5 text-[10px] font-bold">
+                                                <span class="text-slate-500 font-mono">{selectedMonth}</span>
+                                                <span class="bg-rose-50 text-rose-600 border border-rose-100 px-1.5 py-0.5 rounded">결석 {monthlyTotals.absent}</span>
+                                                <span class="bg-amber-50 text-amber-600 border border-amber-100 px-1.5 py-0.5 rounded">지각 {monthlyTotals.late}</span>
+                                                <span class="bg-purple-50 text-purple-600 border border-purple-100 px-1.5 py-0.5 rounded">조퇴 {monthlyTotals.early}</span>
+                                                <span class={`px-1.5 py-0.5 rounded border ${monthlyTotals.pendingDoc > 0 ? 'bg-white text-rose-600 border-rose-200' : 'bg-white text-emerald-600 border-emerald-200'}`}>서류 미수거 {monthlyTotals.pendingDoc}</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 no-print shrink-0">
+                                                <label class="flex items-center gap-1 text-[10px] font-bold text-slate-500 cursor-pointer">
+                                                    <input type="checkbox" checked={hideEmptyDays} onChange={(e) => setHideEmptyDays(e.target.checked)} class="accent-blue-500" />
+                                                    기록 있는 날만 보기
+                                                </label>
+                                                <button onClick={handleExportTimelineCSV} class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-100 text-[10px] font-bold py-1 px-2.5 rounded-lg">📥 CSV</button>
+                                            </div>
+                                        </div>
+
+                                        {visibleDailyRows.length === 0 ? (
+                                            <div class="py-16 text-center text-slate-400 font-medium bg-slate-50/50 rounded-xl border border-dashed border-slate-200 text-xs">선택하신 월에 집계된 결석/지각/조퇴 기록이 없습니다.</div>
                                         ) : (
-                                            <div class="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-1">
-                                                {monthlyGroupedLogs.map(group => (
-                                                    <div key={group.date} class="border border-slate-200 rounded-xl overflow-hidden">
-                                                        <div class="bg-slate-50 border-b border-slate-200 py-1.5 px-3 flex justify-between items-center text-[11px] font-bold text-slate-600 font-mono">
-                                                            <span>{group.date}</span>
-                                                        </div>
-                                                        <div class="divide-y divide-slate-100 bg-white">
-                                                            {group.logs.map(log => (
-                                                                <div key={log.id} class="p-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs">
-                                                                    <div class="flex flex-wrap items-center gap-1.5 min-w-0">
-                                                                        <span class="font-bold text-slate-800 min-w-[50px]">{log.studentName}</span>
-                                                                        <span class={`text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 ${getStatusBadgeStyle(log.status)}`}>{log.status === 'absent' ? '결석' : log.status === 'late' ? `지각(${log.period})` : `조퇴(${log.period})`}</span>
-                                                                        <span class={`text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 ${getTypeColorClass(log.type)}`}>{getTypeLabel(log.type)}</span>
-                                                                        <span class="text-slate-400 text-[10px] italic break-words">"{log.memo || '비고 없음'}"</span>
-                                                                    </div>
-                                                                    <div class="flex flex-wrap items-center gap-1.5 no-print shrink-0">
-                                                                        <button onClick={() => toggleDocumentCompletion(log.id)} class={`text-[9px] font-bold py-1 px-2 rounded-md border ${log.isDocumentCompleted ? 'bg-slate-50 border-slate-200 text-slate-500' : 'bg-emerald-50 border-emerald-200 text-emerald-700'}`}>
-                                                                            {log.isDocumentCompleted ? '제출취소' : '수거완료'}
-                                                                        </button>
-                                                                        <button onClick={() => handleEditLog(log)} class="text-[9px] font-bold py-1 px-2 rounded-md border bg-blue-50 border-blue-100 text-blue-700 flex items-center gap-0.5"><IconEdit />수정</button>
-                                                                        <button onClick={() => handleDeleteLog(log.id)} class="text-[9px] font-bold py-1 px-2 rounded-md border bg-rose-50 border-rose-100 text-rose-700 flex items-center gap-0.5"><IconTrash />삭제</button>
-                                                                    </div>
+                                            <div class="flex flex-col gap-2">
+                                                {visibleDailyRows.map(row => {
+                                                    const isToday = row.dateStr === currentDate;
+                                                    const hasLogs = row.logs.length > 0;
+                                                    return (
+                                                        <div key={row.dateStr} class={`border rounded-xl overflow-hidden ${isToday ? 'border-blue-200' : hasLogs ? 'border-slate-200' : 'border-slate-100'}`}>
+                                                            {/* 날짜 머리줄 */}
+                                                            <div class={`py-1.5 px-3 flex flex-wrap justify-between items-center gap-1.5 text-[11px] font-bold border-b ${isToday ? 'bg-blue-50/60 border-blue-100 text-blue-700' : hasLogs ? 'bg-slate-50 border-slate-200 text-slate-600' : 'bg-slate-50/40 border-slate-100 text-slate-400'}`}>
+                                                                <span class="flex items-center gap-1.5">
+                                                                    <span class="font-mono">{row.dateStr}</span>
+                                                                    <span class={row.weekdayIndex === 0 ? 'text-rose-500' : row.weekdayIndex === 6 ? 'text-blue-500' : 'text-slate-400'}>({row.weekday})</span>
+                                                                    {isToday && <span class="bg-blue-500 text-white text-[8px] px-1.5 py-0.5 rounded-full">오늘</span>}
+                                                                </span>
+                                                                {hasLogs ? (
+                                                                    <span class="flex flex-wrap items-center gap-1 text-[9px]">
+                                                                        {row.counts.absent > 0 && <span class="bg-rose-50 text-rose-600 border border-rose-100 px-1.5 py-0.5 rounded">결석 {row.counts.absent}</span>}
+                                                                        {row.counts.late > 0 && <span class="bg-amber-50 text-amber-600 border border-amber-100 px-1.5 py-0.5 rounded">지각 {row.counts.late}</span>}
+                                                                        {row.counts.early > 0 && <span class="bg-purple-50 text-purple-600 border border-purple-100 px-1.5 py-0.5 rounded">조퇴 {row.counts.early}</span>}
+                                                                        {row.counts.pendingDoc > 0 && <span class="bg-white text-rose-600 border border-rose-200 px-1.5 py-0.5 rounded">서류 {row.counts.pendingDoc}건 미수거</span>}
+                                                                    </span>
+                                                                ) : (
+                                                                    <span class="text-[9px] font-medium text-slate-300">전원 정상 등교</span>
+                                                                )}
+                                                            </div>
+
+                                                            {/* 그날의 상세 기록 */}
+                                                            {hasLogs && (
+                                                                <div class="divide-y divide-slate-100 bg-white">
+                                                                    {row.logs.map(log => (
+                                                                        <div key={log.id} class="p-2.5 flex flex-col gap-1.5">
+                                                                            <div class="flex flex-wrap items-center gap-1.5">
+                                                                                <span class="font-bold text-slate-800 text-xs">
+                                                                                    {log.studentName}
+                                                                                    {log.seatNo && <span class="text-slate-300 font-mono text-[9px] ml-1">#{log.seatNo}</span>}
+                                                                                </span>
+                                                                                <span class={`text-[9px] font-bold px-1.5 py-0.5 rounded ${getStatusBadgeStyle(log.status)}`}>
+                                                                                    {getStatusLabel(log.status)} · {log.status === 'absent' ? '종일' : (log.period || '교시 미기록')}
+                                                                                </span>
+                                                                                <span class={`text-[9px] font-bold px-1.5 py-0.5 rounded ${getTypeColorClass(log.type)}`}>{getTypeLabel(log.type)}</span>
+                                                                                {log.isDocumentCompleted ? (
+                                                                                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-100">✓ 서류 제출 완료</span>
+                                                                                ) : log.calculatedStatus === 'overdue' ? (
+                                                                                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-50 text-rose-600 border border-rose-100">🚨 서류 미제출 (3일 경과)</span>
+                                                                                ) : (
+                                                                                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-100">⏳ 서류 대기</span>
+                                                                                )}
+                                                                            </div>
+
+                                                                            <p class="text-[10px] text-slate-600 bg-slate-50 border border-slate-100 rounded-lg px-2 py-1.5 leading-relaxed break-words">
+                                                                                <span class="font-bold text-slate-400 mr-1">사유</span>
+                                                                                {log.memo || '상세 사유가 기록되지 않았습니다.'}
+                                                                            </p>
+
+                                                                            <div class="flex flex-wrap items-center gap-1.5 no-print">
+                                                                                <button onClick={() => toggleDocumentCompletion(log.id)} class={`text-[9px] font-bold py-1 px-2 rounded-md border ${log.isDocumentCompleted ? 'bg-slate-50 border-slate-200 text-slate-500' : 'bg-emerald-50 border-emerald-200 text-emerald-700'}`}>
+                                                                                    {log.isDocumentCompleted ? '제출취소' : '수거완료'}
+                                                                                </button>
+                                                                                <button onClick={() => handleEditLog(log)} class="text-[9px] font-bold py-1 px-2 rounded-md border bg-blue-50 border-blue-100 text-blue-700 flex items-center gap-0.5"><IconEdit />수정</button>
+                                                                                <button onClick={() => handleDeleteLog(log.id)} class="text-[9px] font-bold py-1 px-2 rounded-md border bg-rose-50 border-rose-100 text-rose-700 flex items-center gap-0.5"><IconTrash />삭제</button>
+                                                                            </div>
+                                                                        </div>
+                                                                    ))}
                                                                 </div>
-                                                            ))}
+                                                            )}
                                                         </div>
-                                                    </div>
-                                                ))}
+                                                    );
+                                                })}
                                             </div>
                                         )}
                                     </div>
