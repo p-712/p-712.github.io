@@ -234,11 +234,14 @@
 
         function getWeekInfo(weekIndex) {
             const monday = addDays(SEMESTER_START, weekIndex * 7);
-            const month = monday.getMonth() + 1;
-            const weekOfMonth = Math.ceil(monday.getDate() / 7);
+            // 한 주가 두 달에 걸치면 평일의 과반이 속한 달로 표시합니다.
+            // 따라서 8/31(월)~9/4(금)은 목요일인 9/3을 기준으로 '9월 1주차'입니다.
+            const weekReferenceDate = addDays(monday, 3);
+            const month = weekReferenceDate.getMonth() + 1;
+            const weekOfMonth = Math.ceil(weekReferenceDate.getDate() / 7);
             return {
                 monday,
-                label: `${monday.getFullYear()}년 ${month}월 ${weekOfMonth}주차`
+                label: `${weekReferenceDate.getFullYear()}년 ${month}월 ${weekOfMonth}주차`
             };
         }
 
