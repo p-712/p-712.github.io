@@ -123,7 +123,7 @@
                     <div class="flex justify-between items-center bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
                         <div class="flex items-center gap-3">
                             <button onclick="changeWeek(-1)" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-emerald-50 text-emerald-700 font-bold">◀</button>
-                            <span id="display-week" class="text-lg font-extrabold text-emerald-900 w-32 text-center">8월 1주차</span>
+                            <span id="display-week" class="text-lg font-extrabold text-emerald-900 min-w-48 text-center">2026년 8월 3주차</span>
                             <button onclick="changeWeek(1)" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-emerald-50 text-emerald-700 font-bold">▶</button>
                         </div>
                         <button id="btn-swap" onclick="toggleSwapMode()" class="px-4 py-2 text-sm bg-white border-2 border-emerald-500 text-emerald-700 font-bold rounded-xl hover:bg-emerald-50 transition-all">수업 교환 모드</button>
@@ -132,13 +132,13 @@
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden timetable-wrapper">
                         <table class="w-full text-center timetable-table">
                             <thead>
-                                <tr class="bg-gray-50 border-b border-gray-100 h-10">
+                                <tr class="bg-gray-50 border-b border-gray-100 h-12">
                                     <th class="w-12 text-xs font-bold text-gray-400">교시</th>
-                                    <th class="font-bold text-emerald-900 text-sm">월</th>
-                                    <th class="font-bold text-emerald-900 text-sm">화</th>
-                                    <th class="font-bold text-emerald-900 text-sm">수</th>
-                                    <th class="font-bold text-emerald-900 text-sm">목</th>
-                                    <th class="font-bold text-emerald-900 text-sm">금</th>
+                                    <th id="day-header-0" class="font-bold text-emerald-900 text-sm">월<br><span class="text-[11px] text-gray-500">8/17</span></th>
+                                    <th id="day-header-1" class="font-bold text-emerald-900 text-sm">화<br><span class="text-[11px] text-gray-500">8/18</span></th>
+                                    <th id="day-header-2" class="font-bold text-emerald-900 text-sm">수<br><span class="text-[11px] text-gray-500">8/19</span></th>
+                                    <th id="day-header-3" class="font-bold text-emerald-900 text-sm">목<br><span class="text-[11px] text-gray-500">8/20</span></th>
+                                    <th id="day-header-4" class="font-bold text-emerald-900 text-sm">금<br><span class="text-[11px] text-gray-500">8/21</span></th>
                                 </tr>
                             </thead>
                             <tbody id="timetable-body"></tbody>
@@ -220,7 +220,29 @@
 
     <script>
         // --- 초기 상수 및 설정 ---
-        const WEEKS = ["8월 1주차", "8월 2주차", "8월 3주차", "8월 4주차", "9월 1주차", "9월 2주차", "9월 3주차", "9월 4주차", "9월 5주차", "10월 1주차", "10월 2주차", "10월 3주차", "10월 4주차", "11월 1주차", "11월 2주차", "11월 3주차", "11월 4주차", "12월 1주차", "12월 2주차", "12월 3주차", "12월 4주차", "12월 5주차", "1월 1주차"];
+        // 2026학년도 2학기 시작일: 8월 3주차 월요일(8월 17일)
+        // 이후 주차와 날짜는 시작일을 기준으로 자동 계산됩니다.
+        const SEMESTER_START = new Date(2026, 7, 17); // 월은 0부터 시작: 7 = 8월
+        const TOTAL_WEEKS = 23;
+        const DAY_NAMES = ["월", "화", "수", "목", "금"];
+
+        function addDays(date, days) {
+            const result = new Date(date);
+            result.setDate(result.getDate() + days);
+            return result;
+        }
+
+        function getWeekInfo(weekIndex) {
+            const monday = addDays(SEMESTER_START, weekIndex * 7);
+            const month = monday.getMonth() + 1;
+            const weekOfMonth = Math.ceil(monday.getDate() / 7);
+            return {
+                monday,
+                label: `${monday.getFullYear()}년 ${month}월 ${weekOfMonth}주차`
+            };
+        }
+
+        const WEEKS = Array.from({ length: TOTAL_WEEKS }, (_, i) => getWeekInfo(i));
         
         let state = { currentWeek: 0, isSwapMode: false, swapKey: null, editingKey: null };
         
@@ -320,7 +342,14 @@
                 }
                 tbody.appendChild(tr);
             }
-            document.getElementById('display-week').innerText = WEEKS[state.currentWeek];
+            const weekInfo = WEEKS[state.currentWeek];
+            document.getElementById('display-week').innerText = weekInfo.label;
+
+            DAY_NAMES.forEach((dayName, dayIndex) => {
+                const date = addDays(weekInfo.monday, dayIndex);
+                document.getElementById(`day-header-${dayIndex}`).innerHTML =
+                    `${dayName}<br><span class="text-[11px] text-gray-500">${date.getMonth() + 1}/${date.getDate()}</span>`;
+            });
         }
 
         function renderPlans() {
