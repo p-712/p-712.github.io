@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#091629">
+<title>GRAVITY RUN v6 | 중력 탐험대</title>
+<style>
+:root{color-scheme:dark;--bg:#071321;--panel:#10253b;--edge:#31536b;--cyan:#80f0fa;--gold:#ffd18b;--muted:#abc6d9;--red:#ff8a92}*{box-sizing:border-box}body{margin:0;color:#eff8ff;background:radial-gradient(ellipse at 50% -12%,#204e73 0%,#09172b 44%,#050d19 100%);font-family:system-ui,'Malgun Gothic','Apple SD Gothic Neo',sans-serif}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid #8ceef7;outline-offset:2px}#app{max-width:1140px;margin:0 auto;padding:14px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.logo{font-weight:950;letter-spacing:.1em;font-size:25px;color:var(--cyan);text-shadow:0 0 22px #67eaf455}.sub{font-size:12px;color:var(--muted);margin-top:4px}.buttons{display:flex;gap:9px;flex-wrap:wrap}.btn{border:1px solid #5784a3;background:#164160;color:#effbff;padding:10px 15px;border-radius:11px;font-weight:850;transition:filter .15s}.btn:hover{filter:brightness(1.18)}.btn.primary{background:linear-gradient(115deg,#1ea8c2,#3569b8);border-color:#79e3e9}.btn.danger{background:#713341;border-color:#e28991}.btn:disabled{opacity:.4;cursor:not-allowed}.meters{display:grid;grid-template-columns:1.35fr 1fr 1.1fr 1.1fr .85fr .9fr 1fr;gap:8px;margin:12px 0}.meter{min-width:0;border:1px solid #2a4d65;background:#102337;padding:9px 10px;border-radius:12px}.meter small{font-size:10px;color:var(--muted);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.meter strong{font-size:17px;display:block;margin-top:4px;white-space:nowrap}.meter.mass strong{color:var(--cyan)}.meter.weight strong{color:var(--gold)}.meter.lives strong{letter-spacing:3px;color:#ff879c;font-size:19px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 262px;gap:12px}.frame{position:relative;overflow:hidden;border-radius:17px;border:1px solid #375c78;background:#091629;box-shadow:0 22px 70px #0006}canvas{width:100%;height:auto;display:block;aspect-ratio:960/510;touch-action:none}.overlay{position:absolute;inset:0;background:#030b1bdf;z-index:3;display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto}.overlay.hidden{display:none}.modal{width:min(540px,100%);border-radius:17px;border:1px solid #4786a6;background:linear-gradient(145deg,#173754,#0c1b30);padding:23px;box-shadow:0 24px 70px #000b}.modal h1{font-size:25px;line-height:1.3;color:#bef9ff;margin:0 0 9px}.modal h2{font-size:22px;color:#bef9ff;margin:0 0 9px}.modal p{font-size:13px;line-height:1.7;color:#c4d8e7}.modal label{font-size:13px;font-weight:750}.modal input{width:100%;border:1px solid #6594ac;color:#fff;background:#091a2e;border-radius:10px;padding:12px;margin:8px 0 12px}.tag{display:inline-flex;align-items:center;gap:6px;border-radius:9px;background:#225469;color:#b4f5ff;font-size:11px;font-weight:850;padding:5px 9px;margin-bottom:12px}.statline{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid #2b4d64;font-size:13px}.muted{color:#a8c6d9!important}.correct{color:#97f9b1!important}.error{color:#ffabaf!important}.choice{display:block;width:100%;text-align:left;margin:8px 0;padding:13px;background:#143650;border:1px solid #446982;border-radius:10px;color:#f2fbff}.choice:hover{background:#20516b}.smallnote{font-size:11px!important;color:#98b9ce!important}.touch{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:10px 0}.touch button{height:64px;border-radius:12px;border:1px solid #5d99b5;background:#16405a;color:white;font-weight:900;touch-action:none;user-select:none}.touch button:active{background:#217ca0}.sidebar{border:1px solid #2d4c64;border-radius:15px;background:#0e2136;padding:15px}.sidebar h3{margin:0 0 9px;font-size:14px;color:#e5faff}.sidebar p{font-size:12px;line-height:1.7;color:#b5cddd}.sidebar hr{border:0;border-top:1px solid #2a4a62;margin:15px 0}.stage-line{display:flex;justify-content:space-between;font-size:12px;gap:6px;padding:9px 0;border-bottom:1px solid #25415a}.footer{font-size:11px;color:#88abc2;line-height:1.6;margin:2px 0 20px}.rank{width:100%;border-collapse:collapse;font-size:13px}.rank th,.rank td{padding:9px 5px;border-bottom:1px solid #36536c;text-align:left}.rank th:last-child,.rank td:last-child{text-align:right}.hearts{color:#ff8a98;font-size:25px;letter-spacing:5px;display:block;margin:4px 0}.progress-line{height:7px;border-radius:15px;background:#2a4a5c;overflow:hidden;margin:8px 0}.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#31bfd1,#7cf5df)}@media(max-width:850px){.layout{grid-template-columns:1fr}.meters{grid-template-columns:repeat(4,minmax(0,1fr))}.sidebar{display:block}.logo{font-size:20px}}@media(max-width:480px){.meters{grid-template-columns:repeat(3,minmax(0,1fr))}#app{padding:7px}.meter strong{font-size:14px}.meter small{font-size:9px}.modal{padding:15px}.modal h1{font-size:21px}.touch button{height:58px}}
+.cargo-chip{display:flex;align-items:center;gap:11px;padding:11px 12px;background:#102b42;border:1px solid #3b6880;border-radius:12px;margin:10px 0}.cargo-chip .cargo-emoji{font-size:32px}.cargo-chip b{display:block;color:#93e7f0;font-size:13px}.cargo-chip small{display:block;color:#b5ccde;font-size:11px;margin-top:3px}.rules-mini{padding:10px 12px;background:#22384c;border-radius:10px;margin:9px 0 12px;font-size:12px;line-height:1.5;color:#f0e0e5}.modal{max-height:100%;overflow-y:auto;scrollbar-width:thin}.modal p{line-height:1.5;margin:7px 0}.cargo-chip{margin:8px 0;padding:9px 11px}
+/* v6: bright but legible SF interface */
+:root{--cyan:#6ef2ff;--gold:#ffe184;--panel:#101d37;--edge:#3378ac;--red:#ff7495}
+body{background:radial-gradient(ellipse at 80% -15%,#1a4787 0%,transparent 48%),radial-gradient(ellipse at 10% 10%,#26366d 0%,transparent 42%),#060d1e}
+#app{max-width:1190px}.logo{font-size:29px;letter-spacing:.09em;background:linear-gradient(90deg,#6ef5ff,#e5c7ff,#b3acff);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 12px #6cf2ff55)}
+.top{padding:7px 5px 10px}.top .sub{letter-spacing:.03em}
+.frame{border:1px solid #6fdfff85;box-shadow:0 0 0 1px #16365b,0 16px 65px #020814,0 0 44px #26a8ff20}
+.frame:after{content:"";pointer-events:none;position:absolute;inset:0;z-index:1;border-radius:16px;box-shadow:inset 0 0 22px #86ecff14,inset 0 0 2px #c2f3ff94}
+.meter{background:linear-gradient(135deg,#102c4a,#101d34);border:1px solid #3a669080;box-shadow:inset 0 1px #ffffff0c,0 4px 17px #050a1880}
+.meter strong{font-size:17px}.meter.lives strong{letter-spacing:1px;color:#ff8db3}
+.btn.primary{background:linear-gradient(110deg,#14c0d6,#6251cc);border-color:#9afaff;box-shadow:0 6px 22px #2e83d94f}
+.btn:hover{filter:brightness(1.23)}.modal{width:min(780px,100%);border:1px solid #67c6dd;background:linear-gradient(140deg,#183e61,#0b1732 70%);box-shadow:0 0 55px #17a5ed2c,0 28px 80px #000b}
+.modal h1{color:#cefbff;text-shadow:0 0 18px #2dcef35f}.tag{background:#164762;border:1px solid #41afd0;color:#bef7ff}
+.sidebar{background:linear-gradient(145deg,#102a44,#0b192e);border-color:#35668e}
+.touch button{background:linear-gradient(140deg,#19496a,#202c65);border-color:#5aafe7;box-shadow:0 4px 20px #092d5760}
+.meter.speed strong{color:#8ee9ac}
+.science-measure{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:12px 0}
+.instrument{background:linear-gradient(150deg,#10294a,#101c36);border:1px solid #3e718f;border-radius:12px;padding:9px 10px 10px;min-width:0}
+.instrument-title{display:flex;justify-content:space-between;gap:7px;align-items:center;font-size:13px;margin-bottom:4px}.instrument-title b{color:#b9f6ff}.instrument-title span{font-size:10px;color:#a8c8e4}
+.instrument-svg{height:112px;width:100%;display:block;overflow:visible}
+.instrument-result{display:flex;justify-content:space-between;align-items:center;gap:6px;border-top:1px solid #33536d;padding-top:7px;font-size:12px;color:#accadb}
+.instrument-result b{color:#f8de9b;font-size:16px;white-space:nowrap}
+.measure-note{font-size:11px;color:#b4d4ea;line-height:1.5;margin:7px 0}.score-pulse{animation:score-glow .9s ease-out}
+@keyframes score-glow{50%{box-shadow:0 0 24px #74ffd4a0}}
+@media(max-width:660px){.science-measure{grid-template-columns:1fr}.instrument-svg{height:116px}.instrument{padding:7px 10px}.modal{max-height:98%}.meter.lives strong{font-size:16px}.logo{font-size:22px}}
+</style>
+</head>
+<body><div id="app">
+<header class="top"><div><div class="logo">◈ GRAVITY RUN <span style="font-size:11px;color:#a6c7db">v8 · DOUBLE JUMP</span></div><div class="sub">같은 탐사 장비 가방(10 kg) · 두 종류의 저울 · 맵마다 생명 5개</div></div><div class="buttons"><button class="btn" id="instrumentBtn">⚖ 측정 도구</button><button class="btn" id="leaderBtn">🏆 랭킹</button><button class="btn" id="muteBtn">🔊 사운드 켜기</button></div></header>
+<section class="meters">
+<div class="meter"><small>탐사 구역</small><strong id="stageHud">EARTH BASE</strong></div>
+<div class="meter"><small>중력가속도</small><strong id="gravityHud">9.8 m/s²</strong></div>
+<div class="meter mass"><small>⚖ 윗접시저울 · 질량</small><strong>10 kg</strong></div>
+<div class="meter weight"><small>🪝 용수철저울 · 무게</small><strong id="weightHud">98 N</strong></div>
+<div class="meter speed"><small>달리기 속도</small><strong id="speedHud">1.00×</strong></div><div class="meter"><small>탐험 점수</small><strong id="scoreHud">0</strong></div>
+<div class="meter lives"><small>이 맵의 남은 생명</small><strong id="livesHud">♥♥♥♥♥</strong></div>
+</section>
+<div class="layout"><main><div class="frame"><canvas id="game" width="960" height="510" aria-label="우주 중력 러닝 게임"></canvas><div class="overlay" id="overlay"><div class="modal" id="modal"></div></div></div>
+<div class="touch"><button id="slideBtn" aria-label="슬라이드">↓ 슬라이드 / 아래키</button><button id="jumpBtn" aria-label="점프 및 2단 점프">↑ 점프 ×2 / SPACE</button></div>
+<div class="footer">Space 또는 ↑: 점프 · 공중에서 한 번 더 누르면 2단 점프(모든 맵) · ↓: 슬라이드 · P: 일시정지. 서서히 가속되는 모드 · 한 맵에서 4번까지 충돌해도 계속 달립니다. 5번째 충돌에만 GAME OVER · 다음 맵에서는 생명 5개. <b>숙련자는 모든 장애물을 충돌 없이 통과할 수 있도록 설계했습니다.</b> 공중 2단 점프는 실제 물리 현상이 아니라 게임 조작 기능입니다.</div>
+</main><aside class="sidebar"><h3>🚀 탐사 진행</h3><div id="progress"></div><div class="progress-line"><div class="progress-fill" id="progressFill"></div></div><hr><h3>📡 탐사 기록</h3><p id="log">동일한 장비 가방의 질량은 윗접시저울로, 무게는 용수철저울로 측정합니다.</p><h3>🎮 탐험 팁</h3><p id="tip">불필요한 바닥 요철은 없습니다. 바닥 에너지 장벽은 점프로, 머리 위 레이저는 슬라이드로 통과하세요.</p><button class="btn" id="pauseBtn">⏸ 일시정지</button><p class="smallnote">목성은 고체 지표면이 없으므로 가상의 탐사 플랫폼입니다. 점프 물리에는 천체별 중력비를 반영했습니다.</p></aside></div>
+</div>
+<script>
+'use strict';
+// Optional: enter the published Google Apps Script /exec URL to enable shared rankings.
+const SHEETS_WEB_APP_URL = '';
+const STORE={fallback:{},get(k){try{return localStorage.getItem(k)}catch(_){return this.fallback[k]||null}},set(k,v){this.fallback[k]=String(v);try{localStorage.setItem(k,String(v))}catch(_){}}};
+const PLANETS={
+ earth:{name:'지구',eng:'EARTH BASE',g:9.8,sky:['#071932','#145877'],floor:'#31bed2',glow:'#84e9ff',ball:'#4789df'},
+ moon:{name:'달',eng:'LUNAR OUTPOST',g:1.6,sky:['#0b0d30','#4c3971'],floor:'#b59fe7',glow:'#e0cfff',ball:'#a5a2dd'},
+ jupiter:{name:'목성',eng:'JUPITER STATION',g:23.1,sky:['#23152b','#8d452e'],floor:'#e9a361',glow:'#ffe0aa',ball:'#d68e56'}
+};
+const STAGES=[
+ {id:'earth',name:'지구',title:'EARTH BASE',length:4250,speedStart:180,speedEnd:203,obstacles:[
+   ['beam',850,94],['jump',1510,32,25],['beam',2200,94],['jump',2880,34,25],['beam',3610,94]]},
+ {id:'moon',name:'달',title:'LUNAR OUTPOST',length:5920,speedStart:203,speedEnd:223,obstacles:[
+   ['beam',800,94],['jump',1480,82,39],['beam',2700,94],['jump',3360,91,39],['beam',4670,94]]},
+ {id:'jupiter',name:'목성',title:'JUPITER STATION',length:4820,speedStart:223,speedEnd:243,obstacles:[
+   ['beam',890,94],['jump',1670,7,9],['beam',2480,94],['jump',3270,7,9],['beam',4030,94]]},
+ {id:'mixed',name:'중력 혼합',title:'GRAVITY RIFT',length:8050,speedStart:243,speedEnd:268,obstacles:[
+   ['gate',760,'moon'],['beam',1070,94],['jump',1690,86,39],['beam',2950,94],
+   ['gate',3370,'jupiter'],['beam',3620,94],['jump',4360,7,9],
+   ['gate',4920,'earth'],['jump',5530,34,25],['beam',6230,94],
+   ['gate',6710,'moon'],['beam',7000,94],['jump',7570,80,39]]}
+];
+const MAX_LIVES=5;
+const C={floor:408,speed:180,gravityScale:270,jump:750,standHeight:55,slideHeight:29,bodyWidth:18}; // Faster progressive speed, with consistent gravity and jump physics.
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const $=s=>document.getElementById(s),overlay=$('overlay'),modal=$('modal');
+let phase='intro',resumePhase='intro',nick='',playerId=STORE.get('gravity_id')||('p'+Math.random().toString(36).slice(2)+Date.now().toString(36));STORE.set('gravity_id',playerId);
+let stageIndex=0,score=0,lives=MAX_LIVES,hitCount=0,stageHits=0,clearCount=0,coins=0,answerCorrect=null;
+let stageStartScore=0,stageStartHits=0,stageStartCoins=0; // Score rollback for retries of the same map.
+let invulnerableTime=0,damageNoticeTime=0,damageNoticeText='',runSpeed=180,gravityToastTime=0,gravityToastText='',shimmer=0,shake=0,particles=[];
+let world=[],x=0,grav='earth',player={y:C.floor-C.standHeight,vy:0,grounded:true,slide:false,jumpsUsed:0};
+let slideHeld=false,passed=new Set(),collected=new Set(),completed=[],camY=0,flash=0,doubleJumpNotice=0,muted=true,accumulator=0,lastTime=0,frameTime=0;
+const starfield=Array.from({length:95},(_,i)=>({x:(i*107.13)%960,y:(i*67.73)%340,r:.6+(i%3)*.38}));
+function escapeHTML(str){return String(str).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
+function show(html){modal.innerHTML=html;overlay.classList.remove('hidden')}
+function hide(){overlay.classList.add('hidden')}
+
+function balancesSVG(){
+return `<svg viewBox="0 0 300 164" role="img" aria-label="윗접시저울 양쪽 접시가 수평입니다. 왼쪽에 탐사 장비 가방 10 kg, 오른쪽에 5 kg 추 두 개가 있습니다." class="instrument-svg">
+<defs><linearGradient id="balBevel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#77ebfd"/><stop offset="1" stop-color="#3471ba"/></linearGradient></defs>
+<path d="M150 62 V140" stroke="#68b9dc" stroke-width="9" stroke-linecap="round"/><path d="M121 147 H179" stroke="#6eaed0" stroke-width="9" stroke-linecap="round"/>
+<path d="M42 57 H258" stroke="url(#balBevel)" stroke-width="8" stroke-linecap="round"/><circle cx="150" cy="61" r="11" fill="#132e52" stroke="#91eefa" stroke-width="5"/>
+<path d="M65 59 V114 M235 59 V114" stroke="#a4f0ff" stroke-width="2.5" stroke-dasharray="3 3"/><path d="M40 114 Q65 132 91 114 M209 114 Q235 132 261 114" fill="none" stroke="#7ae9fd" stroke-width="6" stroke-linecap="round"/>
+<rect x="49" y="85" width="33" height="29" rx="6" fill="#d79565" stroke="#ffe1aa" stroke-width="2"/><rect x="54" y="79" width="23" height="9" rx="4" fill="none" stroke="#ffcb8b" stroke-width="3"/><path d="M49 99 H82" stroke="#8b5843" stroke-width="5"/>
+<g fill="#9ad5e7" stroke="#edfaff" stroke-width="1.3"><path d="M214 106 L219 90 H237 L242 106Z"/><path d="M237 106 L242 90 H260 L265 106Z"/></g>
+<g fill="#102b48" font-size="8" font-weight="800" text-anchor="middle"><text x="228" y="101">5kg</text><text x="251" y="101">5kg</text></g>
+<text x="65" y="146" fill="#b5eafd" text-anchor="middle" font-weight="700" font-size="11">장비 가방</text><text x="235" y="146" fill="#b5eafd" text-anchor="middle" font-weight="700" font-size="11">5kg + 5kg</text>
+<text x="150" y="29" fill="#a7fedc" text-anchor="middle" font-size="11" font-weight="700">수평 = 질량 같음</text>
+</svg>`;
+}
+function springSVG(planet){
+ const p=PLANETS[planet],w=10*p.g,ratio=Math.max(0,Math.min(1,w/250));
+ const end=56+ratio*58;
+ let zig='M 90 38';const turns=13;for(let i=1;i<=turns;i++){const yy=38+(end-38)*i/turns;zig+=' L '+(i%2?82:98)+' '+yy.toFixed(1)}zig+=' L 90 '+end.toFixed(1);
+ const marker=41+ratio*94;
+ return `<svg viewBox="0 0 300 164" role="img" aria-label="용수철저울의 눈금은 ${Math.round(w)} N입니다. 중력이 클수록 용수철이 더 많이 늘어납니다." class="instrument-svg">
+ <path d="M82 11 Q90 -2 98 11" stroke="#8cf0ff" stroke-width="5" fill="none"/><rect x="51" y="14" width="77" height="117" rx="12" fill="#17375d" stroke="#7acbe9" stroke-width="3"/>
+ <rect x="71" y="25" width="40" height="96" rx="8" fill="#0b213c"/><path d="${zig}" fill="none" stroke="#a8effe" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+ <path d="M90 ${end.toFixed(1)} v10" stroke="#9cdcee" stroke-width="3"/>
+ <rect x="69" y="${(end+11).toFixed(1)}" width="43" height="22" rx="5" fill="#d68c58" stroke="#ffcf94" stroke-width="2"/>
+ <text x="90" y="${(end+25).toFixed(1)}" fill="#281724" font-size="10" font-weight="800" text-anchor="middle">10 kg</text>
+ <path d="M140 24 H147 V138 H140" fill="none" stroke="#628cae" stroke-width="2"/>
+ ${[0,50,100,150,200,250].map(n=>`<g><path d="M140 ${41+n/250*94} h15" stroke="#9ebfda"/><text x="164" y="${45+n/250*94}" fill="#adcfe6" font-size="10">${n}</text></g>`).join('')}
+ <path d="M129 ${marker} L141 ${marker-7} L141 ${marker+7}Z" fill="#ffd56c"/><text x="226" y="62" fill="#ffe0a0" font-size="26" font-weight="900" text-anchor="middle">${Math.round(w)} N</text>
+ <text x="226" y="83" fill="#aad5ef" font-size="12" text-anchor="middle">${p.name} 중력</text><text x="226" y="106" fill="#a1c4da" font-size="10" text-anchor="middle">${p.g.toFixed(1)} m/s²</text>
+ </svg>`;
+}
+function instrumentsMarkup(planet){
+ const p=PLANETS[planet];return `<div class="science-measure">
+  <div class="instrument"><div class="instrument-title"><b>① 윗접시저울</b><span>양쪽 접시로 질량 비교</span></div>${balancesSVG()}<div class="instrument-result"><span>가방 = 5 kg 추 + 5 kg 추</span><b>10 kg</b></div></div>
+  <div class="instrument"><div class="instrument-title"><b>② 용수철저울</b><span>중력의 크기 측정</span></div>${springSVG(planet)}<div class="instrument-result"><span>${p.name}에서 같은 가방의 무게</span><b>${Math.round(p.g*10)} N</b></div></div>
+ </div><p class="measure-note">윗접시저울에서 가방과 추의 질량을 비교하면 항상 <b>10 kg</b>입니다. 용수철저울의 늘어남과 무게 눈금은 중력 환경에 따라 달라집니다.</p>`;
+}
+function openInstruments(){
+ if(phase!=='play'&&phase!=='pause')return;
+ const previous=phase;phase='instruments';show(`<span class="tag">SCIENCE LAB · 측정 장비</span><h2>⚖ 지금 있는 ${PLANETS[grav].name}에서 측정한다면?</h2>${instrumentsMarkup(grav)}<button class="btn primary" id="instrumentClose">▶ ${previous==='play'?'탐사 계속하기':'일시정지 화면으로'}</button>`);
+ $('instrumentClose').onclick=()=>{if(previous==='play'){hide();phase='play';accumulator=0;lastTime=performance.now()}else pauseGame()};
+}
+function burst(px,py,col,n=16){for(let i=0;i<n;i++){const a=2*Math.PI*i/n,sp=60+Math.random()*155;particles.push({x:px,y:py,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-55,life:.65+Math.random()*.35,maxLife:1,color:col,r:1.4+Math.random()*2.7});}if(particles.length>180)particles.splice(0,particles.length-180)}
+function currentSpeed(){const st=STAGES[stageIndex],t=Math.max(0,Math.min(1,x/st.length));const smooth=t*t*(3-2*t);return st.speedStart+(st.speedEnd-st.speedStart)*smooth}
+
+function sound(freq,dur=.11){if(muted)return;try{const ac=window._grAudio||(window._grAudio=new(window.AudioContext||window.webkitAudioContext)());const osc=ac.createOscillator(),gain=ac.createGain();osc.type='triangle';osc.frequency.value=freq;gain.gain.setValueAtTime(.035,ac.currentTime);gain.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+dur);osc.connect(gain);gain.connect(ac.destination);osc.start();osc.stop(ac.currentTime+dur)}catch(_){}}
+function planetAt(pos){if(stageIndex!==3)return STAGES[stageIndex].id;let result='earth';for(let o of world){if(o.type==='gate'&&o.x<=pos)result=o.to}return result}
+function buildLevel(){world=[];const spec=STAGES[stageIndex];let n=0;for(let entry of spec.obstacles){const [type,px,a,b]=entry;const obj={type,x:px,id:'s'+stageIndex+'o'+(++n),w:type==='jump'?b:type==='beam'?a:35,h:type==='jump'?a:37};if(type==='gate')obj.to=a;world.push(obj);
+ if(type==='jump'){const low=stageIndex===2 || (stageIndex===3&&planetAtForSpec(spec,px)==='jupiter');const height=low?C.floor-55:C.floor-(a>=80?250:105);world.push({type:'coin',x:px+70,y:height,id:obj.id+'c'});} }
+ world.sort((a,b)=>a.x-b.x);
+}
+function planetAtForSpec(spec,px){if(spec.id!=='mixed')return spec.id;let planet='earth';for(const s of spec.obstacles){if(s[0]==='gate'&&s[1]<=px)planet=s[2]}return planet}
+function updateHUD(){const p=PLANETS[grav];$('gravityHud').textContent=p.g.toFixed(1)+' m/s²';$('weightHud').textContent=Math.round(p.g*10)+' N';$('stageHud').textContent=STAGES[stageIndex].title;$('scoreHud').textContent=score.toLocaleString('ko-KR');$('speedHud').textContent=(currentSpeed()/180).toFixed(2)+'×';$('livesHud').textContent='♥'.repeat(lives)+'♡'.repeat(MAX_LIVES-lives);
+ $('progress').innerHTML=STAGES.map((s,i)=>`<div class="stage-line" style="color:${completed.includes(i)?'#8df4b7':i===stageIndex?'#85effb':'#a3b9cb'}"><span>${completed.includes(i)?'✓':i===stageIndex?'▶':'○'} ${i+1}. ${s.name}</span><span>${completed.includes(i)?'완료':i===stageIndex?Math.min(100,Math.floor(100*x/s.length))+'%':'대기'}</span></div>`).join('');$('progressFill').style.width=Math.min(100,100*x/STAGES[stageIndex].length)+'%';}
+function startScreen(){phase='intro';show(`<span class="tag">SCI-FI GRAVITY RUN · 4 STAGES · DOUBLE JUMP</span><h1>✦ GRAVITY RUN <small style="font-size:13px;color:#a9e9ff">COSMIC BOOST · SPEED UP</small></h1><p>지구 → 달 → 목성 → 중력 혼합의 네 구역을 달립니다. <b>바닥은 평평하고, 에너지 장애물만 통과</b>하면 됩니다. 처음부터 빠르게 달리며, 맵이 진행될수록 속도가 점점 증가합니다.</p><div class="cargo-chip"><span class="cargo-emoji" aria-hidden="true">🎒</span><span><b>질량 10 kg인 탐사 장비 가방</b><small>윗접시저울은 질량, 용수철저울은 무게를 측정합니다.</small></span></div><div class="rules-mini">${'♥'.repeat(MAX_LIVES)} <b>맵마다 생명 5개</b> · 네 번 부딪혀도 계속 달립니다. <b>다섯 번째 충돌만 GAME OVER</b> · 다음 맵에서는 다시 5개!</div><label for="nickname">탐험 닉네임 (실명 입력 금지)</label><input id="nickname" maxlength="12" autocomplete="off" placeholder="예: MoonFox" value="${escapeHTML(STORE.get('gravity_nick')||'')}"><button class="btn primary" id="startBtn">🚀 탐사 시작</button><p class="smallnote">Space / ↑: 점프, 공중에서 다시 누르면 2단 점프 · ↓: 슬라이드 · P: 일시정지. 장애물 예고가 나타납니다. 숙련자는 충돌 없이 완주할 수 있는 코스입니다.</p>`);
+ $('startBtn').onclick=()=>{const n=$('nickname').value.trim();if(!/^[가-힣a-zA-Z0-9_-]{2,12}$/.test(n)){alert('닉네임은 2~12자의 한글·영문·숫자·_·-로 적어주세요.');return}nick=n;STORE.set('gravity_nick',nick);resetRun();beginStage()};}
+
+function resetRun(){stageIndex=0;score=0;lives=MAX_LIVES;hitCount=0;stageHits=0;coins=0;answerCorrect=null;completed=[];passed.clear();collected.clear();slideHeld=false;accumulator=0;stageStartScore=0;stageStartHits=0;stageStartCoins=0;invulnerableTime=0;damageNoticeTime=0;damageNoticeText='';gravityToastTime=0;gravityToastText='';particles=[];shake=0}
+function beginStage(){stageStartScore=score;stageStartHits=hitCount;stageStartCoins=coins;lives=MAX_LIVES;
+ x=0;grav=STAGES[stageIndex].id==='mixed'?'earth':STAGES[stageIndex].id;stageHits=0;passed=new Set();collected=new Set();camY=0;flash=0;invulnerableTime=0;damageNoticeTime=0;damageNoticeText='';gravityToastTime=0;particles=[];shake=0;runSpeed=currentSpeed();slideHeld=false;player={y:C.floor-C.standHeight,vy:0,grounded:true,slide:false,jumpsUsed:0};doubleJumpNotice=0;buildLevel();updateHUD();const p=PLANETS[grav];
+ $('log').textContent=`${p.name} 도착! 윗접시저울: 가방 질량 10 kg / 용수철저울: 가방 무게 ${Math.round(10*p.g)} N`;
+ $('tip').textContent=['평평한 길에서 에너지 장벽만 피하세요. 바닥 장벽은 점프, 머리 위 빔은 슬라이드입니다.','달에서는 높고 오래 떠요. 공중에서 Space를 다시 눌러 2단 점프로 궤적을 조절하세요.','목성에서는 짧게 점프합니다. 바닥 에너지 띠는 좁고 잘 보이게 표시됩니다.','게이트마다 중력이 달라져요. 모든 중력 환경에서 2단 점프를 활용할 수 있습니다.'][stageIndex];
+ phase='ready';const desc=['지구 중력에서 점프·슬라이드 타이밍을 익힙니다.','달의 약한 중력과 오래 떠 있는 점프를 경험해 보세요.','목성에서 강한 중력과 짧은 점프를 경험해 보세요.','중력 게이트를 통과하며 배운 조작을 활용하세요.'][stageIndex];
+ show(`<span class="tag">MISSION ${stageIndex+1}/4 · ${p.name} | 생명 ${MAX_LIVES}개</span><h1>${STAGES[stageIndex].title}</h1><p>${desc} <b>같은 10 kg 가방</b>을 두 가지 저울로 측정해 보세요. <b>점프는 공중에서 한 번 더 눌러 최대 2회!</b></p><button class="btn primary" style="width:100%;margin:6px 0 3px" id="goBtn">▶ ${p.name} 탐사 출발 · ${'♥'.repeat(MAX_LIVES)}</button>${instrumentsMarkup(grav)}<div class="statline"><span>주행 속도 · 서서히 가속</span><b>${STAGES[stageIndex].speedStart} → ${STAGES[stageIndex].speedEnd}</b></div>`);
+ $('goBtn').onclick=()=>{phase='play';hide();lastTime=performance.now();accumulator=0;gravityToastTime=1.6;gravityToastText=`윗접시저울 10 kg · 용수철저울 ${Math.round(p.g*10)} N`};}
+
+function setSlide(pressed){slideHeld=pressed;if(phase==='play'&&player.grounded){player.slide=pressed;player.y=C.floor-(pressed?C.slideHeight:C.standHeight)}}
+function jump(){
+ if(phase!=='play'||player.slide||player.jumpsUsed>=2)return;
+ // Only the first jump requires ground contact. All four stages allow one midair jump.
+ const second=!player.grounded;
+ if(second&&player.jumpsUsed!==1)return;
+ player.vy=-C.jump;player.grounded=false;player.jumpsUsed++;
+ if(second){
+  doubleJumpNotice=.75;
+  burst(188,player.y+27,PLANETS[grav].glow,19);
+  sound(750,.10);
+ }else{
+  burst(188,C.floor-5,PLANETS[grav].glow,9);
+  sound(520);
+ }
+}
+function playerBox(){// forgiving collision box: sprite width 35, actual width 18
+ return {left:179,right:197,top:player.y+3,bottom:player.y+(player.slide?C.slideHeight:C.standHeight)-1}}
+function hitTest(o){if(o.type!=='jump'&&o.type!=='beam')return false;const b=playerBox(),sx=o.x-x+170;if(b.right<=sx||b.left>=sx+o.w)return false;if(o.type==='jump')return b.bottom>C.floor-o.h+1;return b.bottom>C.floor-73&&b.top<C.floor-35;}
+// First and second collisions must NEVER change phase or show a blocking modal.
+// Mark the collided obstacle as handled: one physical obstacle counts as one mistake.
+function hitHazard(o){
+ if(phase!=='play'||invulnerableTime>0||passed.has(o.id))return;
+ passed.add(o.id); // A collided obstacle earns no clean-pass score and cannot hit twice.
+ hitCount++;stageHits++;lives--;
+ score=Math.max(0,score-230);flash=1;invulnerableTime=.68;
+ damageNoticeTime=1.25;
+ damageNoticeText=`⚠ 충돌 ${stageHits}/${MAX_LIVES} · 남은 생명 ${lives}개`;shake=9;burst(188,player.y+25,'#ff98b4',25);
+ sound(125,.22);
+ $('log').textContent=`${STAGES[stageIndex].name} 맵에서 ${stageHits}번째 충돌! 생명 ${lives}/${MAX_LIVES}. ${lives>0?'멈추지 않고 계속 달립니다.':MAX_LIVES+'번 충돌하여 게임 오버입니다.'}`;
+ updateHUD();
+ if(lives===0){gameOver();return}
+ // Intentionally continue immediately. No phase='hit', no respawn, no retry button.
+}
+function retryCurrentMap(){
+ // Failed attempts may not farm score, coins or successful obstacle passes.
+ score=stageStartScore;hitCount=stageStartHits;coins=stageStartCoins;
+ beginStage();
+}
+function gameOver(){
+ phase='gameover';
+ show(`<span class="tag">MISSION FAILED · ${MAX_LIVES}번 충돌</span><h1 style="color:#ff9fa9">💥 GAME OVER</h1><p><b>${STAGES[stageIndex].name}</b> 맵에서 다섯 번 충돌해 생명 ${MAX_LIVES}개를 모두 사용했습니다. 첫 네 번 충돌에는 게임이 멈추지 않습니다.</p><div class="statline"><span>이번 맵 충돌</span><b>${stageHits} / ${MAX_LIVES}회</b></div><div class="statline"><span>현재 점수</span><b>${score.toLocaleString()} PTS</b></div><p class="smallnote">이 맵을 다시 시작하면 실패한 시도에서 얻은 점수는 되돌립니다. 이미 통과한 맵은 유지됩니다.</p><div class="buttons"><button class="btn primary" id="retryMapBtn">↻ 이 맵 다시 도전 (${MAX_LIVES}♥)</button><button class="btn" id="restartAllBtn">처음부터 새 도전</button></div>`);
+ $('retryMapBtn').onclick=retryCurrentMap;$('restartAllBtn').onclick=()=>{resetRun();beginStage()};
+}
+
+function update(dt){if(phase!=='play')return;invulnerableTime=Math.max(0,invulnerableTime-dt);damageNoticeTime=Math.max(0,damageNoticeTime-dt);gravityToastTime=Math.max(0,gravityToastTime-dt);const oldX=x;runSpeed=currentSpeed();x+=runSpeed*dt;
+ const g=C.gravityScale*PLANETS[grav].g;player.vy+=g*dt;player.y+=player.vy*dt;doubleJumpNotice=Math.max(0,doubleJumpNotice-dt);
+ if(player.y+(player.slide?C.slideHeight:C.standHeight)>=C.floor){player.y=C.floor-(slideHeld?C.slideHeight:C.standHeight);player.vy=0;player.grounded=true;player.slide=slideHeld;player.jumpsUsed=0}else{player.grounded=false;player.slide=false}
+ // A gate only changes gravitational acceleration. Mass and jump impulse remain identical.
+ for(const o of world){if(o.type==='gate'&&oldX<o.x&&x>=o.x){grav=o.to;$('log').textContent=`${PLANETS[grav].name} 중력 포털! 윗접시저울 10 kg 그대로 · 용수철저울 ${Math.round(PLANETS[grav].g*10)} N`;gravityToastText=`⚖ 10 kg 일정 · 용수철저울 ${Math.round(PLANETS[grav].g*10)} N`;gravityToastTime=2.7;burst(188,C.floor-88,PLANETS[grav].glow,35);sound(760)}}
+ for(const o of world){if(o.type==='coin'&&!collected.has(o.id)){
+ const sx=o.x-x+170,centerY=player.y+(player.slide?C.slideHeight:C.standHeight)/2;
+ if(Math.abs(sx-188)<24&&Math.abs(o.y-centerY)<36){collected.add(o.id);coins++;score+=50;burst(188,centerY,'#ffe188',11);sound(910,.075)}
+ } else if((o.type==='jump'||o.type==='beam')&&!passed.has(o.id)){
+ if(invulnerableTime<=0&&hitTest(o)){hitHazard(o);if(phase!=='play')return}
+ if(x>o.x+o.w+14){passed.add(o.id);score+=110}
+ }}
+ if(x>=STAGES[stageIndex].length){completeStage();return}updateHUD()}
+function completeStage(){phase='interlude';completed.push(stageIndex);clearCount++;score+=500;let flawless=stageHits===0;if(flawless){score+=420}updateHUD();sound(890,.22);if(stageIndex===2&&answerCorrect===null){conceptQuestion(flawless);return}showStageClear(flawless)}
+function conceptQuestion(flawless){show(`<span class="tag">MEASUREMENT LOG · 두 가지 저울</span><h2>같은 탐사 장비 가방(질량 10 kg)을 다른 천체로 옮겼어요.</h2><p>무엇이 달라졌나요?</p><button class="choice" data-choice="a">① 질량과 무게가 모두 변했다.</button><button class="choice" data-choice="b">② 질량은 그대로, 무게만 변했다.</button><button class="choice" data-choice="c">③ 무게는 그대로, 질량만 변했다.</button>`);modal.querySelectorAll('[data-choice]').forEach(btn=>btn.onclick=()=>{answerCorrect=btn.dataset.choice==='b';show(`<h2 class="${answerCorrect?'correct':'error'}">${answerCorrect?'정확합니다!':'탐사 로그를 다시 확인해 보세요.'}</h2><p><b>윗접시저울</b>로 비교한 질량은 <b>10 kg으로 일정</b>합니다. <b>용수철저울</b>로 잰 무게는 물체에 작용하는 <b>중력의 크기</b>이므로 지구 98 N, 달 16 N, 목성 231 N으로 달라졌습니다.</p><button class="btn primary" id="questionNext">다음 미션 →</button>`);$('questionNext').onclick=()=>showStageClear(flawless)})}
+function showStageClear(flawless){const final=stageIndex===STAGES.length-1;show(`<span class="tag">${flawless?'PERFECT CLEAR':'MISSION CLEAR'}</span><h1>${final?'🌌 최종 탐사 완료!':STAGES[stageIndex].name+' 탐사 성공!'}</h1><div class="statline"><span>누적 점수</span><b>${score.toLocaleString()} PTS</b></div><div class="statline"><span>이번 스테이지 충돌</span><b>${stageHits}회</b></div><div class="statline"><span>남은 생명</span><b style="color:#ff92a3">${'♥'.repeat(lives)}${'♡'.repeat(MAX_LIVES-lives)}</b></div><p>${flawless?'충돌 없이 통과하여 퍼펙트 보너스 +420점! 다음 맵은 생명 5개로 시작합니다.':'미션 통과! 다음 맵에서는 다시 생명 5개로 시작합니다.'}</p><button class="btn primary" id="continueBtn">${final?'🏆 최종 점수 등록':'다음 탐사 구역 →'}</button>`);$('continueBtn').onclick=()=>{if(final)finishGame();else{stageIndex++;beginStage()}}}
+async function finishGame(){phase='finished';const record={id:playerId,nickname:nick,score,completed:true,finishedAt:new Date().toISOString(),mistakes:hitCount,correct:answerCorrect===true?1:0};saveLocal(record);show(`<span class="tag">MISSION COMPLETED</span><h1>🏆 GRAVITY RUN CLEAR!</h1><p><b>${escapeHTML(nick)}</b> 대원, 네 가지 중력 환경을 모두 통과했습니다.</p><div class="statline"><span>최종 점수</span><b>${score.toLocaleString()} PTS</b></div><div class="statline"><span>충돌 횟수</span><b>${hitCount}회</b></div><div class="statline"><span>가방 질량</span><b>10 kg (고정)</b></div><div class="statline"><span>가방 무게</span><b>중력에 따라 변화</b></div><p class="smallnote" id="syncText">기록 저장 중...</p><div class="buttons"><button class="btn primary" id="openLeader">🏆 랭킹 확인</button><button class="btn" id="retryRun">↻ 다시 도전</button></div>`);$('openLeader').onclick=showLeaderboard;$('retryRun').onclick=startScreen;
+ if(!SHEETS_WEB_APP_URL){$('syncText').textContent='로컬 기록 저장 완료. 온라인 랭킹은 Apps Script URL을 연결해야 이용할 수 있습니다.';return}const ok=await sendScore(record);$('syncText').textContent=ok?'온라인 점수 전송을 요청했습니다. 실제 저장 여부는 랭킹에서 확인해 주세요.':'온라인 점수 전송 실패. 로컬 기록은 보관되어 있습니다.'}
+function getLocal(){try{const a=JSON.parse(STORE.get('gravity_scores')||'[]');return Array.isArray(a)?a:[]}catch(_){return []}}
+function saveLocal(record){const arr=getLocal();arr.push(record);STORE.set('gravity_scores',JSON.stringify(arr.slice(-200)))}
+function localLeaders(){const unique=new Map();for(const r of getLocal()){if(!r.completed)continue;const k=String(r.nickname||'').toLowerCase();if(!unique.has(k)||r.score>unique.get(k).score)unique.set(k,r)}return [...unique.values()].sort((a,b)=>b.score-a.score).slice(0,30)}
+async function sendScore(record){try{await fetch(SHEETS_WEB_APP_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'payload='+encodeURIComponent(JSON.stringify(record))});return true}catch(_){return false}}
+// GET may be blocked by CORS in some Apps Script deployments. Show explicit offline fallback.
+async function getRemoteLeaders(){
+ if(!SHEETS_WEB_APP_URL)return null;
+ // Google Apps Script responses normally do not provide CORS headers. JSONP is GET-only for public nickname/score rankings.
+ return new Promise(resolve=>{
+  const name='gravity_rank_cb_'+Date.now()+'_'+Math.floor(Math.random()*100000);
+  const script=document.createElement('script');let settled=false;
+  const clean=result=>{if(settled)return;settled=true;clearTimeout(timeout);delete window[name];script.remove();resolve(result)};
+  window[name]=data=>clean(Array.isArray(data)?data:(data&&Array.isArray(data.leaders)?data.leaders:null));
+  script.onerror=()=>clean(null);
+  const timeout=setTimeout(()=>clean(null),8000);
+  script.src=SHEETS_WEB_APP_URL+(SHEETS_WEB_APP_URL.includes('?')?'&':'?')+'action=leaderboard&callback='+name;
+  document.head.appendChild(script);
+ });
+}
+async function showLeaderboard(){const prev=phase;phase='leader';show(`<span class="tag">MISSION RANKING</span><h2>🏆 GRAVITY RUN 순위표</h2><div id="rankData"><p>랭킹을 불러오는 중...</p></div><div class="buttons"><button class="btn primary" id="rankBack">닫기</button><button class="btn" id="rankRestart">새 도전</button></div>`);$('rankBack').onclick=()=>{if(prev==='play'||prev==='pause'){pauseGame()}else if(prev==='finished'){phase='finished';show(`<h2>탐사 완료</h2><p>점수: ${score.toLocaleString()}</p><button class="btn primary" id="rAgain">다시 도전</button>`);$('rAgain').onclick=startScreen}else if(prev==='gameover'){gameOver()}else{startScreen()}};$('rankRestart').onclick=startScreen;
+ let ranking=await getRemoteLeaders();const isOnline=!!ranking;if(!ranking)ranking=localLeaders();const row=ranking.slice(0,10).map((r,i)=>`<tr><td>${i<3?['🥇','🥈','🥉'][i]:(i+1)}</td><td>${escapeHTML(r.nickname||'대원')}</td><td>${Number(r.score||0).toLocaleString()}</td></tr>`).join('');if(phase==='leader'&&$('rankData'))$('rankData').innerHTML=`<p class="smallnote">${isOnline?'Google Sheets 온라인 랭킹':'이 브라우저에서 저장한 테스트 랭킹'}</p><table class="rank"><thead><tr><th>순위</th><th>닉네임</th><th>점수</th></tr></thead><tbody>${row||'<tr><td colspan="3">등록된 완주 기록이 없습니다.</td></tr>'}</tbody></table>`}
+function pauseGame(){phase='pause';show(`<h2>⏸ 일시정지</h2><p>현재 스테이지를 이어서 진행합니다.</p><button class="btn primary" id="resumeBtn">계속 달리기</button>`);$('resumeBtn').onclick=()=>{hide();phase='play';lastTime=performance.now();accumulator=0}}
+function togglePause(){if(phase==='play')pauseGame();else if(phase==='pause'){$('resumeBtn')?.click()}}
+function rect(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h);ctx.fill()}
+function draw(now){
+ const p=PLANETS[grav],w=canvas.width,h=canvas.height,sec=now/1000;
+ ctx.save();if(shake>0)ctx.translate(Math.sin(sec*76)*shake*0.6,Math.cos(sec*53)*shake*0.35);
+ const grad=ctx.createLinearGradient(0,0,0,h);grad.addColorStop(0,p.sky[0]);grad.addColorStop(.58,p.sky[1]);grad.addColorStop(1,'#081326');ctx.fillStyle=grad;ctx.fillRect(0,0,w,h);
+ // Nebula glow and moving starfield. All are decoration; the driving surface remains completely flat.
+ const neb=ctx.createRadialGradient(660-(x*.022)%310,135,8,660-(x*.022)%310,135,360);neb.addColorStop(0,p.glow+'45');neb.addColorStop(.46,p.glow+'13');neb.addColorStop(1,'#00000000');ctx.fillStyle=neb;ctx.fillRect(0,0,w,h);
+ for(let i=0;i<starfield.length;i++){const st=starfield[i],starX=((st.x-x*(.009+st.r*.007))%1000+1000)%1000,twinkle=.35+.55*(.5+.5*Math.sin(sec*(1.2+st.r)+i*1.21));ctx.fillStyle=`rgba(227,247,255,${twinkle.toFixed(3)})`;ctx.beginPath();ctx.arc(starX,st.y,st.r*1.15,0,Math.PI*2);ctx.fill();if(i%17===0){ctx.strokeStyle=p.glow+'66';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(starX-5,st.y);ctx.lineTo(starX+5,st.y);ctx.moveTo(starX,st.y-5);ctx.lineTo(starX,st.y+5);ctx.stroke()}}
+ // Distant planet, highlights and Saturn-like orbit ring where appropriate.
+ const ballX=750-(x*.015)%260,ballY=147+camY*.045;const radius=stageIndex===2?132:stageIndex===3?118:107;
+ ctx.save();ctx.globalAlpha=.8;const ballGrad=ctx.createRadialGradient(ballX-radius*.34,ballY-radius*.38,5,ballX,ballY,radius);ballGrad.addColorStop(0,'#ffffff55');ballGrad.addColorStop(.22,p.ball);ballGrad.addColorStop(.74,p.ball);ballGrad.addColorStop(1,'#061a30');ctx.fillStyle=ballGrad;ctx.shadowColor=p.glow;ctx.shadowBlur=33;ctx.beginPath();ctx.arc(ballX,ballY,radius,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+ if(grav==='jupiter'){ctx.save();ctx.beginPath();ctx.arc(ballX,ballY,radius,0,Math.PI*2);ctx.clip();for(let k=-3;k<6;k++){ctx.fillStyle=k%2===0?'#fbc18a55':'#4d275f45';ctx.fillRect(ballX-radius,ballY+k*26-5,radius*2,13)}ctx.restore()}
+ if(grav==='moon'){ctx.fillStyle='#26335b66';for(const [dx,dy,r] of [[-36,-29,23],[27,41,15],[57,-20,12],[-61,50,11]]){ctx.beginPath();ctx.arc(ballX+dx,ballY+dy,r,0,Math.PI*2);ctx.fill()}}
+ ctx.restore();
+ // Vertical motion scenery: softly layered futuristic skyline, purely visual.
+ const floorScreen=C.floor-camY;for(let layer=0;layer<2;layer++){
+   const par=layer===0?.09:.19;ctx.fillStyle=layer===0?'#0b1b34a8':'#0d2d49d9';const buildingWidth=80+layer*15;
+   for(let j=-1;j<14;j++){const ox=j*buildingWidth-(x*par)%buildingWidth;const height=35+(j*73+layer*48)%68;ctx.fillRect(ox,floorScreen-height,buildingWidth-11,height);ctx.fillStyle=layer===0?'#63b2ef19':'#70e8ff25';for(let t=0;t<3;t++)ctx.fillRect(ox+10+t*20,floorScreen-height+12,7,3);ctx.fillStyle=layer===0?'#0b1b34a8':'#0d2d49d9'}
+ }
+ // Flat polished runway with just a luminous edge and non-protruding light strips.
+ const floorGrad=ctx.createLinearGradient(0,floorScreen,0,floorScreen+105);floorGrad.addColorStop(0,'#153b57');floorGrad.addColorStop(1,'#071424');ctx.fillStyle=floorGrad;ctx.fillRect(0,floorScreen,w,h-floorScreen);
+ ctx.fillStyle=p.glow;ctx.fillRect(0,floorScreen,960,4);ctx.fillStyle='#4ca8cf48';ctx.fillRect(0,floorScreen+6,960,2);
+ ctx.strokeStyle='#67c7ff18';ctx.lineWidth=1;ctx.beginPath();for(let k=0;k<11;k++){const gx=(k*110-x*.24%110+110)%110;ctx.moveTo(gx,floorScreen+5);ctx.lineTo(gx+30,h)}ctx.stroke();
+ ctx.fillStyle=p.glow+'3b';for(let j=0;j<18;j++){const stripX=(j*67-x*.68%1200+1200)%1200;ctx.fillRect(stripX,floorScreen+20,17,2)}
+ // Speed streaks are purely decorative and never count as obstacles.
+ const boost=Math.max(0,(runSpeed-180)/88);
+ ctx.save();ctx.globalAlpha=.11+boost*.23;ctx.strokeStyle=p.glow;ctx.lineWidth=1.4;
+ for(let i=0;i<10;i++){const lineX=((i*139-x*(.55+boost*.28))%1300+1300)%1300-90;const lineY=42+((i*89)%295);ctx.beginPath();ctx.moveTo(lineX,lineY);ctx.lineTo(lineX-20-boost*55,lineY);ctx.stroke()}
+ ctx.restore();
+ // Intentionally authored obstacles only, no incidental floor bumps.
+ for(const o of world){const sx=o.x-x+170;if(sx<-160||sx>1090)continue;
+   if(o.type==='jump'){
+    ctx.shadowColor='#ff646d';ctx.shadowBlur=19;ctx.fillStyle='#ff5964';rect(sx,floorScreen-o.h,o.w,o.h,3);ctx.shadowBlur=0;
+    const gg=ctx.createLinearGradient(sx,floorScreen-o.h,sx,floorScreen);gg.addColorStop(0,'#ffe5a2');gg.addColorStop(1,'#f75b68');ctx.fillStyle=gg;rect(sx+2,floorScreen-o.h+2,Math.max(3,o.w-4),Math.max(2,o.h-4),2);
+    // Wide bright warning stripe is painted onto the road, not a bump.
+    ctx.fillStyle='#ff747455';ctx.fillRect(sx-35,floorScreen+6,o.w+70,4);
+    ctx.fillStyle='#ffdba8';ctx.font='bold 12px system-ui';ctx.fillText('▲',sx+o.w/2-5,floorScreen-o.h-12);
+   } else if(o.type==='beam'){
+    ctx.shadowColor='#49dfff';ctx.shadowBlur=22;ctx.fillStyle='#72e9fa';rect(sx,floorScreen-73,o.w,38,7);ctx.shadowBlur=0;
+    ctx.fillStyle='#173c67';rect(sx+5,floorScreen-67,o.w-10,26,5);ctx.strokeStyle='#9bf9ff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(sx+13,floorScreen-54);ctx.lineTo(sx+o.w-13,floorScreen-54);ctx.stroke();
+    ctx.fillStyle='#65daef66';ctx.fillRect(sx-4,floorScreen-75,o.w+8,2);
+    ctx.fillStyle='#d5ffff';ctx.font='bold 12px system-ui';ctx.fillText('▼',sx+o.w/2-5,floorScreen-86);
+   }else if(o.type==='coin'&&!collected.has(o.id)){
+    const cy=o.y-camY;ctx.save();ctx.translate(sx,cy);ctx.rotate(sec*2);ctx.shadowColor='#ffe58a';ctx.shadowBlur=19;ctx.fillStyle='#ffe89a';ctx.beginPath();for(let j=0;j<10;j++){const a=j*Math.PI/5,r=j%2?6:13;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath();ctx.fill();ctx.shadowBlur=0;ctx.restore();
+   }else if(o.type==='gate'){
+    ctx.save();ctx.shadowColor=PLANETS[o.to].glow;ctx.shadowBlur=26;ctx.strokeStyle=PLANETS[o.to].glow;ctx.lineWidth=7;ctx.beginPath();ctx.ellipse(sx,floorScreen-75,28,75,0,Math.PI,Math.PI*2);ctx.stroke();ctx.globalAlpha=.22+.12*Math.sin(sec*5);ctx.fillStyle=PLANETS[o.to].glow;ctx.beginPath();ctx.ellipse(sx,floorScreen-72,26,71,0,0,Math.PI*2);ctx.fill();ctx.restore();
+    ctx.fillStyle='#f9fcff';ctx.font='bold 14px system-ui';ctx.fillText('→ '+PLANETS[o.to].name,sx-24,floorScreen-169);
+   }
+   if(o.type==='jump'||o.type==='beam'){
+    const markerX=sx-175;ctx.globalAlpha=.8;ctx.fillStyle=o.type==='beam'?'#67f4ff':'#ffca7c';ctx.fillRect(markerX,floorScreen+2,49,6);ctx.globalAlpha=1;
+   }
+ }
+ if(phase==='play'){
+   const upcoming=world.find(o=>(o.type==='jump'||o.type==='beam')&&!passed.has(o.id)&&o.x-x>0);
+   if(upcoming&&upcoming.x-x<385){ctx.fillStyle='rgba(7,18,38,.91)';rect(309,76,343,44,10);
+    ctx.strokeStyle=upcoming.type==='jump'?'#ffc782':'#7aecff';ctx.lineWidth=1;ctx.strokeRect(315,81,330,33);
+    ctx.textAlign='center';ctx.font='bold 17px system-ui';ctx.fillStyle=upcoming.type==='jump'?'#ffdcaa':'#9ff6ff';
+    ctx.fillText(upcoming.type==='jump'?'▲ 바닥 에너지 장벽 · 점프':'▼ 머리 위 에너지 빔 · 슬라이드',480,104);ctx.textAlign='left'}
+ }
+ // Thruster and equipment bag; shape remains the same on every planet.
+ const py=player.y-camY,ph=player.slide?C.slideHeight:C.standHeight;
+ ctx.fillStyle='#b1e4ff28';ctx.beginPath();ctx.ellipse(186,floorScreen-5,26,5,0,0,Math.PI*2);ctx.fill();
+ ctx.globalAlpha=invulnerableTime>0&&Math.floor(frameTime*13)%2===0?.43:1;
+ ctx.shadowColor='#67ddff';ctx.shadowBlur=15;ctx.fillStyle='#e4f6ff';rect(172,py+Math.min(25,ph-10),33,Math.max(9,ph-28),6);ctx.fillStyle='#3e8bbf';rect(174,py+3,28,Math.min(26,ph),9);
+ ctx.fillStyle='#1d4b87';rect(179,py+9,19,Math.min(11,Math.max(4,ph-12)),5);
+ ctx.fillStyle='#edfbff';ctx.beginPath();ctx.ellipse(187,py+14,15,14,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#63c4eb';rect(174,py+ph-7,10,7,2);rect(194,py+ph-7,8,7,2);ctx.shadowBlur=0;
+ const bagX=155,bagY=py+(player.slide?10:27),bagH=player.slide?15:22;
+ ctx.fillStyle='#54667e';ctx.fillRect(171,bagY-7,4,Math.min(16,bagH+1));ctx.fillStyle='#da9856';rect(bagX,bagY,24,bagH,4);ctx.fillStyle='#795036';rect(bagX+2,bagY+4,20,Math.min(9,bagH-6),2);ctx.fillStyle='#ffe6b3';ctx.fillRect(bagX+10,bagY+7,5,4);
+ if(!player.slide){ctx.font='bold 8px system-ui';ctx.fillStyle='#122c3e';ctx.fillText('10kg',bagX+2,bagY+19)}ctx.globalAlpha=1;
+ // Particles (cosmetic only)
+ for(const part of particles){ctx.globalAlpha=Math.max(0,part.life/part.maxLife);ctx.fillStyle=part.color;ctx.shadowColor=part.color;ctx.shadowBlur=8;ctx.beginPath();ctx.arc(part.x,part.y-camY,part.r,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=1;ctx.shadowBlur=0;
+ // Heads-up display (HUD)
+ ctx.fillStyle='rgba(4,16,40,.85)';rect(12,12,287,57,11);ctx.fillStyle='#bbfbff';ctx.font='bold 17px system-ui';ctx.fillText(STAGES[stageIndex].title,25,36);ctx.font='12px system-ui';ctx.fillStyle='#f8ddac';ctx.fillText(`⚖ 10 kg   ·   🪝 ${Math.round(p.g*10)} N   ·   ${p.g.toFixed(1)} m/s²`,25,56);
+ ctx.fillStyle='#1c3f61';rect(316,25,320,12,6);ctx.fillStyle='#50f1d0';rect(316,25,320*Math.min(1,x/STAGES[stageIndex].length),12,6);
+ ctx.fillStyle='#cbf7ff';ctx.font='bold 13px system-ui';ctx.fillText('SPEED '+(currentSpeed()/180).toFixed(2)+'×',326,57);
+ ctx.fillStyle='#e7fbff';ctx.font='bold 18px system-ui';ctx.fillText(score.toLocaleString()+' PTS',744,36);
+ ctx.font='bold 13px system-ui';ctx.fillStyle=player.jumpsUsed<2?'#84ffe2':'#c6b2d5';ctx.fillText('점프 '+(2-player.jumpsUsed)+'/2',834,96);
+ ctx.fillStyle='#ff88b0';ctx.font='bold 24px system-ui';ctx.fillText('♥'.repeat(lives)+'♡'.repeat(MAX_LIVES-lives),731,67);
+ if(doubleJumpNotice>0&&phase==='play'){
+  ctx.save();ctx.globalAlpha=Math.min(1,doubleJumpNotice*2.7);
+  ctx.textAlign='center';ctx.fillStyle='#8dfaff';ctx.shadowColor='#4ff9ff';ctx.shadowBlur=14;
+  ctx.font='bold 20px system-ui';ctx.fillText('✦ 2단 점프!',205,Math.max(112,player.y-camY-22));ctx.restore();
+ }
+ if(flash>0){ctx.fillStyle='rgba(255,65,115,'+(flash*.22)+')';ctx.fillRect(0,0,w,h)}
+ if(gravityToastTime>0&&phase==='play'){ctx.save();ctx.globalAlpha=Math.min(1,gravityToastTime*.9);ctx.fillStyle='#102449';rect(242,138,476,44,11);ctx.strokeStyle=p.glow;ctx.lineWidth=2;ctx.strokeRect(246,142,468,36);ctx.fillStyle='#d7faff';ctx.font='bold 17px system-ui';ctx.textAlign='center';ctx.fillText(gravityToastText,480,166);ctx.restore()}
+ if(damageNoticeTime>0&&phase==='play'){ctx.save();ctx.globalAlpha=Math.min(1,damageNoticeTime*1.4);ctx.fillStyle='#4b1f38';rect(245,193,470,54,12);ctx.strokeStyle='#ff919a';ctx.lineWidth=2;ctx.strokeRect(250,198,460,44);ctx.textAlign='center';ctx.font='bold 22px system-ui';ctx.fillStyle='#ffe2e6';ctx.fillText(damageNoticeText,480,228);ctx.restore()}
+ ctx.restore();
+}
+
+function loop(now){frameTime=now/1000;let delta=Math.min(.05,(now-lastTime)/1000||0);lastTime=now;if(phase==='play'){accumulator+=delta;let steps=0;while(accumulator>=1/120&&steps<8&&phase==='play'){update(1/120);accumulator-=1/120;steps++}}const target=player.y<120?player.y-120:0;camY+=(target-camY)*Math.min(1,delta*7);flash=Math.max(0,flash-delta*1.7);shake=Math.max(0,shake-delta*27);for(let i=particles.length-1;i>=0;i--){const q=particles[i];q.life-=delta;q.x+=q.vx*delta;q.y+=q.vy*delta;q.vy+=80*delta;if(q.life<=0)particles.splice(i,1)}draw(now);requestAnimationFrame(loop)}
+window.addEventListener('keydown',e=>{if(e.target&&['INPUT','TEXTAREA'].includes(e.target.tagName))return;if(['Space','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault();if(e.repeat)return;if(e.code==='Space'||e.code==='ArrowUp')jump();if(e.code==='ArrowDown')setSlide(true);if(e.code==='KeyP')togglePause()});
+window.addEventListener('keyup',e=>{if(e.code==='ArrowDown')setSlide(false)});
+function bindTouch(id,onDown,onUp){const btn=$(id);btn.addEventListener('pointerdown',e=>{e.preventDefault();try{btn.setPointerCapture(e.pointerId)}catch(_){}onDown()});btn.addEventListener('pointerup',e=>{e.preventDefault();if(onUp)onUp()});btn.addEventListener('pointercancel',()=>{if(onUp)onUp()})}
+bindTouch('jumpBtn',jump);bindTouch('slideBtn',()=>setSlide(true),()=>setSlide(false));
+$('instrumentBtn').onclick=openInstruments;$('leaderBtn').onclick=showLeaderboard;$('pauseBtn').onclick=togglePause;$('muteBtn').onclick=()=>{muted=!muted;$('muteBtn').textContent=muted?'🔊 사운드 켜기':'🔇 사운드 끄기'};
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&phase==='play')pauseGame()});
+startScreen();lastTime=performance.now();requestAnimationFrame(loop);
+</script>
+</body></html>
