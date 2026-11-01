@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>My Reading Universe</title>
 <style>
 :root {
@@ -14,39 +14,42 @@
   --accent:#a9ccff;
 }
 *{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
 body{
-  margin:0;background:var(--bg);color:var(--text);
+  background:var(--bg);color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
 button,input,select,textarea{font:inherit}
 button{cursor:pointer;touch-action:manipulation}
+button:active{opacity:.7}
 header{
-  min-height:65px;padding:12px 16px;
+  height:65px;padding:10px 15px;
   background:#12161d;border-bottom:1px solid var(--line);
   display:flex;align-items:center;justify-content:space-between;
-  gap:10px;flex-wrap:wrap;
+  gap:10px;
 }
-.brand{display:flex;align-items:center;gap:10px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
 .logo{
-  width:36px;height:36px;border-radius:11px;
+  width:35px;height:35px;flex-shrink:0;border-radius:10px;
   background:linear-gradient(135deg,#8bbcff,#c6a7ff);
   display:grid;place-items:center;color:#111;font-weight:bold;
 }
-h1{font-size:16px;margin:0}
-.sub{font-size:11px;color:var(--muted);margin-top:3px}
-.actions{display:flex;gap:7px}
+h1{font-size:15px;margin:0}
+.sub{font-size:10px;color:var(--muted);margin-top:3px}
+.actions{display:flex;gap:6px;flex-shrink:0}
 .btn{
   border:1px solid var(--line);background:#202733;
-  color:var(--text);padding:10px 12px;border-radius:9px;
-  font-size:12px;min-height:39px;
+  color:var(--text);padding:9px 11px;border-radius:9px;
+  font-size:12px;min-height:38px;
 }
-.btn:active{background:#354356}
 .primary{background:#d6e7ff;color:#101923;font-weight:bold}
 .layout{
-  height:calc(100dvh - 65px);
-  display:grid;grid-template-columns:230px minmax(0,1fr) 280px;
+  height:calc(100% - 65px);
+  display:grid;
+  grid-template-columns:225px minmax(0,1fr) 270px;
+  min-height:0;
 }
-aside{background:var(--panel);padding:16px;overflow:auto}
+aside{background:var(--panel);padding:15px;overflow:auto}
 .left{border-right:1px solid var(--line)}
 .right{border-left:1px solid var(--line)}
 .st{
@@ -62,22 +65,29 @@ textarea{resize:vertical;line-height:1.6}
 input[type=checkbox]{width:auto}
 .filter{
   display:block;padding:10px;border-radius:8px;
-  font-size:12px;color:#c7d0dc;
-  cursor:pointer;
+  font-size:12px;color:#c7d0dc;cursor:pointer;
 }
 .filter.active{background:#2a3544;color:white}
-.filter:hover{background:#26313f}
 .stats{display:flex;gap:8px}
 .stat{flex:1;background:#11161d;padding:12px;border-radius:9px}
 .stat b{display:block;font-size:21px}
 .stat span{font-size:11px;color:var(--muted)}
-.notice{font-size:11px;line-height:1.7;color:var(--muted);margin-top:15px}
+.notice{
+  font-size:11px;line-height:1.7;
+  color:var(--muted);margin-top:15px;
+}
 #graph{
-  position:relative;min-width:0;overflow:hidden;
+  position:relative;
+  width:100%;height:100%;
+  min-width:0;min-height:0;overflow:hidden;
   background-image:radial-gradient(#29313d 1px,transparent 1px);
   background-size:24px 24px;
 }
-canvas{width:100%;height:100%;display:block;touch-action:none}
+#cv{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  display:block;touch-action:none;
+}
 .hud{
   position:absolute;top:15px;left:15px;
   font-size:13px;font-weight:bold;pointer-events:none;
@@ -132,37 +142,46 @@ canvas{width:100%;height:100%;display:block;touch-action:none}
 }
 .modalbg.open{display:flex}
 .modal{
-  width:min(440px,100%);max-height:90dvh;overflow:auto;
-  background:#1a2029;border:1px solid #394454;
-  border-radius:15px;padding:20px;
+  width:min(440px,100%);max-height:90%;
+  overflow:auto;background:#1a2029;
+  border:1px solid #394454;border-radius:15px;padding:20px;
 }
 .modal h2{font-size:18px;margin-top:0}
 .modalfoot{
   display:flex;justify-content:flex-end;
   gap:8px;margin-top:20px;
 }
-.mobile-nav{display:none}
-.close-panel{display:none}
+.mobile-nav,.close-panel{display:none}
 @media(max-width:850px){
   .layout{grid-template-columns:190px minmax(0,1fr)}
   .right{display:none}
 }
 @media(max-width:650px){
-  header{padding:10px}
+  header{
+    height:110px;padding:8px 10px;
+    flex-direction:column;align-items:stretch;
+    justify-content:center;gap:7px;
+  }
+  .brand{justify-content:center}
+  .logo{width:28px;height:28px}
+  h1{font-size:14px}
+  .sub{display:none}
   .actions{width:100%}
   .actions .btn{flex:1;font-size:12px}
-  .layout{height:calc(100dvh - 112px);display:block;position:relative}
-  #graph{height:100%}
+  .layout{
+    height:calc(100% - 110px);
+    display:block;position:relative;
+  }
+  #graph{width:100%;height:100%}
   .left,.right{display:none}
   .left.mobile-open,.right.mobile-open{
     display:block;position:absolute;z-index:12;
     left:0;right:0;width:100%;
-    overflow:auto;background:#191e26;
-    border:0;
+    overflow:auto;background:#191e26;border:0;
   }
-  .left.mobile-open{top:0;bottom:54px}
+  .left.mobile-open{top:0;bottom:55px}
   .right.mobile-open{
-    bottom:54px;top:auto;max-height:75%;
+    bottom:55px;top:auto;max-height:75%;
     border-radius:18px 18px 0 0;
     border-top:2px solid var(--accent);
   }
@@ -174,7 +193,10 @@ canvas{width:100%;height:100%;display:block;touch-action:none}
   }
   .mobile-nav button{flex:1;min-height:42px}
   .close-panel{display:block;float:right}
-  .controls{bottom:65px;right:8px;left:8px}
+  .controls{
+    bottom:65px;right:8px;left:8px;
+    justify-content:center;
+  }
   .controls .btn{font-size:11px;padding:8px}
   .hud{top:10px;left:10px}
   input,textarea,select{font-size:16px}
@@ -223,7 +245,7 @@ canvas{width:100%;height:100%;display:block;touch-action:none}
     <p class="notice">
       책을 드래그하면 연결된 책들이 탄성 있게 움직입니다.
       데이터는 현재 브라우저에 저장됩니다.
-      다른 기기와 자동 동기화되지는 않으므로 JSON으로 백업하세요.
+      다른 기기와 자동 동기화되지 않으므로 JSON으로 백업하세요.
     </p>
   </aside>
 
@@ -316,9 +338,9 @@ canvas{width:100%;height:100%;display:block;touch-action:none}
 <script>
 "use strict";
 
-const $ = id => document.getElementById(id);
+const $=id=>document.getElementById(id);
 
-const rels = [
+const rels=[
   ["author","동일 작가",false,"#83b9ff"],
   ["topic","동일 주제",false,"#7bd7ae"],
   ["inspired","독서 계기",true,"#ffcb7a"],
@@ -328,21 +350,28 @@ const rels = [
   ["custom","직접 지정",false,"#c7d0da"]
 ];
 
-let books = [];
-let edges = [];
-let selected = null;
-let source = null;
-let yearFilter = "all";
-let typeFilter = "all";
-let scale = 1;
-let offset = {x:0,y:0};
-let running = true;
-let drag = null;
-let frame = 0;
+const nodeColors=[
+  "#9bc7ff","#c4a7ff","#9ed9c1",
+  "#f2c58d","#f39fae","#a8c7d9"
+];
 
-const canvas = $("cv");
-const ctx = canvas.getContext("2d");
-const graph = $("graph");
+let books=[];
+let edges=[];
+let selected=null;
+let source=null;
+let yearFilter="all";
+let typeFilter="all";
+let scale=1;
+let offset={x:0,y:0};
+let running=true;
+let drag=null;
+let frame=0;
+let width=1,height=1;
+let fitPending=false;
+
+const canvas=$("cv");
+const ctx=canvas.getContext("2d");
+const graph=$("graph");
 
 function uid(){
   return "id"+Date.now().toString(36)+
@@ -356,15 +385,16 @@ function esc(s){
 }
 function save(){
   try{
-    localStorage.setItem("mru-data",JSON.stringify({books,edges}));
-  }catch(e){
-    console.warn("저장 실패",e);
-  }
+    localStorage.setItem("mru-data",JSON.stringify({
+      books:books.map(({vx,vy,...b})=>b),
+      edges
+    }));
+  }catch(e){console.warn("저장 실패",e)}
 }
 function load(){
   try{
     const d=JSON.parse(localStorage.getItem("mru-data"));
-    if(d && Array.isArray(d.books) && Array.isArray(d.edges)){
+    if(d&&Array.isArray(d.books)&&Array.isArray(d.edges)){
       books=d.books;
       edges=d.edges;
       normalize();
@@ -374,12 +404,13 @@ function load(){
 function normalize(){
   books=books.filter(b=>b&&b.id&&b.title&&b.author);
   books.forEach((b,i)=>{
-    if(!Number.isFinite(Number(b.x))) b.x=Math.cos(i*2.4)*100;
-    if(!Number.isFinite(Number(b.y))) b.y=Math.sin(i*2.4)*100;
+    const angle=i*2.399;
+    const radius=80+Math.sqrt(i)*55;
     b.x=Number(b.x);
     b.y=Number(b.y);
-    b.vx=0;
-    b.vy=0;
+    if(!Number.isFinite(b.x))b.x=Math.cos(angle)*radius;
+    if(!Number.isFinite(b.y))b.y=Math.sin(angle)*radius;
+    b.vx=0;b.vy=0;
     b.yearGroup=b.yearGroup||"2026년까지";
     b.memo=b.memo||"";
     b.finished=b.finished||"";
@@ -398,30 +429,53 @@ function visible(){
   );
   return {bs,es};
 }
+
+/* 화면 크기를 실제 표시 영역에 맞춰 계산 */
 function resize(){
   const r=graph.getBoundingClientRect();
+  width=Math.max(1,r.width);
+  height=Math.max(1,r.height);
   const d=Math.min(window.devicePixelRatio||1,2);
-  canvas.width=Math.max(1,Math.round(r.width*d));
-  canvas.height=Math.max(1,Math.round(r.height*d));
+  canvas.width=Math.round(width*d);
+  canvas.height=Math.round(height*d);
   ctx.setTransform(d,0,0,d,0,0);
 }
+
+/* 지도 좌표 */
 function pos(b){
   return {
-    x:canvas.clientWidth/2+offset.x+b.x*scale,
-    y:canvas.clientHeight/2+offset.y+b.y*scale
+    x:width/2+offset.x+b.x*scale,
+    y:height/2+offset.y+b.y*scale
   };
 }
+
+/* 모든 책이 화면 안에 들어오도록 자동 확대 */
 function fit(){
-  if(!books.length)return;
-  const xs=books.map(b=>b.x);
-  const ys=books.map(b=>b.y);
-  const minX=Math.min(...xs),maxX=Math.max(...xs);
-  const minY=Math.min(...ys),maxY=Math.max(...ys);
-  const w=canvas.clientWidth,h=canvas.clientHeight;
-  scale=Math.max(.08,Math.min(
-    (w-100)/(maxX-minX+100),
-    (h-120)/(maxY-minY+100),1.5
-  ));
+  if(!books.length||width<10||height<10)return;
+  const bs=visible().bs;
+  if(!bs.length)return;
+
+  let minX=Infinity,maxX=-Infinity;
+  let minY=Infinity,maxY=-Infinity;
+
+  bs.forEach(b=>{
+    minX=Math.min(minX,b.x);
+    maxX=Math.max(maxX,b.x);
+    minY=Math.min(minY,b.y);
+    maxY=Math.max(maxY,b.y);
+  });
+
+  const padding=window.innerWidth<650?55:90;
+  const availableW=Math.max(50,width-padding*2);
+  const availableH=Math.max(50,height-padding*2);
+
+  scale=Math.min(
+    availableW/Math.max(100,maxX-minX),
+    availableH/Math.max(100,maxY-minY),
+    2
+  );
+  scale=Math.max(.015,scale);
+
   offset={
     x:-(minX+maxX)/2*scale,
     y:-(minY+maxY)/2*scale
@@ -439,13 +493,16 @@ function kick(){
 /* 탄성 물리 시뮬레이션 */
 function simulate(){
   if(!running||!$("physics").checked||!books.length)return;
-  if(frame++>1500){running=false;save();return}
+  if(frame++>1200){
+    running=false;
+    save();
+    return;
+  }
 
   const n=books.length;
   const forces=books.map(()=>({x:0,y:0}));
   const index=new Map(books.map((b,i)=>[b.id,i]));
 
-  // 노드 사이의 척력
   for(let i=0;i<n;i++){
     for(let j=i+1;j<n;j++){
       const a=books[i],b=books[j];
@@ -462,7 +519,6 @@ function simulate(){
     }
   }
 
-  // 관계가 있는 책 사이의 스프링 인력
   edges.forEach(e=>{
     const i=index.get(e.from),j=index.get(e.to);
     if(i===undefined||j===undefined)return;
@@ -470,8 +526,7 @@ function simulate(){
     const dx=b.x-a.x,dy=b.y-a.y;
     const dist=Math.max(1,Math.hypot(dx,dy));
     const desired=e.type==="author"?125:155;
-    const strength=.006;
-    const force=(dist-desired)*strength;
+    const force=(dist-desired)*.006;
     const fx=dx/dist*force,fy=dy/dist*force;
     forces[i].x+=fx;
     forces[i].y+=fy;
@@ -479,7 +534,6 @@ function simulate(){
     forces[j].y-=fy;
   });
 
-  // 중앙으로 약하게 끌어당김
   books.forEach((b,i)=>{
     if(drag&&drag.b===b)return;
     const f=forces[i];
@@ -492,9 +546,9 @@ function simulate(){
   });
 }
 
+/* 지도 그리기 */
 function draw(){
-  const w=canvas.clientWidth,h=canvas.clientHeight;
-  ctx.clearRect(0,0,w,h);
+  ctx.clearRect(0,0,width,height);
   const {bs,es}=visible();
   const map=new Map(bs.map(b=>[b.id,b]));
   const neighbors=new Set();
@@ -551,25 +605,22 @@ function draw(){
     const active=!selected||
       selected===b.id||neighbors.has(b.id);
     ctx.globalAlpha=active?1:.17;
-    const radius=selected===b.id?11:7;
 
+    const radius=selected===b.id?11:7;
     let hash=0;
-    for(const c of b.author)
+    for(const c of b.author){
       hash=(hash*31+c.charCodeAt(0))|0;
-    const colors=[
-      "#9bc7ff","#c4a7ff","#9ed9c1",
-      "#f2c58d","#f39fae","#a8c7d9"
-    ];
+    }
 
     ctx.beginPath();
     ctx.arc(p.x,p.y,radius,0,Math.PI*2);
-    ctx.fillStyle=colors[Math.abs(hash)%colors.length];
+    ctx.fillStyle=nodeColors[Math.abs(hash)%nodeColors.length];
     ctx.fill();
     ctx.strokeStyle=selected===b.id?"white":"#d9e7f8";
     ctx.lineWidth=selected===b.id?3:1;
     ctx.stroke();
 
-    if($("labels").checked&&(scale>.55||selected===b.id)){
+    if($("labels").checked&&(scale>.45||selected===b.id)){
       ctx.font="11px sans-serif";
       ctx.textAlign="center";
       ctx.fillStyle="#f4f6fc";
@@ -581,11 +632,13 @@ function draw(){
   });
   ctx.globalAlpha=1;
 }
+
 function loop(){
   simulate();
   draw();
   requestAnimationFrame(loop);
 }
+
 function render(){
   const groups=[
     "all","2026년까지",
@@ -608,6 +661,7 @@ function render(){
     el.onclick=()=>{
       yearFilter=el.dataset.year;
       render();
+      fit();
     };
   });
 
@@ -639,6 +693,7 @@ function render(){
     `${visible().bs.length}권 · ${visible().es.length}개 연결`;
   detail();
 }
+
 function detail(){
   const b=books.find(x=>x.id===selected);
   if(!b){
@@ -701,6 +756,7 @@ function detail(){
     save();
     $("savememo").textContent="저장 완료 ✓";
   };
+
   document.querySelectorAll("[data-jump]").forEach(el=>{
     el.onclick=()=>{
       selected=el.dataset.jump;
@@ -709,15 +765,17 @@ function detail(){
       detail();
     };
   });
+
   $("connect").onclick=()=>edgeModal(b.id);
   $("del").onclick=()=>{
     if(!confirm("이 책과 연결 관계를 삭제할까요?"))return;
     books=books.filter(x=>x.id!==b.id);
     edges=edges.filter(e=>e.from!==b.id&&e.to!==b.id);
     selected=null;
-    save();render();
+    save();render();fit();
   };
 }
+
 function edgeModal(id){
   if(books.length<2){
     alert("책을 두 권 이상 추가해 주세요.");
@@ -761,6 +819,7 @@ $("savebook").onclick=()=>{
     alert("이미 등록된 책입니다.");
     return;
   }
+
   const i=books.length;
   const a=i*2.399;
   books.push({
@@ -769,12 +828,13 @@ $("savebook").onclick=()=>{
       "2026년까지":$("year").value,
     finished:$("finished").value,
     memo:$("memo").value,
-    x:Math.cos(a)*Math.sqrt(i)*60,
-    y:Math.sin(a)*Math.sqrt(i)*60,
+    x:Math.cos(a)*(80+Math.sqrt(i)*55),
+    y:Math.sin(a)*(80+Math.sqrt(i)*55),
     vx:0,vy:0
   });
+
   $("bookmodal").classList.remove("open");
-  save();kick();render();
+  save();kick();render();fit();
 };
 
 $("saveedge").onclick=()=>{
@@ -815,17 +875,25 @@ $("demo").onclick=()=>{
   save();kick();render();fit();
 };
 
-$("fit").onclick=fit;
+$("fit").onclick=()=>{
+  resize();
+  fit();
+  draw();
+};
+
 $("relayout").onclick=()=>{
   books.forEach((b,i)=>{
     const a=i*2.399;
-    const r=65+Math.sqrt(i)*40;
+    const r=80+Math.sqrt(i)*55;
     b.x=Math.cos(a)*r;
     b.y=Math.sin(a)*r;
     b.vx=b.vy=0;
   });
-  kick();fit();save();
+  kick();
+  fit();
+  save();
 };
+
 $("pause").onclick=()=>{
   running=!running;
   $("pause").textContent=running?"움직임 멈춤":"움직임 재개";
@@ -835,10 +903,12 @@ $("physics").onchange=()=>{
   if($("physics").checked)kick();
 };
 $("zoomIn").onclick=()=>{
-  scale=Math.min(4,scale*1.25);
+  scale=Math.min(5,scale*1.4);
+  draw();
 };
 $("zoomOut").onclick=()=>{
-  scale=Math.max(.05,scale/1.25);
+  scale=Math.max(.01,scale/1.4);
+  draw();
 };
 
 $("search").oninput=e=>{
@@ -852,6 +922,7 @@ $("search").oninput=e=>{
     selected=b.id;
     yearFilter="all";
     typeFilter="all";
+    scale=Math.max(scale,.8);
     centerOn(b);
     render();
   }
@@ -892,19 +963,44 @@ $("file").onchange=async e=>{
     try{
       data=JSON.parse(String(raw).replace(/^\uFEFF/,""));
     }catch(err){
-      throw new Error("JSON 문법 오류입니다. .json 파일을 선택했는지 확인하세요.");
+      throw new Error("JSON 문법 오류입니다.");
     }
     if(!Array.isArray(data.books)||!Array.isArray(data.edges)){
       throw new Error("books 또는 edges 목록이 없습니다.");
     }
     if(!confirm("현재 지도를 가져온 데이터로 교체할까요?"))return;
+
     books=data.books;
     edges=data.edges;
     normalize();
     selected=null;
     yearFilter="all";
     typeFilter="all";
-    save();kick();render();fit();
+
+    // 가져온 좌표가 지나치게 크거나 이상하면 재배치
+    const invalid=books.some(b=>
+      !Number.isFinite(b.x)||!Number.isFinite(b.y)||
+      Math.abs(b.x)>100000||Math.abs(b.y)>100000
+    );
+    if(invalid){
+      books.forEach((b,i)=>{
+        const a=i*2.399;
+        const r=80+Math.sqrt(i)*55;
+        b.x=Math.cos(a)*r;
+        b.y=Math.sin(a)*r;
+      });
+    }
+
+    save();
+    kick();
+    render();
+
+    requestAnimationFrame(()=>{
+      resize();
+      fit();
+      draw();
+    });
+
     alert(`${books.length}권을 가져왔습니다.`);
   }catch(err){
     alert("가져오기 실패: "+err.message);
@@ -913,58 +1009,127 @@ $("file").onchange=async e=>{
   }
 };
 
+/* 터치 및 마우스 조작 */
 function hit(x,y){
   const bs=visible().bs;
   for(let i=bs.length-1;i>=0;i--){
     const p=pos(bs[i]);
-    if(Math.hypot(x-p.x,y-p.y)<20)return bs[i];
+    if(Math.hypot(x-p.x,y-p.y)<22)return bs[i];
   }
   return null;
 }
 
-canvas.addEventListener("pointerdown",e=>{
+const pointers=new Map();
+let pinch=null;
+
+function pointerPosition(e){
   const r=canvas.getBoundingClientRect();
-  const x=e.clientX-r.left,y=e.clientY-r.top;
-  const b=hit(x,y);
+  return {x:e.clientX-r.left,y:e.clientY-r.top};
+}
+
+canvas.addEventListener("pointerdown",e=>{
+  e.preventDefault();
+  const p=pointerPosition(e);
+  pointers.set(e.pointerId,p);
+  canvas.setPointerCapture(e.pointerId);
+
+  if(pointers.size===2){
+    drag=null;
+    const ps=[...pointers.values()];
+    pinch={
+      distance:Math.max(1,Math.hypot(
+        ps[0].x-ps[1].x,ps[0].y-ps[1].y
+      )),
+      scale,
+      offset:{...offset},
+      center:{
+        x:(ps[0].x+ps[1].x)/2,
+        y:(ps[0].y+ps[1].y)/2
+      }
+    };
+    return;
+  }
+
+  if(pointers.size>2)return;
+
+  const b=hit(p.x,p.y);
   if(b){
     selected=b.id;
-    drag={b,ox:x,oy:y,bx:b.x,by:b.y};
-    detail();kick();
+    drag={b,ox:p.x,oy:p.y,bx:b.x,by:b.y};
+    detail();
+    kick();
   }else{
     selected=null;
     drag={
-      pan:true,ox:x,oy:y,
+      pan:true,ox:p.x,oy:p.y,
       offx:offset.x,offy:offset.y
     };
     detail();
   }
-  canvas.setPointerCapture(e.pointerId);
 });
 
 canvas.addEventListener("pointermove",e=>{
-  if(!drag)return;
-  const r=canvas.getBoundingClientRect();
-  const x=e.clientX-r.left,y=e.clientY-r.top;
+  if(!pointers.has(e.pointerId))return;
+  const p=pointerPosition(e);
+  pointers.set(e.pointerId,p);
+
+  if(pointers.size===2&&pinch){
+    const ps=[...pointers.values()];
+    const dist=Math.max(1,Math.hypot(
+      ps[0].x-ps[1].x,ps[0].y-ps[1].y
+    ));
+    const center={
+      x:(ps[0].x+ps[1].x)/2,
+      y:(ps[0].y+ps[1].y)/2
+    };
+    const newScale=Math.max(.01,Math.min(5,
+      pinch.scale*dist/pinch.distance
+    ));
+    const ratio=newScale/pinch.scale;
+    offset.x=center.x-width/2-
+      (pinch.center.x-width/2-pinch.offset.x)*ratio;
+    offset.y=center.y-height/2-
+      (pinch.center.y-height/2-pinch.offset.y)*ratio;
+    scale=newScale;
+    return;
+  }
+
+  if(!drag||pointers.size!==1)return;
+
   if(drag.pan){
-    offset.x=drag.offx+x-drag.ox;
-    offset.y=drag.offy+y-drag.oy;
+    offset.x=drag.offx+p.x-drag.ox;
+    offset.y=drag.offy+p.y-drag.oy;
   }else{
-    drag.b.x=drag.bx+(x-drag.ox)/scale;
-    drag.b.y=drag.by+(y-drag.oy)/scale;
+    drag.b.x=drag.bx+(p.x-drag.ox)/scale;
+    drag.b.y=drag.by+(p.y-drag.oy)/scale;
   }
 });
-canvas.addEventListener("pointerup",()=>{
+
+function endPointer(e){
+  pointers.delete(e.pointerId);
+  if(pointers.size<2)pinch=null;
   if(drag&&!drag.pan)save();
   drag=null;
-});
-canvas.addEventListener("pointercancel",()=>drag=null);
+}
+canvas.addEventListener("pointerup",endPointer);
+canvas.addEventListener("pointercancel",endPointer);
+
 canvas.addEventListener("wheel",e=>{
   e.preventDefault();
-  scale=Math.max(.05,Math.min(4,
-    scale*(e.deltaY<0?1.1:.9)
+  const p=pointerPosition(e);
+  const old=scale;
+  const next=Math.max(.01,Math.min(5,
+    scale*(e.deltaY<0?1.12:.89)
   ));
+  const ratio=next/old;
+  offset.x=p.x-width/2-
+    (p.x-width/2-offset.x)*ratio;
+  offset.y=p.y-height/2-
+    (p.y-height/2-offset.y)*ratio;
+  scale=next;
 },{passive:false});
 
+/* 모바일 패널 */
 function togglePanel(which){
   const left=$("leftPanel"),right=$("rightPanel");
   const panel=which==="left"?left:right;
@@ -974,18 +1139,49 @@ function togglePanel(which){
 }
 $("mobileFilters").onclick=()=>togglePanel("left");
 $("mobileDetails").onclick=()=>togglePanel("right");
-$("closeLeft").onclick=()=>$("leftPanel").classList.remove("mobile-open");
-$("closeRight").onclick=()=>$("rightPanel").classList.remove("mobile-open");
+$("closeLeft").onclick=()=>
+  $("leftPanel").classList.remove("mobile-open");
+$("closeRight").onclick=()=>
+  $("rightPanel").classList.remove("mobile-open");
 
-window.addEventListener("resize",()=>{
-  resize();draw();
+/* 초기 실행 */
+load();
+render();
+
+function initializeView(){
+  resize();
+  fit();
+  draw();
+}
+
+requestAnimationFrame(()=>{
+  initializeView();
+  requestAnimationFrame(()=>{
+    initializeView();
+    requestAnimationFrame(loop);
+  });
 });
 
-load();
-resize();
-render();
-fit();
-requestAnimationFrame(loop);
+window.addEventListener("resize",()=>{
+  resize();
+  draw();
+});
+
+window.addEventListener("orientationchange",()=>{
+  setTimeout(()=>{
+    resize();
+    fit();
+    draw();
+  },300);
+});
+
+if("ResizeObserver" in window){
+  const observer=new ResizeObserver(()=>{
+    resize();
+    draw();
+  });
+  observer.observe(graph);
+}
 </script>
 </body>
 </html>
