@@ -2,16 +2,17 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>My Reading Universe</title>
+
 <style>
-:root {
-  --bg:#101318;
-  --panel:#191e26;
-  --line:#303947;
-  --text:#edf1f7;
-  --muted:#9ba7b7;
-  --accent:#a9ccff;
+:root{
+  --bg:#10141b;
+  --panel:#1a202a;
+  --border:#343e4d;
+  --text:#eef3fb;
+  --muted:#9ba9ba;
+  --accent:#a9caff;
 }
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;overflow:hidden}
@@ -21,175 +22,208 @@ body{
 }
 button,input,select,textarea{font:inherit}
 button{cursor:pointer;touch-action:manipulation}
-button:active{opacity:.7}
+button:active{opacity:.75}
 header{
-  height:65px;padding:10px 15px;
-  background:#12161d;border-bottom:1px solid var(--line);
-  display:flex;align-items:center;justify-content:space-between;
-  gap:10px;
+  height:64px;padding:10px 15px;background:#141922;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
 }
 .brand{display:flex;align-items:center;gap:10px;min-width:0}
 .logo{
-  width:35px;height:35px;flex-shrink:0;border-radius:10px;
-  background:linear-gradient(135deg,#8bbcff,#c6a7ff);
-  display:grid;place-items:center;color:#111;font-weight:bold;
+  width:36px;height:36px;border-radius:11px;
+  background:linear-gradient(135deg,#8dbaff,#c6a7ff);
+  color:#142033;display:grid;place-items:center;font-weight:bold;
 }
-h1{font-size:15px;margin:0}
-.sub{font-size:10px;color:var(--muted);margin-top:3px}
-.actions{display:flex;gap:6px;flex-shrink:0}
+h1{font-size:16px;margin:0}
+.subtitle{font-size:11px;color:var(--muted);margin-top:3px}
+.actions{display:flex;gap:7px}
 .btn{
-  border:1px solid var(--line);background:#202733;
-  color:var(--text);padding:9px 11px;border-radius:9px;
-  font-size:12px;min-height:38px;
+  background:#26303e;color:var(--text);
+  border:1px solid var(--border);border-radius:9px;
+  padding:10px 12px;font-size:12px;min-height:40px;
 }
-.primary{background:#d6e7ff;color:#101923;font-weight:bold}
+.primary{background:#d4e5ff;color:#142033;font-weight:700}
 .layout{
-  height:calc(100% - 65px);
-  display:grid;
-  grid-template-columns:225px minmax(0,1fr) 270px;
+  height:calc(100% - 64px);
+  display:grid;grid-template-columns:225px minmax(0,1fr) 275px;
   min-height:0;
 }
-aside{background:var(--panel);padding:15px;overflow:auto}
-.left{border-right:1px solid var(--line)}
-.right{border-left:1px solid var(--line)}
-.st{
+aside{background:var(--panel);padding:16px;overflow:auto}
+.left{border-right:1px solid var(--border)}
+.right{border-left:1px solid var(--border)}
+.section{
   font-size:11px;color:var(--muted);
-  font-weight:bold;letter-spacing:.5px;margin:15px 0 10px;
+  font-weight:700;letter-spacing:.5px;margin:18px 0 10px;
 }
 input,select,textarea{
-  width:100%;background:#11161d;color:var(--text);
-  border:1px solid var(--line);border-radius:8px;
-  padding:10px;font-size:13px;
+  width:100%;background:#111720;color:var(--text);
+  border:1px solid var(--border);border-radius:9px;
+  padding:11px;font-size:14px;
 }
 textarea{resize:vertical;line-height:1.6}
 input[type=checkbox]{width:auto}
 .filter{
   display:block;padding:10px;border-radius:8px;
-  font-size:12px;color:#c7d0dc;cursor:pointer;
+  font-size:12px;color:#c9d3df;cursor:pointer;
 }
-.filter.active{background:#2a3544;color:white}
+.filter.active{background:#304054;color:#fff}
 .stats{display:flex;gap:8px}
-.stat{flex:1;background:#11161d;padding:12px;border-radius:9px}
-.stat b{display:block;font-size:21px}
+.stat{flex:1;background:#111720;border-radius:10px;padding:12px}
+.stat strong{display:block;font-size:23px}
 .stat span{font-size:11px;color:var(--muted)}
-.notice{
-  font-size:11px;line-height:1.7;
-  color:var(--muted);margin-top:15px;
-}
+.notice{font-size:11px;line-height:1.7;color:var(--muted)}
 #graph{
-  position:relative;
-  width:100%;height:100%;
-  min-width:0;min-height:0;overflow:hidden;
-  background-image:radial-gradient(#29313d 1px,transparent 1px);
+  position:relative;min-width:0;min-height:0;overflow:hidden;
+  background-color:#10141b;
+  background-image:radial-gradient(#293240 1px,transparent 1px);
   background-size:24px 24px;
+  touch-action:none;
 }
-#cv{
-  position:absolute;inset:0;
-  width:100%;height:100%;
-  display:block;touch-action:none;
+#viewport{
+  position:absolute;inset:0;overflow:hidden;
+  touch-action:none;
 }
+#world{
+  position:absolute;left:50%;top:50%;
+  width:0;height:0;transform-origin:0 0;
+  will-change:transform;
+  pointer-events:none;
+}
+#connections{
+  position:absolute;overflow:visible;
+  width:1px;height:1px;
+  pointer-events:none;
+}
+.book{
+  position:absolute;width:154px;min-height:50px;
+  transform:translate(-50%,-50%);
+  border-radius:12px;
+  padding:9px 11px;
+  background:#263548;
+  border:1.5px solid #7897b7;
+  box-shadow:0 3px 12px #0004;
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;
+  color:#eef5ff;
+  font-size:12px;font-weight:600;line-height:1.4;
+  overflow-wrap:anywhere;
+  pointer-events:auto;
+  cursor:pointer;
+  user-select:none;-webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.book.selected{
+  background:#e0ecff!important;color:#142033;
+  border:2px solid #fff!important;
+  box-shadow:0 0 0 5px #91bdff44,0 6px 22px #0008;
+  z-index:10;
+}
+.book.dim{opacity:.23}
+.book.neighbor{border-width:2px}
 .hud{
-  position:absolute;top:15px;left:15px;
-  font-size:13px;font-weight:bold;pointer-events:none;
+  position:absolute;top:14px;left:14px;
+  pointer-events:none;z-index:3;
+  font-size:13px;font-weight:700;
 }
 .hud small{
-  display:block;font-size:11px;color:var(--muted);
-  font-weight:normal;margin-top:5px;
+  display:block;color:var(--muted);
+  font-size:11px;font-weight:400;margin-top:5px;
 }
 .controls{
   position:absolute;bottom:15px;right:15px;
-  display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;
+  display:flex;gap:7px;z-index:5;flex-wrap:wrap;
+  justify-content:flex-end;
 }
 .empty{
-  position:absolute;inset:0;display:none;
+  display:none;position:absolute;inset:0;
   align-items:center;justify-content:center;
-  pointer-events:none;padding:20px;
+  pointer-events:none;z-index:4;padding:20px;
 }
 .empty.show{display:flex}
-.card{
-  pointer-events:auto;text-align:center;
-  background:#171d26ee;border:1px solid var(--line);
-  border-radius:16px;padding:24px;max-width:340px;
+.empty-card{
+  background:#1c2531;border:1px solid var(--border);
+  border-radius:16px;padding:25px;text-align:center;
+  max-width:330px;pointer-events:auto;
 }
-.card h2{font-size:17px}
-.card p{font-size:12px;line-height:1.7;color:var(--muted)}
-.booktitle{font-size:19px;font-weight:bold;margin:10px 0}
+.empty-card h2{font-size:17px}
+.empty-card p{font-size:12px;color:var(--muted);line-height:1.7}
+.book-title{font-size:19px;font-weight:700;margin:12px 0}
 .author{font-size:13px;color:var(--muted)}
 .tag{
-  display:inline-block;background:#2b3544;
-  border-radius:20px;padding:6px 10px;
-  font-size:11px;margin:10px 0;
+  display:inline-block;background:#304054;
+  padding:6px 11px;border-radius:20px;
+  font-size:11px;margin-top:12px;
 }
-.field{margin-top:14px}
+.field{margin-top:15px}
 .field label{
-  display:block;font-size:12px;
-  color:var(--muted);margin-bottom:6px;
+  display:block;color:var(--muted);
+  font-size:12px;margin-bottom:7px;
 }
-.connected{display:grid;gap:7px}
+.connected{display:grid;gap:7px;margin-top:10px}
 .connected button{
-  text-align:left;background:#11161d;color:var(--text);
-  border:1px solid var(--line);border-radius:8px;
-  padding:10px;font-size:12px;line-height:1.5;
+  text-align:left;background:#111720;color:var(--text);
+  border:1px solid var(--border);border-radius:9px;
+  padding:11px;font-size:12px;line-height:1.5;
 }
 .dot{
   display:inline-block;width:9px;height:9px;
-  border-radius:50%;margin-right:5px;
+  border-radius:50%;margin-right:6px;
 }
 .modalbg{
   display:none;position:fixed;inset:0;z-index:30;
-  background:#000a;align-items:center;justify-content:center;
+  background:#000b;align-items:center;justify-content:center;
   padding:15px;
 }
 .modalbg.open{display:flex}
 .modal{
   width:min(440px,100%);max-height:90%;
-  overflow:auto;background:#1a2029;
-  border:1px solid #394454;border-radius:15px;padding:20px;
+  overflow:auto;background:#1c2530;
+  border:1px solid #445267;border-radius:16px;padding:20px;
 }
-.modal h2{font-size:18px;margin-top:0}
+.modal h2{font-size:18px;margin:0 0 15px}
 .modalfoot{
   display:flex;justify-content:flex-end;
   gap:8px;margin-top:20px;
 }
 .mobile-nav,.close-panel{display:none}
+
 @media(max-width:850px){
   .layout{grid-template-columns:190px minmax(0,1fr)}
   .right{display:none}
 }
 @media(max-width:650px){
   header{
-    height:110px;padding:8px 10px;
-    flex-direction:column;align-items:stretch;
-    justify-content:center;gap:7px;
+    height:108px;flex-direction:column;
+    justify-content:center;align-items:stretch;
+    padding:8px 10px;gap:7px;
   }
   .brand{justify-content:center}
-  .logo{width:28px;height:28px}
+  .logo{width:27px;height:27px}
   h1{font-size:14px}
-  .sub{display:none}
+  .subtitle{display:none}
   .actions{width:100%}
-  .actions .btn{flex:1;font-size:12px}
+  .actions .btn{flex:1}
   .layout{
-    height:calc(100% - 110px);
+    height:calc(100% - 108px);
     display:block;position:relative;
   }
   #graph{width:100%;height:100%}
   .left,.right{display:none}
   .left.mobile-open,.right.mobile-open{
-    display:block;position:absolute;z-index:12;
+    display:block;position:absolute;z-index:15;
     left:0;right:0;width:100%;
-    overflow:auto;background:#191e26;border:0;
+    background:var(--panel);overflow:auto;border:0;
   }
   .left.mobile-open{top:0;bottom:55px}
   .right.mobile-open{
-    bottom:55px;top:auto;max-height:75%;
+    bottom:55px;top:auto;max-height:78%;
     border-radius:18px 18px 0 0;
     border-top:2px solid var(--accent);
   }
   .mobile-nav{
-    display:flex;position:absolute;z-index:15;
-    bottom:0;left:0;right:0;
-    padding:7px;gap:7px;
-    background:#12161d;border-top:1px solid var(--line);
+    display:flex;position:absolute;bottom:0;left:0;right:0;
+    z-index:20;padding:7px;gap:7px;
+    background:#141922;border-top:1px solid var(--border);
   }
   .mobile-nav button{flex:1;min-height:42px}
   .close-panel{display:block;float:right}
@@ -199,10 +233,11 @@ input[type=checkbox]{width:auto}
   }
   .controls .btn{font-size:11px;padding:8px}
   .hud{top:10px;left:10px}
-  input,textarea,select{font-size:16px}
+  input,select,textarea{font-size:16px}
 }
 </style>
 </head>
+
 <body>
 
 <header>
@@ -210,7 +245,7 @@ input[type=checkbox]{width:auto}
     <div class="logo">↗</div>
     <div>
       <h1>My Reading Universe</h1>
-      <div class="sub">나의 독서 경험을 연결하는 지도</div>
+      <div class="subtitle">나의 독서 경험을 연결하는 지도</div>
     </div>
   </div>
   <div class="actions">
@@ -224,51 +259,72 @@ input[type=checkbox]{width:auto}
 <div class="layout">
   <aside class="left" id="leftPanel">
     <button class="btn close-panel" id="closeLeft">닫기 ✕</button>
-    <div class="st">지도 탐색</div>
+
+    <div class="section">지도 탐색</div>
     <input id="search" placeholder="책 제목 또는 작가 검색">
-    <div class="st">독서 연도</div>
+
+    <div class="section">독서 연도</div>
     <div id="years"></div>
-    <div class="st">관계 유형</div>
+
+    <div class="section">관계 유형</div>
     <div id="types"></div>
-    <div class="st">표시 설정</div>
+
+    <div class="section">표시 설정</div>
     <label class="filter">
-      <input type="checkbox" id="labels" checked> 책 제목 표시
+      <input type="checkbox" id="showLines" checked>
+      연결선 표시
     </label>
     <label class="filter">
-      <input type="checkbox" id="physics" checked> 탄성 배치
+      <input type="checkbox" id="highlight" checked>
+      선택한 책의 관계 강조
     </label>
-    <div class="st">지도 정보</div>
+
+    <div class="section">지도 정보</div>
     <div class="stats">
-      <div class="stat"><b id="bc">0</b><span>전체 책</span></div>
-      <div class="stat"><b id="ec">0</b><span>연결 관계</span></div>
+      <div class="stat">
+        <strong id="bc">0</strong><span>전체 책</span>
+      </div>
+      <div class="stat">
+        <strong id="ec">0</strong><span>연결 관계</span>
+      </div>
     </div>
+
     <p class="notice">
-      책을 드래그하면 연결된 책들이 탄성 있게 움직입니다.
+      책은 제목이 표시되는 둥근 직사각형으로 나타납니다.<br>
+      한 손가락으로 이동하고 두 손가락으로 확대·축소할 수 있습니다.<br>
+      책을 누르면 위치를 바꾸지 않고 정보를 확인합니다.<br>
       데이터는 현재 브라우저에 저장됩니다.
-      다른 기기와 자동 동기화되지 않으므로 JSON으로 백업하세요.
     </p>
   </aside>
 
   <main id="graph">
-    <canvas id="cv"></canvas>
+    <div id="viewport">
+      <div id="world">
+        <svg id="connections" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div id="nodes"></div>
+      </div>
+    </div>
+
     <div class="hud">
       전체 독서 지도
-      <small id="hsub">책을 선택하거나 움직여 보세요.</small>
+      <small id="hsub">책을 눌러 독서 기록을 확인하세요.</small>
     </div>
+
     <div class="empty show" id="empty">
-      <div class="card">
+      <div class="empty-card">
         <h2>나만의 독서 지도를 시작해 보세요</h2>
-        <p>책을 추가하고 서로 연결하면<br>나만의 독서 세계가 펼쳐집니다.</p>
+        <p>책을 추가하고 연결하면 독서 세계가 펼쳐집니다.</p>
         <button class="btn primary" id="demo">예시 지도 보기</button>
       </div>
     </div>
+
     <div class="controls">
       <button class="btn" id="fit">전체 보기</button>
-      <button class="btn" id="relayout">탄성 재배치</button>
-      <button class="btn" id="pause">움직임 멈춤</button>
-      <button class="btn" id="zoomIn">＋</button>
-      <button class="btn" id="zoomOut">－</button>
+      <button class="btn" id="relayout">재배치</button>
+      <button class="btn" id="zoomOut">－ 축소</button>
+      <button class="btn" id="zoomIn">＋ 확대</button>
     </div>
+
     <div class="mobile-nav">
       <button class="btn" id="mobileFilters">☰ 필터·설정</button>
       <button class="btn" id="mobileDetails">📖 책 정보·메모</button>
@@ -277,8 +333,10 @@ input[type=checkbox]{width:auto}
 
   <aside class="right" id="rightPanel">
     <button class="btn close-panel" id="closeRight">닫기 ✕</button>
-    <div class="st">선택한 책</div>
-    <div id="detail">책을 선택하면 정보가 표시됩니다.</div>
+    <div class="section">선택한 책</div>
+    <div id="detail">
+      <p class="notice">지도에서 책을 선택하세요.</p>
+    </div>
   </aside>
 </div>
 
@@ -287,18 +345,18 @@ input[type=checkbox]{width:auto}
     <h2>책 추가</h2>
     <div class="field">
       <label>책 제목 *</label>
-      <input id="title" placeholder="예: 구의 증명">
+      <input id="title" placeholder="책 제목">
     </div>
     <div class="field">
       <label>작가 *</label>
-      <input id="author" placeholder="예: 최진영">
+      <input id="author" placeholder="작가 이름">
     </div>
     <div class="field">
       <label>읽은 연도</label>
       <select id="year"></select>
     </div>
     <div class="field">
-      <label>완독 날짜 (선택)</label>
+      <label>완독 날짜</label>
       <input type="date" id="finished">
     </div>
     <div class="field">
@@ -315,7 +373,7 @@ input[type=checkbox]{width:auto}
 <div class="modalbg" id="edgemodal">
   <div class="modal">
     <h2>책 연결하기</h2>
-    <p id="edgeintro"></p>
+    <p id="edgeintro" class="notice"></p>
     <div class="field">
       <label>연결할 책</label>
       <select id="target"></select>
@@ -326,7 +384,8 @@ input[type=checkbox]{width:auto}
     </div>
     <div class="field">
       <label>연결 이유</label>
-      <textarea id="reason" rows="3"></textarea>
+      <textarea id="reason" rows="3"
+        placeholder="예: 같은 세계문학 시리즈"></textarea>
     </div>
     <div class="modalfoot">
       <button class="btn" id="cancelEdge">취소</button>
@@ -340,19 +399,23 @@ input[type=checkbox]{width:auto}
 
 const $=id=>document.getElementById(id);
 
-const rels=[
-  ["author","동일 작가",false,"#83b9ff"],
-  ["topic","동일 주제",false,"#7bd7ae"],
-  ["inspired","독서 계기",true,"#ffcb7a"],
-  ["mentioned","책 속 언급",true,"#bb9eff"],
-  ["thought","사상적 연결",false,"#f59ac0"],
-  ["opposed","대립 관계",false,"#f07878"],
-  ["custom","직접 지정",false,"#c7d0da"]
+/* 관계 유형: 사상적 연결·대립 관계 제거, 같은 시리즈 추가 */
+const relations=[
+  ["author","동일 작가","#83b9ff"],
+  ["topic","동일 주제","#7bd7ae"],
+  ["series","같은 시리즈","#b9a0ff"],
+  ["inspired","독서 계기","#ffcb7a"],
+  ["mentioned","책 속 언급","#89d6d0"],
+  ["custom","직접 지정","#c7d0da"]
 ];
 
-const nodeColors=[
-  "#9bc7ff","#c4a7ff","#9ed9c1",
-  "#f2c58d","#f39fae","#a8c7d9"
+const palette=[
+  ["#293e58","#87baff"],
+  ["#403451","#c3a6f7"],
+  ["#29483e","#8cdbb7"],
+  ["#51402e","#f1c78a"],
+  ["#50343e","#f4a6ba"],
+  ["#304552","#a6d5e9"]
 ];
 
 let books=[];
@@ -361,289 +424,317 @@ let selected=null;
 let source=null;
 let yearFilter="all";
 let typeFilter="all";
-let scale=1;
-let offset={x:0,y:0};
-let running=true;
-let drag=null;
-let frame=0;
-let width=1,height=1;
-let fitPending=false;
 
-const canvas=$("cv");
-const ctx=canvas.getContext("2d");
-const graph=$("graph");
+let zoom=1;
+let panX=0;
+let panY=0;
+
+const pointers=new Map();
+let gesture=null;
+let nodeElements=new Map();
+
+const viewport=$("viewport");
+const world=$("world");
+const nodes=$("nodes");
+const svg=$("connections");
 
 function uid(){
   return "id"+Date.now().toString(36)+
     Math.random().toString(36).slice(2,9);
 }
-function esc(s){
-  return String(s??"").replace(/[&<>"']/g,c=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",
-    '"':"&quot;","'":"&#39;"
+
+function esc(value){
+  return String(value??"").replace(/[&<>"']/g,c=>({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
   })[c]);
 }
+
 function save(){
   try{
-    localStorage.setItem("mru-data",JSON.stringify({
-      books:books.map(({vx,vy,...b})=>b),
-      edges
-    }));
-  }catch(e){console.warn("저장 실패",e)}
+    localStorage.setItem("mru-data",JSON.stringify({books,edges}));
+  }catch(e){
+    console.warn("저장 실패",e);
+  }
 }
+
 function load(){
   try{
-    const d=JSON.parse(localStorage.getItem("mru-data"));
-    if(d&&Array.isArray(d.books)&&Array.isArray(d.edges)){
-      books=d.books;
-      edges=d.edges;
+    const data=JSON.parse(localStorage.getItem("mru-data"));
+    if(data&&Array.isArray(data.books)&&Array.isArray(data.edges)){
+      books=data.books;
+      edges=data.edges;
       normalize();
     }
-  }catch(e){console.warn(e)}
+  }catch(e){
+    console.warn(e);
+  }
 }
+
 function normalize(){
   books=books.filter(b=>b&&b.id&&b.title&&b.author);
+
   books.forEach((b,i)=>{
-    const angle=i*2.399;
-    const radius=80+Math.sqrt(i)*55;
+    b.id=String(b.id);
+    b.title=String(b.title);
+    b.author=String(b.author);
+
+    const angle=i*2.399963;
+    const radius=180+Math.sqrt(i)*105;
+
     b.x=Number(b.x);
     b.y=Number(b.y);
-    if(!Number.isFinite(b.x))b.x=Math.cos(angle)*radius;
-    if(!Number.isFinite(b.y))b.y=Math.sin(angle)*radius;
-    b.vx=0;b.vy=0;
-    b.yearGroup=b.yearGroup||"2026년까지";
-    b.memo=b.memo||"";
-    b.finished=b.finished||"";
+
+    if(!Number.isFinite(b.x)||Math.abs(b.x)>100000){
+      b.x=Math.cos(angle)*radius;
+    }
+    if(!Number.isFinite(b.y)||Math.abs(b.y)>100000){
+      b.y=Math.sin(angle)*radius;
+    }
+
+    b.yearGroup=String(b.yearGroup||"2026년까지");
+    b.memo=String(b.memo||"");
+    b.finished=String(b.finished||"");
   });
+
   const ids=new Set(books.map(b=>b.id));
-  edges=edges.filter(e=>e&&ids.has(e.from)&&ids.has(e.to));
+
+  edges=edges.filter(e=>
+    e&&ids.has(String(e.from))&&ids.has(String(e.to))
+  );
+
+  edges.forEach(e=>{
+    e.from=String(e.from);
+    e.to=String(e.to);
+    e.type=e.type||"custom";
+  });
 }
+
 function visible(){
   const bs=books.filter(b=>
     yearFilter==="all"||b.yearGroup===yearFilter
   );
+
   const ids=new Set(bs.map(b=>b.id));
+
   const es=edges.filter(e=>
     ids.has(e.from)&&ids.has(e.to)&&
     (typeFilter==="all"||e.type===typeFilter)
   );
+
   return {bs,es};
 }
 
-/* 화면 크기를 실제 표시 영역에 맞춰 계산 */
-function resize(){
-  const r=graph.getBoundingClientRect();
-  width=Math.max(1,r.width);
-  height=Math.max(1,r.height);
-  const d=Math.min(window.devicePixelRatio||1,2);
-  canvas.width=Math.round(width*d);
-  canvas.height=Math.round(height*d);
-  ctx.setTransform(d,0,0,d,0,0);
+function relation(type){
+  return relations.find(r=>r[0]===type)||relations[5];
 }
 
-/* 지도 좌표 */
-function pos(b){
-  return {
-    x:width/2+offset.x+b.x*scale,
-    y:height/2+offset.y+b.y*scale
-  };
+function authorColor(author){
+  let hash=0;
+  for(const c of String(author)){
+    hash=(hash*31+c.charCodeAt(0))|0;
+  }
+  return palette[Math.abs(hash)%palette.length];
 }
 
-/* 모든 책이 화면 안에 들어오도록 자동 확대 */
+function updateTransform(){
+  world.style.transform=
+    `translate(${panX}px,${panY}px) scale(${zoom})`;
+}
+
+function zoomAt(newZoom,cx,cy){
+  newZoom=Math.max(.025,Math.min(4,newZoom));
+
+  const ratio=newZoom/zoom;
+
+  panX=cx-(cx-panX)*ratio;
+  panY=cy-(cy-panY)*ratio;
+
+  zoom=newZoom;
+  updateTransform();
+}
+
+function zoomCenter(factor){
+  zoomAt(zoom*factor,0,0);
+}
+
 function fit(){
-  if(!books.length||width<10||height<10)return;
   const bs=visible().bs;
   if(!bs.length)return;
+
+  const w=viewport.clientWidth;
+  const h=viewport.clientHeight;
+
+  if(w<10||h<10)return;
 
   let minX=Infinity,maxX=-Infinity;
   let minY=Infinity,maxY=-Infinity;
 
   bs.forEach(b=>{
-    minX=Math.min(minX,b.x);
-    maxX=Math.max(maxX,b.x);
-    minY=Math.min(minY,b.y);
-    maxY=Math.max(maxY,b.y);
+    minX=Math.min(minX,b.x-80);
+    maxX=Math.max(maxX,b.x+80);
+    minY=Math.min(minY,b.y-35);
+    maxY=Math.max(maxY,b.y+35);
   });
 
-  const padding=window.innerWidth<650?55:90;
-  const availableW=Math.max(50,width-padding*2);
-  const availableH=Math.max(50,height-padding*2);
+  const padding=35;
 
-  scale=Math.min(
-    availableW/Math.max(100,maxX-minX),
-    availableH/Math.max(100,maxY-minY),
-    2
+  zoom=Math.min(
+    (w-padding*2)/Math.max(100,maxX-minX),
+    (h-padding*2)/Math.max(100,maxY-minY),
+    1.3
   );
-  scale=Math.max(.015,scale);
 
-  offset={
-    x:-(minX+maxX)/2*scale,
-    y:-(minY+maxY)/2*scale
-  };
-}
-function centerOn(b){
-  offset={x:-b.x*scale,y:-b.y*scale};
-}
-function kick(){
-  running=true;
-  frame=0;
-  $("pause").textContent="움직임 멈춤";
+  zoom=Math.max(.025,zoom);
+
+  panX=-(minX+maxX)/2*zoom;
+  panY=-(minY+maxY)/2*zoom;
+
+  updateTransform();
 }
 
-/* 탄성 물리 시뮬레이션 */
-function simulate(){
-  if(!running||!$("physics").checked||!books.length)return;
-  if(frame++>1200){
-    running=false;
-    save();
-    return;
-  }
+/* 작가별 재배치 */
+function arrange(){
+  if(!books.length)return;
 
-  const n=books.length;
-  const forces=books.map(()=>({x:0,y:0}));
-  const index=new Map(books.map((b,i)=>[b.id,i]));
+  const groups=new Map();
 
-  for(let i=0;i<n;i++){
-    for(let j=i+1;j<n;j++){
-      const a=books[i],b=books[j];
-      let dx=b.x-a.x,dy=b.y-a.y;
-      let dist2=dx*dx+dy*dy+1;
-      let dist=Math.sqrt(dist2);
-      const repulsion=Math.min(90,8500/dist2);
-      const fx=dx/dist*repulsion;
-      const fy=dy/dist*repulsion;
-      forces[i].x-=fx;
-      forces[i].y-=fy;
-      forces[j].x+=fx;
-      forces[j].y+=fy;
-    }
-  }
-
-  edges.forEach(e=>{
-    const i=index.get(e.from),j=index.get(e.to);
-    if(i===undefined||j===undefined)return;
-    const a=books[i],b=books[j];
-    const dx=b.x-a.x,dy=b.y-a.y;
-    const dist=Math.max(1,Math.hypot(dx,dy));
-    const desired=e.type==="author"?125:155;
-    const force=(dist-desired)*.006;
-    const fx=dx/dist*force,fy=dy/dist*force;
-    forces[i].x+=fx;
-    forces[i].y+=fy;
-    forces[j].x-=fx;
-    forces[j].y-=fy;
+  books.forEach(b=>{
+    const key=b.author.trim();
+    if(!groups.has(key))groups.set(key,[]);
+    groups.get(key).push(b);
   });
 
-  books.forEach((b,i)=>{
-    if(drag&&drag.b===b)return;
-    const f=forces[i];
-    b.vx=(b.vx+f.x-b.x*.0005)*.86;
-    b.vy=(b.vy+f.y-b.y*.0005)*.86;
-    b.vx=Math.max(-12,Math.min(12,b.vx));
-    b.vy=Math.max(-12,Math.min(12,b.vy));
-    b.x+=b.vx;
-    b.y+=b.vy;
-  });
-}
+  const groupList=[...groups.values()].sort(
+    (a,b)=>b.length-a.length
+  );
 
-/* 지도 그리기 */
-function draw(){
-  ctx.clearRect(0,0,width,height);
-  const {bs,es}=visible();
-  const map=new Map(bs.map(b=>[b.id,b]));
-  const neighbors=new Set();
+  groupList.forEach((group,g)=>{
+    const angle=g*2.399963229728653;
+    const radius=180+Math.sqrt(g)*205;
 
-  if(selected){
-    edges.forEach(e=>{
-      if(e.from===selected)neighbors.add(e.to);
-      if(e.to===selected)neighbors.add(e.from);
+    const cx=Math.cos(angle)*radius;
+    const cy=Math.sin(angle)*radius;
+
+    group.forEach((b,j)=>{
+      const columns=Math.max(1,Math.ceil(Math.sqrt(group.length)));
+      const row=Math.floor(j/columns);
+      const col=j%columns;
+
+      b.x=cx+(col-(columns-1)/2)*185;
+      b.y=cy+(row-(Math.ceil(group.length/columns)-1)/2)*95;
     });
-  }
+  });
+
+  save();
+  drawMap();
+  fit();
+}
+
+function drawConnections(bs,es){
+  const map=new Map(bs.map(b=>[b.id,b]));
+  const ns="http://www.w3.org/2000/svg";
+
+  svg.replaceChildren();
+
+  if(!$("showLines").checked)return;
+
+  const fragment=document.createDocumentFragment();
 
   es.forEach(e=>{
-    const a=map.get(e.from),b=map.get(e.to);
+    const a=map.get(e.from);
+    const b=map.get(e.to);
     if(!a||!b)return;
-    const p=pos(a),q=pos(b);
-    const rel=rels.find(r=>r[0]===e.type)||rels[6];
-    const active=!selected||
-      e.from===selected||e.to===selected;
 
-    ctx.globalAlpha=active?.8:.06;
-    ctx.strokeStyle=rel[3];
-    ctx.lineWidth=active?1.6:1;
-    ctx.setLineDash(e.type==="opposed"?[5,4]:[]);
-    ctx.beginPath();
-    ctx.moveTo(p.x,p.y);
-    ctx.lineTo(q.x,q.y);
-    ctx.stroke();
-    ctx.setLineDash([]);
+    const line=document.createElementNS(ns,"line");
 
-    if(rel[2]){
-      const angle=Math.atan2(q.y-p.y,q.x-p.x);
-      const x=q.x-Math.cos(angle)*15;
-      const y=q.y-Math.sin(angle)*15;
-      ctx.fillStyle=rel[3];
-      ctx.beginPath();
-      ctx.moveTo(x,y);
-      ctx.lineTo(
-        x-8*Math.cos(angle-.5),
-        y-8*Math.sin(angle-.5)
-      );
-      ctx.lineTo(
-        x-8*Math.cos(angle+.5),
-        y-8*Math.sin(angle+.5)
-      );
-      ctx.closePath();
-      ctx.fill();
-    }
+    line.setAttribute("x1",a.x);
+    line.setAttribute("y1",a.y);
+    line.setAttribute("x2",b.x);
+    line.setAttribute("y2",b.y);
+    line.setAttribute("stroke",relation(e.type)[2]);
+    line.setAttribute("stroke-width","2");
+    line.setAttribute("stroke-opacity",".65");
+
+    fragment.appendChild(line);
   });
 
-  ctx.globalAlpha=1;
-
-  bs.forEach(b=>{
-    const p=pos(b);
-    const active=!selected||
-      selected===b.id||neighbors.has(b.id);
-    ctx.globalAlpha=active?1:.17;
-
-    const radius=selected===b.id?11:7;
-    let hash=0;
-    for(const c of b.author){
-      hash=(hash*31+c.charCodeAt(0))|0;
-    }
-
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,radius,0,Math.PI*2);
-    ctx.fillStyle=nodeColors[Math.abs(hash)%nodeColors.length];
-    ctx.fill();
-    ctx.strokeStyle=selected===b.id?"white":"#d9e7f8";
-    ctx.lineWidth=selected===b.id?3:1;
-    ctx.stroke();
-
-    if($("labels").checked&&(scale>.45||selected===b.id)){
-      ctx.font="11px sans-serif";
-      ctx.textAlign="center";
-      ctx.fillStyle="#f4f6fc";
-      ctx.shadowColor="#101318";
-      ctx.shadowBlur=5;
-      ctx.fillText(b.title,p.x,p.y+22,150);
-      ctx.shadowBlur=0;
-    }
-  });
-  ctx.globalAlpha=1;
+  svg.appendChild(fragment);
 }
 
-function loop(){
-  simulate();
-  draw();
-  requestAnimationFrame(loop);
+function drawMap(){
+  const {bs,es}=visible();
+  const fragment=document.createDocumentFragment();
+
+  nodes.replaceChildren();
+  nodeElements.clear();
+
+  bs.forEach(b=>{
+    const el=document.createElement("div");
+    const color=authorColor(b.author);
+
+    el.className="book";
+    el.textContent=b.title;
+    el.style.left=b.x+"px";
+    el.style.top=b.y+"px";
+    el.style.background=color[0];
+    el.style.borderColor=color[1];
+    el.dataset.id=b.id;
+
+    el.addEventListener("click",e=>{
+      e.stopPropagation();
+      selectBook(b.id);
+    });
+
+    nodeElements.set(b.id,el);
+    fragment.appendChild(el);
+  });
+
+  nodes.appendChild(fragment);
+  drawConnections(bs,es);
+  updateSelection();
+
+  $("empty").classList.toggle("show",books.length===0);
+  $("hsub").textContent=`${bs.length}권 · ${es.length}개 연결`;
+}
+
+function updateSelection(){
+  const neighbors=new Set();
+
+  edges.forEach(e=>{
+    if(e.from===selected)neighbors.add(e.to);
+    if(e.to===selected)neighbors.add(e.from);
+  });
+
+  nodeElements.forEach((el,id)=>{
+    el.classList.toggle("selected",id===selected);
+
+    const dim=selected&&$("highlight").checked&&
+      id!==selected&&!neighbors.has(id);
+
+    el.classList.toggle("dim",!!dim);
+    el.classList.toggle("neighbor",neighbors.has(id));
+  });
+}
+
+function selectBook(id){
+  selected=id;
+  updateSelection();
+  detail();
+
+  if(window.innerWidth<=650){
+    $("rightPanel").classList.add("mobile-open");
+    $("leftPanel").classList.remove("mobile-open");
+  }
 }
 
 function render(){
   const groups=[
-    "all","2026년까지",
-    ...new Set(books.map(b=>b.yearGroup)
-      .filter(y=>y!=="2026년까지"))
+    "all",
+    ...new Set(books.map(b=>b.yearGroup))
   ];
 
   $("years").innerHTML=groups.map(g=>`
@@ -651,8 +742,8 @@ function render(){
          data-year="${esc(g)}">
       ${g==="all"?"전체 연도":esc(g)}
       <span style="float:right">
-      ${g==="all"?books.length:
-        books.filter(b=>b.yearGroup===g).length}
+        ${g==="all"?books.length:
+          books.filter(b=>b.yearGroup===g).length}
       </span>
     </div>
   `).join("");
@@ -668,10 +759,10 @@ function render(){
   $("types").innerHTML=`
     <div class="filter ${typeFilter==="all"?"active":""}"
          data-type="all">모든 관계</div>
-  `+rels.map(r=>`
+  `+relations.map(r=>`
     <div class="filter ${typeFilter===r[0]?"active":""}"
          data-type="${r[0]}">
-      <span class="dot" style="background:${r[3]}"></span>
+      <span class="dot" style="background:${r[2]}"></span>
       ${r[1]}
       <span style="float:right">
         ${edges.filter(e=>e.type===r[0]).length}
@@ -688,64 +779,77 @@ function render(){
 
   $("bc").textContent=books.length;
   $("ec").textContent=edges.length;
-  $("empty").classList.toggle("show",!books.length);
-  $("hsub").textContent=
-    `${visible().bs.length}권 · ${visible().es.length}개 연결`;
+
+  drawMap();
   detail();
 }
 
 function detail(){
   const b=books.find(x=>x.id===selected);
+
   if(!b){
     $("detail").innerHTML=
       '<p class="notice">지도에서 책을 선택하세요.</p>';
     return;
   }
-  const ls=edges.filter(e=>e.from===b.id||e.to===b.id);
+
+  const connected=edges.filter(e=>
+    e.from===b.id||e.to===b.id
+  );
 
   $("detail").innerHTML=`
-    <div class="booktitle">${esc(b.title)}</div>
+    <div class="book-title">${esc(b.title)}</div>
     <div class="author">${esc(b.author)}</div>
     <span class="tag">${esc(b.yearGroup)}</span>
 
     <div class="field">
       <label>완독 날짜</label>
       <input type="date" id="editdate"
-             value="${esc(b.finished||"")}">
+        value="${esc(b.finished)}">
     </div>
+
     <div class="field">
       <label>독서 메모</label>
       <textarea id="editmemo" rows="5"
         placeholder="책에 대한 생각을 기록하세요">${esc(b.memo)}</textarea>
     </div>
-    <button class="btn primary" id="savememo"
-            style="width:100%;margin-top:10px">기록 저장</button>
 
-    <div class="st">연결된 책 · ${ls.length}</div>
+    <button class="btn primary" id="savememo"
+      style="width:100%;margin-top:10px">
+      기록 저장
+    </button>
+
+    <div class="section">연결된 책 · ${connected.length}</div>
     <div class="connected">
-    ${ls.map(e=>{
-      const other=books.find(x=>x.id===
-        (e.from===b.id?e.to:e.from));
-      if(!other)return "";
-      const rel=rels.find(r=>r[0]===e.type)||rels[6];
-      return `
-        <button data-jump="${esc(other.id)}">
-          <span class="dot"
-            style="background:${rel[3]}"></span>
-          ${esc(other.title)} · ${rel[1]}
-          ${e.reason?`
-            <small style="display:block;color:#9ba7b7">
-              ${esc(e.reason)}
-            </small>`:""}
-        </button>`;
-    }).join("")}
+      ${connected.map(e=>{
+        const other=books.find(x=>x.id===
+          (e.from===b.id?e.to:e.from));
+
+        if(!other)return "";
+
+        const r=relation(e.type);
+
+        return `
+          <button data-jump="${esc(other.id)}">
+            <span class="dot"
+              style="background:${r[2]}"></span>
+            ${esc(other.title)} · ${r[1]}
+            ${e.reason?`
+              <small style="display:block;color:#9ba9ba">
+                ${esc(e.reason)}
+              </small>`:""}
+          </button>
+        `;
+      }).join("")}
     </div>
+
     <button class="btn" id="connect"
       style="width:100%;margin-top:15px">
       ＋ 다른 책과 연결
     </button>
-    <button class="btn" id="del"
-      style="width:100%;margin-top:8px;color:#ff9eaa">
+
+    <button class="btn" id="deleteBook"
+      style="width:100%;margin-top:8px;color:#ffa4b0">
       이 책 삭제
     </button>
   `;
@@ -759,87 +863,122 @@ function detail(){
 
   document.querySelectorAll("[data-jump]").forEach(el=>{
     el.onclick=()=>{
-      selected=el.dataset.jump;
-      const target=books.find(x=>x.id===selected);
-      if(target)centerOn(target);
+      const target=books.find(x=>x.id===el.dataset.jump);
+      if(!target)return;
+
+      selected=target.id;
+      updateSelection();
       detail();
+
+      panX=-target.x*zoom;
+      panY=-target.y*zoom;
+      updateTransform();
     };
   });
 
-  $("connect").onclick=()=>edgeModal(b.id);
-  $("del").onclick=()=>{
+  $("connect").onclick=()=>openEdgeModal(b.id);
+
+  $("deleteBook").onclick=()=>{
     if(!confirm("이 책과 연결 관계를 삭제할까요?"))return;
+
     books=books.filter(x=>x.id!==b.id);
     edges=edges.filter(e=>e.from!==b.id&&e.to!==b.id);
     selected=null;
-    save();render();fit();
+
+    save();
+    render();
   };
 }
 
-function edgeModal(id){
+function openEdgeModal(id){
   if(books.length<2){
     alert("책을 두 권 이상 추가해 주세요.");
     return;
   }
+
   source=id;
   const b=books.find(x=>x.id===id);
-  $("edgeintro").textContent=`${b.title}와 연결할 책을 선택하세요.`;
-  $("target").innerHTML=books.filter(x=>x.id!==id)
-    .map(x=>`<option value="${esc(x.id)}">
-      ${esc(x.title)} — ${esc(x.author)}
-    </option>`).join("");
+
+  $("edgeintro").textContent=
+    `${b.title}와 연결할 책을 선택하세요.`;
+
+  $("target").innerHTML=books
+    .filter(x=>x.id!==id)
+    .map(x=>`
+      <option value="${esc(x.id)}">
+        ${esc(x.title)} — ${esc(x.author)}
+      </option>
+    `).join("");
+
   $("reason").value="";
   $("edgemodal").classList.add("open");
 }
 
 $("year").innerHTML=
-  '<option value="2026">2026년까지</option>'+
+  '<option value="2026년까지">2026년까지</option>'+
   Array.from({length:20},(_,i)=>2027+i)
-    .map(y=>`<option value="${y}">${y}년</option>`).join("");
+    .map(y=>`<option value="${y}년">${y}년</option>`)
+    .join("");
 
-$("rtype").innerHTML=rels.map(r=>
+$("rtype").innerHTML=relations.map(r=>
   `<option value="${r[0]}">${r[1]}</option>`
 ).join("");
 
 $("add").onclick=()=>{
-  ["title","author","finished","memo"].forEach(id=>$(id).value="");
+  ["title","author","finished","memo"].forEach(id=>{
+    $(id).value="";
+  });
   $("bookmodal").classList.add("open");
 };
-$("cancelBook").onclick=()=>$("bookmodal").classList.remove("open");
-$("cancelEdge").onclick=()=>$("edgemodal").classList.remove("open");
+
+$("cancelBook").onclick=()=>{
+  $("bookmodal").classList.remove("open");
+};
+
+$("cancelEdge").onclick=()=>{
+  $("edgemodal").classList.remove("open");
+};
 
 $("savebook").onclick=()=>{
   const title=$("title").value.trim();
   const author=$("author").value.trim();
+
   if(!title||!author){
-    alert("제목과 작가를 입력해 주세요.");
+    alert("책 제목과 작가를 입력해 주세요.");
     return;
   }
+
   if(books.some(b=>b.title===title&&b.author===author)){
     alert("이미 등록된 책입니다.");
     return;
   }
 
   const i=books.length;
-  const a=i*2.399;
+  const angle=i*2.399963;
+  const radius=180+Math.sqrt(i)*105;
+
   books.push({
-    id:uid(),title,author,
-    yearGroup:Number($("year").value)<=2026?
-      "2026년까지":$("year").value,
+    id:uid(),
+    title,
+    author,
+    yearGroup:$("year").value,
     finished:$("finished").value,
     memo:$("memo").value,
-    x:Math.cos(a)*(80+Math.sqrt(i)*55),
-    y:Math.sin(a)*(80+Math.sqrt(i)*55),
-    vx:0,vy:0
+    x:Math.cos(angle)*radius,
+    y:Math.sin(angle)*radius
   });
 
   $("bookmodal").classList.remove("open");
-  save();kick();render();fit();
+
+  save();
+  render();
+  fit();
 };
 
 $("saveedge").onclick=()=>{
   const to=$("target").value;
   const type=$("rtype").value;
+
   if(edges.some(e=>e.type===type&&(
     (e.from===source&&e.to===to)||
     (e.from===to&&e.to===source)
@@ -847,103 +986,35 @@ $("saveedge").onclick=()=>{
     alert("이미 같은 관계가 있습니다.");
     return;
   }
+
   edges.push({
-    id:uid(),from:source,to,type,
+    id:uid(),
+    from:source,
+    to,
+    type,
     reason:$("reason").value.trim()
   });
+
   $("edgemodal").classList.remove("open");
-  save();kick();render();
-};
-
-$("demo").onclick=()=>{
-  const data=[
-    ["데미안","헤르만 헤세"],
-    ["싯다르타","헤르만 헤세"],
-    ["어린 왕자","생텍쥐페리"],
-    ["이방인","알베르 카뮈"]
-  ];
-  books=data.map((x,i)=>({
-    id:"demo"+i,title:x[0],author:x[1],
-    yearGroup:"2026년까지",memo:"",finished:"",
-    x:Math.cos(i*1.57)*180,
-    y:Math.sin(i*1.57)*180,vx:0,vy:0
-  }));
-  edges=[{
-    id:uid(),from:"demo0",to:"demo1",
-    type:"author",reason:""
-  }];
-  save();kick();render();fit();
-};
-
-$("fit").onclick=()=>{
-  resize();
-  fit();
-  draw();
-};
-
-$("relayout").onclick=()=>{
-  books.forEach((b,i)=>{
-    const a=i*2.399;
-    const r=80+Math.sqrt(i)*55;
-    b.x=Math.cos(a)*r;
-    b.y=Math.sin(a)*r;
-    b.vx=b.vy=0;
-  });
-  kick();
-  fit();
   save();
-};
-
-$("pause").onclick=()=>{
-  running=!running;
-  $("pause").textContent=running?"움직임 멈춤":"움직임 재개";
-  if(!running)save();
-};
-$("physics").onchange=()=>{
-  if($("physics").checked)kick();
-};
-$("zoomIn").onclick=()=>{
-  scale=Math.min(5,scale*1.4);
-  draw();
-};
-$("zoomOut").onclick=()=>{
-  scale=Math.max(.01,scale/1.4);
-  draw();
-};
-
-$("search").oninput=e=>{
-  const q=e.target.value.toLowerCase().trim();
-  if(!q)return;
-  const b=books.find(b=>
-    b.title.toLowerCase().includes(q)||
-    b.author.toLowerCase().includes(q)
-  );
-  if(b){
-    selected=b.id;
-    yearFilter="all";
-    typeFilter="all";
-    scale=Math.max(scale,.8);
-    centerOn(b);
-    render();
-  }
+  render();
 };
 
 $("export").onclick=()=>{
-  const data={
-    books:books.map(({vx,vy,...b})=>b),
-    edges
-  };
   const blob=new Blob(
-    [JSON.stringify(data,null,2)],
+    [JSON.stringify({books,edges},null,2)],
     {type:"application/json"}
   );
+
   const url=URL.createObjectURL(blob);
   const a=document.createElement("a");
+
   a.href=url;
   a.download="my-reading-universe.json";
   document.body.appendChild(a);
   a.click();
   a.remove();
+
   setTimeout(()=>URL.revokeObjectURL(url),3000);
 };
 
@@ -953,55 +1024,46 @@ $("file").onchange=async e=>{
   try{
     const file=e.target.files?.[0];
     if(!file)return;
+
     const raw=await new Promise((resolve,reject)=>{
       const reader=new FileReader();
       reader.onload=()=>resolve(reader.result);
       reader.onerror=()=>reject(new Error("파일 읽기 실패"));
       reader.readAsText(file,"UTF-8");
     });
+
     let data;
+
     try{
       data=JSON.parse(String(raw).replace(/^\uFEFF/,""));
     }catch(err){
-      throw new Error("JSON 문법 오류입니다.");
+      throw new Error("JSON 형식이 올바르지 않습니다.");
     }
+
     if(!Array.isArray(data.books)||!Array.isArray(data.edges)){
       throw new Error("books 또는 edges 목록이 없습니다.");
     }
-    if(!confirm("현재 지도를 가져온 데이터로 교체할까요?"))return;
+
+    if(!confirm("현재 지도를 가져온 데이터로 교체할까요?")){
+      return;
+    }
 
     books=data.books;
     edges=data.edges;
+
     normalize();
+
     selected=null;
     yearFilter="all";
     typeFilter="all";
 
-    // 가져온 좌표가 지나치게 크거나 이상하면 재배치
-    const invalid=books.some(b=>
-      !Number.isFinite(b.x)||!Number.isFinite(b.y)||
-      Math.abs(b.x)>100000||Math.abs(b.y)>100000
-    );
-    if(invalid){
-      books.forEach((b,i)=>{
-        const a=i*2.399;
-        const r=80+Math.sqrt(i)*55;
-        b.x=Math.cos(a)*r;
-        b.y=Math.sin(a)*r;
-      });
-    }
-
     save();
-    kick();
     render();
 
-    requestAnimationFrame(()=>{
-      resize();
-      fit();
-      draw();
-    });
+    requestAnimationFrame(fit);
 
-    alert(`${books.length}권을 가져왔습니다.`);
+    alert(`${books.length}권, ${edges.length}개 관계를 가져왔습니다.`);
+
   }catch(err){
     alert("가져오기 실패: "+err.message);
   }finally{
@@ -1009,179 +1071,221 @@ $("file").onchange=async e=>{
   }
 };
 
-/* 터치 및 마우스 조작 */
-function hit(x,y){
-  const bs=visible().bs;
-  for(let i=bs.length-1;i>=0;i--){
-    const p=pos(bs[i]);
-    if(Math.hypot(x-p.x,y-p.y)<22)return bs[i];
-  }
-  return null;
+$("demo").onclick=()=>{
+  const data=[
+    ["데미안","헤르만 헤세"],
+    ["싯다르타","헤르만 헤세"],
+    ["어린 왕자","생텍쥐페리"],
+    ["이방인","알베르 카뮈"]
+  ];
+
+  books=data.map((x,i)=>({
+    id:"demo"+i,
+    title:x[0],
+    author:x[1],
+    yearGroup:"2026년까지",
+    memo:"",
+    finished:"",
+    x:Math.cos(i*Math.PI/2)*260,
+    y:Math.sin(i*Math.PI/2)*220
+  }));
+
+  edges=[{
+    id:uid(),
+    from:"demo0",
+    to:"demo1",
+    type:"author",
+    reason:""
+  }];
+
+  save();
+  render();
+  fit();
+};
+
+$("search").oninput=e=>{
+  const q=e.target.value.trim().toLowerCase();
+  if(!q)return;
+
+  const b=books.find(b=>
+    b.title.toLowerCase().includes(q)||
+    b.author.toLowerCase().includes(q)
+  );
+
+  if(!b)return;
+
+  yearFilter="all";
+  typeFilter="all";
+
+  selected=b.id;
+  render();
+
+  zoom=Math.max(zoom,.75);
+  panX=-b.x*zoom;
+  panY=-b.y*zoom;
+  updateTransform();
+};
+
+$("fit").onclick=fit;
+$("relayout").onclick=arrange;
+$("zoomIn").onclick=()=>zoomCenter(1.4);
+$("zoomOut").onclick=()=>zoomCenter(1/1.4);
+
+$("showLines").onchange=drawMap;
+$("highlight").onchange=updateSelection;
+
+/* 터치 및 마우스 */
+function pointerPos(e){
+  const r=viewport.getBoundingClientRect();
+  return {
+    x:e.clientX-r.left-r.width/2,
+    y:e.clientY-r.top-r.height/2
+  };
 }
 
-const pointers=new Map();
-let pinch=null;
-
-function pointerPosition(e){
-  const r=canvas.getBoundingClientRect();
-  return {x:e.clientX-r.left,y:e.clientY-r.top};
-}
-
-canvas.addEventListener("pointerdown",e=>{
-  e.preventDefault();
-  const p=pointerPosition(e);
+viewport.addEventListener("pointerdown",e=>{
+  const p=pointerPos(e);
   pointers.set(e.pointerId,p);
-  canvas.setPointerCapture(e.pointerId);
+
+  try{
+    viewport.setPointerCapture(e.pointerId);
+  }catch(err){}
+
+  if(pointers.size===1){
+    gesture={
+      mode:"pan",
+      start:p,
+      panX,
+      panY
+    };
+  }
 
   if(pointers.size===2){
-    drag=null;
     const ps=[...pointers.values()];
-    pinch={
-      distance:Math.max(1,Math.hypot(
-        ps[0].x-ps[1].x,ps[0].y-ps[1].y
-      )),
-      scale,
-      offset:{...offset},
-      center:{
-        x:(ps[0].x+ps[1].x)/2,
-        y:(ps[0].y+ps[1].y)/2
-      }
-    };
-    return;
-  }
-
-  if(pointers.size>2)return;
-
-  const b=hit(p.x,p.y);
-  if(b){
-    selected=b.id;
-    drag={b,ox:p.x,oy:p.y,bx:b.x,by:b.y};
-    detail();
-    kick();
-  }else{
-    selected=null;
-    drag={
-      pan:true,ox:p.x,oy:p.y,
-      offx:offset.x,offy:offset.y
-    };
-    detail();
-  }
-});
-
-canvas.addEventListener("pointermove",e=>{
-  if(!pointers.has(e.pointerId))return;
-  const p=pointerPosition(e);
-  pointers.set(e.pointerId,p);
-
-  if(pointers.size===2&&pinch){
-    const ps=[...pointers.values()];
-    const dist=Math.max(1,Math.hypot(
-      ps[0].x-ps[1].x,ps[0].y-ps[1].y
-    ));
     const center={
       x:(ps[0].x+ps[1].x)/2,
       y:(ps[0].y+ps[1].y)/2
     };
-    const newScale=Math.max(.01,Math.min(5,
-      pinch.scale*dist/pinch.distance
+
+    gesture={
+      mode:"pinch",
+      distance:Math.max(1,Math.hypot(
+        ps[0].x-ps[1].x,
+        ps[0].y-ps[1].y
+      )),
+      zoom,
+      panX,
+      panY,
+      center
+    };
+  }
+});
+
+viewport.addEventListener("pointermove",e=>{
+  if(!pointers.has(e.pointerId))return;
+
+  const p=pointerPos(e);
+  pointers.set(e.pointerId,p);
+
+  if(pointers.size===2&&gesture?.mode==="pinch"){
+    const ps=[...pointers.values()];
+
+    const distance=Math.max(1,Math.hypot(
+      ps[0].x-ps[1].x,
+      ps[0].y-ps[1].y
     ));
-    const ratio=newScale/pinch.scale;
-    offset.x=center.x-width/2-
-      (pinch.center.x-width/2-pinch.offset.x)*ratio;
-    offset.y=center.y-height/2-
-      (pinch.center.y-height/2-pinch.offset.y)*ratio;
-    scale=newScale;
+
+    const center={
+      x:(ps[0].x+ps[1].x)/2,
+      y:(ps[0].y+ps[1].y)/2
+    };
+
+    const next=Math.max(.025,Math.min(
+      4,
+      gesture.zoom*distance/gesture.distance
+    ));
+
+    const ratio=next/gesture.zoom;
+
+    zoom=next;
+
+    panX=center.x-
+      (gesture.center.x-gesture.panX)*ratio;
+
+    panY=center.y-
+      (gesture.center.y-gesture.panY)*ratio;
+
+    updateTransform();
     return;
   }
 
-  if(!drag||pointers.size!==1)return;
-
-  if(drag.pan){
-    offset.x=drag.offx+p.x-drag.ox;
-    offset.y=drag.offy+p.y-drag.oy;
-  }else{
-    drag.b.x=drag.bx+(p.x-drag.ox)/scale;
-    drag.b.y=drag.by+(p.y-drag.oy)/scale;
+  if(pointers.size===1&&gesture?.mode==="pan"){
+    panX=gesture.panX+p.x-gesture.start.x;
+    panY=gesture.panY+p.y-gesture.start.y;
+    updateTransform();
   }
 });
 
 function endPointer(e){
   pointers.delete(e.pointerId);
-  if(pointers.size<2)pinch=null;
-  if(drag&&!drag.pan)save();
-  drag=null;
-}
-canvas.addEventListener("pointerup",endPointer);
-canvas.addEventListener("pointercancel",endPointer);
 
-canvas.addEventListener("wheel",e=>{
+  if(pointers.size===0){
+    gesture=null;
+  }else if(pointers.size===1){
+    const p=[...pointers.values()][0];
+
+    gesture={
+      mode:"pan",
+      start:p,
+      panX,
+      panY
+    };
+  }
+}
+
+viewport.addEventListener("pointerup",endPointer);
+viewport.addEventListener("pointercancel",endPointer);
+
+viewport.addEventListener("wheel",e=>{
   e.preventDefault();
-  const p=pointerPosition(e);
-  const old=scale;
-  const next=Math.max(.01,Math.min(5,
-    scale*(e.deltaY<0?1.12:.89)
-  ));
-  const ratio=next/old;
-  offset.x=p.x-width/2-
-    (p.x-width/2-offset.x)*ratio;
-  offset.y=p.y-height/2-
-    (p.y-height/2-offset.y)*ratio;
-  scale=next;
+
+  const p=pointerPos(e);
+  const factor=e.deltaY<0?1.12:1/1.12;
+
+  zoomAt(zoom*factor,p.x,p.y);
 },{passive:false});
 
-/* 모바일 패널 */
 function togglePanel(which){
-  const left=$("leftPanel"),right=$("rightPanel");
+  const left=$("leftPanel");
+  const right=$("rightPanel");
+
   const panel=which==="left"?left:right;
   const other=which==="left"?right:left;
+
   other.classList.remove("mobile-open");
   panel.classList.toggle("mobile-open");
 }
+
 $("mobileFilters").onclick=()=>togglePanel("left");
 $("mobileDetails").onclick=()=>togglePanel("right");
-$("closeLeft").onclick=()=>
+
+$("closeLeft").onclick=()=>{
   $("leftPanel").classList.remove("mobile-open");
-$("closeRight").onclick=()=>
+};
+
+$("closeRight").onclick=()=>{
   $("rightPanel").classList.remove("mobile-open");
+};
 
 /* 초기 실행 */
 load();
 render();
 
-function initializeView(){
-  resize();
-  fit();
-  draw();
-}
-
-requestAnimationFrame(()=>{
-  initializeView();
-  requestAnimationFrame(()=>{
-    initializeView();
-    requestAnimationFrame(loop);
-  });
-});
-
-window.addEventListener("resize",()=>{
-  resize();
-  draw();
-});
+requestAnimationFrame(fit);
 
 window.addEventListener("orientationchange",()=>{
-  setTimeout(()=>{
-    resize();
-    fit();
-    draw();
-  },300);
+  setTimeout(fit,300);
 });
-
-if("ResizeObserver" in window){
-  const observer=new ResizeObserver(()=>{
-    resize();
-    draw();
-  });
-  observer.observe(graph);
-}
 </script>
 </body>
 </html>
