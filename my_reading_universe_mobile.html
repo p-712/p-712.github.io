@@ -1,40 +1,991 @@
-<!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My Reading Universe</title>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
+<title>My Reading Universe</title>
 <style>
-:root{--bg:#101318;--panel:#191e26;--line:#303947;--text:#edf1f7;--muted:#9ba7b7;--blue:#9bc7ff}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}header{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid var(--line);background:#12161d}.brand{display:flex;gap:10px;align-items:center}.logo{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#8bbcff,#c6a7ff);display:grid;place-items:center;color:#111;font-weight:bold}h1{font-size:15px;margin:0}.sub{font-size:10px;color:var(--muted);margin-top:3px}.actions{display:flex;gap:7px}.btn{border:1px solid var(--line);background:#202733;color:var(--text);padding:9px 11px;border-radius:8px;font-size:11px;cursor:pointer}.primary{background:#d6e7ff;color:#101923;border-color:#d6e7ff;font-weight:bold}.layout{height:calc(100vh - 64px);display:grid;grid-template-columns:225px 1fr 260px}aside{background:var(--panel);padding:16px;overflow:auto}.left{border-right:1px solid var(--line)}.right{border-left:1px solid var(--line)}.st{font-size:10px;color:var(--muted);letter-spacing:1px;margin:8px 0 11px;font-weight:bold}.search,input,select{width:100%;background:#11161d;border:1px solid var(--line);border-radius:8px;padding:10px;color:var(--text);font-size:12px;outline:none}.filters{display:grid;gap:5px;margin-bottom:20px}.filter{padding:8px;border-radius:7px;font-size:11px;cursor:pointer;color:#c7d0dc}.filter.active,.filter:hover{background:#2a3544;color:white}.stats{display:flex;gap:8px}.stat{background:#11161d;padding:10px;border-radius:8px;flex:1}.stat b{font-size:18px;display:block}.stat span{font-size:10px;color:var(--muted)}#graph{position:relative;background-image:radial-gradient(#29313d 1px,transparent 1px);background-size:24px 24px}canvas{width:100%;height:100%;display:block}.hud{position:absolute;top:15px;left:17px;font-size:12px;font-weight:bold;pointer-events:none}.hud small{display:block;color:var(--muted);font-weight:normal;margin-top:5px}.controls{position:absolute;bottom:14px;right:14px;display:flex;gap:6px}.empty{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;pointer-events:none}.empty.show{display:flex}.card{background:#171d26ed;border:1px solid #303947;border-radius:15px;padding:24px;max-width:330px}.card h2{font-size:16px;margin:0 0 9px}.card p{font-size:11px;line-height:1.7;color:var(--muted);margin:0}.card button{pointer-events:auto;margin-top:15px}.muted{color:var(--muted);font-size:11px;line-height:1.7}.booktitle{font-size:16px;font-weight:bold;line-height:1.4;margin:8px 0}.author{font-size:12px;color:var(--muted)}.tag{display:inline-block;background:#2b3544;padding:5px 8px;border-radius:20px;font-size:10px;margin-top:12px}.connected{display:grid;gap:6px}.connected button{text-align:left;background:#11161d;color:#dbe5f1;border:1px solid #2b3541;padding:8px;border-radius:7px;font-size:11px}.modalbg{display:none;position:fixed;inset:0;background:#0009;z-index:5;align-items:center;justify-content:center;padding:15px}.modalbg.open{display:flex}.modal{width:min(420px,100%);background:#1a2029;border:1px solid #394454;border-radius:14px;padding:20px}.modal h2{font-size:16px;margin:0 0 8px}.modal label{display:block;font-size:11px;color:#b7c1ce;margin:12px 0 6px}.modalfoot{display:flex;justify-content:flex-end;gap:7px;margin-top:18px}.notice{font-size:10px;color:var(--muted);line-height:1.6;margin-top:15px}@media(max-width:850px){.layout{grid-template-columns:180px 1fr}.right{display:none}}@media(max-width:600px){.layout{grid-template-columns:1fr}.left,.right{display:none}header{padding:0 10px}.sub{display:none}.btn{padding:8px;font-size:10px}}
-textarea{width:100%;background:#11161d;border:1px solid var(--line);border-radius:8px;padding:10px;color:var(--text);font:inherit;resize:vertical}.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.legend span{font-size:10px;display:inline-flex;align-items:center;gap:5px}.dot{width:9px;height:9px;border-radius:50%;display:inline-block}.detailfield{margin-top:10px}.detailfield textarea,.detailfield input{font-size:12px}.detailfield label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}canvas{touch-action:none}@media(max-width:600px){.layout{grid-template-columns:1fr}.left{display:block;position:absolute;top:64px;left:0;z-index:3;width:180px;max-height:calc(100vh - 64px);opacity:.92}.right{display:block;position:absolute;right:0;bottom:56px;z-index:3;width:min(270px,65vw);max-height:55vh;background:#191e26ed}.layout{position:relative}.hud{left:195px}.controls{bottom:8px;right:8px;flex-wrap:wrap;justify-content:flex-end;max-width:190px}} </style><style id="mobile-fix">
-@media(max-width:700px){body{overflow:hidden}header{height:auto;min-height:68px;flex-wrap:wrap;gap:8px;padding:9px 10px}.actions{width:100%;justify-content:space-between}.actions .btn{font-size:12px;min-height:40px;flex:1}.layout{height:calc(100dvh - 112px);display:block;position:relative}#graph{height:100%;width:100%}.left,.right{display:none!important}.left.mobile-open,.right.mobile-open{display:block!important;position:absolute;z-index:8;top:0;bottom:0;left:0;right:0;width:100%;max-height:none;overflow:auto;background:#191e26;opacity:1;padding:18px 18px 90px}.right.mobile-open{top:auto;height:min(75%,650px);border-top:2px solid #8bbcff;border-radius:18px 18px 0 0}.hud{left:12px;top:12px}.controls{right:8px;bottom:62px;max-width:calc(100% - 16px)}.controls .btn{font-size:11px}.mobile-nav{display:flex!important;position:absolute;z-index:10;bottom:0;left:0;right:0;gap:8px;padding:9px;background:#12161d;border-top:1px solid #394454}.mobile-nav button{flex:1;min-height:42px}.modal{max-height:90dvh;overflow:auto}.modal input,.modal textarea,.modal select{font-size:16px}.empty .card{margin:12px}canvas{touch-action:none}}
-.mobile-nav{display:none}button{touch-action:manipulation}
-</style></head><body>
-<header><div class="brand"><div class="logo">↗</div><div><h1>My Reading Universe</h1><div class="sub">나의 독서 경험을 연결하는 지도</div></div></div><div class="actions"><button class="btn" id="export">내보내기</button><button class="btn" id="import">가져오기</button><input id="file" type="file" accept=".json" hidden><button class="btn primary" id="add">＋ 책 추가</button></div></header>
-<div class="layout"><aside class="left"><div class="st">지도 탐색</div><input class="search" id="search" placeholder="책 제목 또는 작가 검색"><div class="st" style="margin-top:20px">독서 연도</div><div class="filters" id="years"></div><div class="st">관계 유형</div><div class="filters" id="types"></div><div class="st">표시 설정</div><label class="filter"><input type="checkbox" id="labels" checked style="width:auto"> 책 제목 표시</label><label class="filter"><input type="checkbox" id="physics" checked style="width:auto"> 탄성 배치</label><div class="st">지도 정보</div><div class="stats"><div class="stat"><b id="bc">0</b><span>전체 책</span></div><div class="stat"><b id="ec">0</b><span>연결 관계</span></div></div><div class="notice">노드를 드래그해 위치를 바꿀 수 있어요. 데이터는 이 브라우저에 저장됩니다.</div></aside>
-<main id="graph"><div class="mobile-nav"><button class="btn" id="mobileFilters">☰ 필터·설정</button><button class="btn" id="mobileDetails">📖 책 정보·메모</button></div><canvas id="cv"></canvas><div class="hud" id="hud">전체 독서 지도<small id="hsub">노드를 선택하거나 드래그해 보세요.</small></div><div class="empty show" id="empty"><div class="card"><h2>나만의 독서 지도를 시작해 보세요</h2><p>책을 추가하고 서로의 관계를 연결하면<br>나만의 독서 세계가 이곳에 펼쳐집니다.</p><button class="btn primary" id="demo">예시 지도 보기</button></div></div><div class="controls"><button class="btn" id="fit">전체 보기</button><button class="btn" id="relayout">탄성 재배치</button><button class="btn" id="pause">움직임 멈춤</button></div></main>
-<aside class="right"><div class="st">선택한 책</div><div id="detail" class="muted">지도에서 책을 선택하면<br>책 정보와 연결 관계가 표시됩니다.</div></aside></div>
-<div class="modalbg" id="bookmodal"><div class="modal"><h2>책 추가</h2><p class="muted">책 제목과 작가를 입력해 주세요.</p><label>책 제목 *</label><input id="title" placeholder="예: 데미안"><label>작가 *</label><input id="author" placeholder="예: 헤르만 헤세"><label>읽은 연도</label><select id="year"></select><label>완독 날짜 (선택)</label><input type="date" id="finished"><label>독서 메모</label><textarea id="memo" rows="4" placeholder="감상, 인상 깊은 문장 등"></textarea><div class="modalfoot"><button class="btn" data-close="bookmodal">취소</button><button class="btn primary" id="savebook">책 추가</button></div></div></div>
-<div class="modalbg" id="edgemodal"><div class="modal"><h2>책 연결하기</h2><p class="muted" id="edgeintro"></p><label>연결할 책</label><select id="target"></select><label>관계 유형</label><select id="rtype"></select><label>연결 이유 (선택)</label><textarea id="reason" rows="3" placeholder="두 책을 연결한 이유"></textarea><div class="modalfoot"><button class="btn" data-close="edgemodal">취소</button><button class="btn primary" id="saveedge">연결하기</button></div></div></div>
+:root {
+  --bg:#101318;
+  --panel:#191e26;
+  --line:#303947;
+  --text:#edf1f7;
+  --muted:#9ba7b7;
+  --accent:#a9ccff;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;touch-action:manipulation}
+header{
+  min-height:65px;padding:12px 16px;
+  background:#12161d;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;flex-wrap:wrap;
+}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{
+  width:36px;height:36px;border-radius:11px;
+  background:linear-gradient(135deg,#8bbcff,#c6a7ff);
+  display:grid;place-items:center;color:#111;font-weight:bold;
+}
+h1{font-size:16px;margin:0}
+.sub{font-size:11px;color:var(--muted);margin-top:3px}
+.actions{display:flex;gap:7px}
+.btn{
+  border:1px solid var(--line);background:#202733;
+  color:var(--text);padding:10px 12px;border-radius:9px;
+  font-size:12px;min-height:39px;
+}
+.btn:active{background:#354356}
+.primary{background:#d6e7ff;color:#101923;font-weight:bold}
+.layout{
+  height:calc(100dvh - 65px);
+  display:grid;grid-template-columns:230px minmax(0,1fr) 280px;
+}
+aside{background:var(--panel);padding:16px;overflow:auto}
+.left{border-right:1px solid var(--line)}
+.right{border-left:1px solid var(--line)}
+.st{
+  font-size:11px;color:var(--muted);
+  font-weight:bold;letter-spacing:.5px;margin:15px 0 10px;
+}
+input,select,textarea{
+  width:100%;background:#11161d;color:var(--text);
+  border:1px solid var(--line);border-radius:8px;
+  padding:10px;font-size:13px;
+}
+textarea{resize:vertical;line-height:1.6}
+input[type=checkbox]{width:auto}
+.filter{
+  display:block;padding:10px;border-radius:8px;
+  font-size:12px;color:#c7d0dc;
+  cursor:pointer;
+}
+.filter.active{background:#2a3544;color:white}
+.filter:hover{background:#26313f}
+.stats{display:flex;gap:8px}
+.stat{flex:1;background:#11161d;padding:12px;border-radius:9px}
+.stat b{display:block;font-size:21px}
+.stat span{font-size:11px;color:var(--muted)}
+.notice{font-size:11px;line-height:1.7;color:var(--muted);margin-top:15px}
+#graph{
+  position:relative;min-width:0;overflow:hidden;
+  background-image:radial-gradient(#29313d 1px,transparent 1px);
+  background-size:24px 24px;
+}
+canvas{width:100%;height:100%;display:block;touch-action:none}
+.hud{
+  position:absolute;top:15px;left:15px;
+  font-size:13px;font-weight:bold;pointer-events:none;
+}
+.hud small{
+  display:block;font-size:11px;color:var(--muted);
+  font-weight:normal;margin-top:5px;
+}
+.controls{
+  position:absolute;bottom:15px;right:15px;
+  display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;
+}
+.empty{
+  position:absolute;inset:0;display:none;
+  align-items:center;justify-content:center;
+  pointer-events:none;padding:20px;
+}
+.empty.show{display:flex}
+.card{
+  pointer-events:auto;text-align:center;
+  background:#171d26ee;border:1px solid var(--line);
+  border-radius:16px;padding:24px;max-width:340px;
+}
+.card h2{font-size:17px}
+.card p{font-size:12px;line-height:1.7;color:var(--muted)}
+.booktitle{font-size:19px;font-weight:bold;margin:10px 0}
+.author{font-size:13px;color:var(--muted)}
+.tag{
+  display:inline-block;background:#2b3544;
+  border-radius:20px;padding:6px 10px;
+  font-size:11px;margin:10px 0;
+}
+.field{margin-top:14px}
+.field label{
+  display:block;font-size:12px;
+  color:var(--muted);margin-bottom:6px;
+}
+.connected{display:grid;gap:7px}
+.connected button{
+  text-align:left;background:#11161d;color:var(--text);
+  border:1px solid var(--line);border-radius:8px;
+  padding:10px;font-size:12px;line-height:1.5;
+}
+.dot{
+  display:inline-block;width:9px;height:9px;
+  border-radius:50%;margin-right:5px;
+}
+.modalbg{
+  display:none;position:fixed;inset:0;z-index:30;
+  background:#000a;align-items:center;justify-content:center;
+  padding:15px;
+}
+.modalbg.open{display:flex}
+.modal{
+  width:min(440px,100%);max-height:90dvh;overflow:auto;
+  background:#1a2029;border:1px solid #394454;
+  border-radius:15px;padding:20px;
+}
+.modal h2{font-size:18px;margin-top:0}
+.modalfoot{
+  display:flex;justify-content:flex-end;
+  gap:8px;margin-top:20px;
+}
+.mobile-nav{display:none}
+.close-panel{display:none}
+@media(max-width:850px){
+  .layout{grid-template-columns:190px minmax(0,1fr)}
+  .right{display:none}
+}
+@media(max-width:650px){
+  header{padding:10px}
+  .actions{width:100%}
+  .actions .btn{flex:1;font-size:12px}
+  .layout{height:calc(100dvh - 112px);display:block;position:relative}
+  #graph{height:100%}
+  .left,.right{display:none}
+  .left.mobile-open,.right.mobile-open{
+    display:block;position:absolute;z-index:12;
+    left:0;right:0;width:100%;
+    overflow:auto;background:#191e26;
+    border:0;
+  }
+  .left.mobile-open{top:0;bottom:54px}
+  .right.mobile-open{
+    bottom:54px;top:auto;max-height:75%;
+    border-radius:18px 18px 0 0;
+    border-top:2px solid var(--accent);
+  }
+  .mobile-nav{
+    display:flex;position:absolute;z-index:15;
+    bottom:0;left:0;right:0;
+    padding:7px;gap:7px;
+    background:#12161d;border-top:1px solid var(--line);
+  }
+  .mobile-nav button{flex:1;min-height:42px}
+  .close-panel{display:block;float:right}
+  .controls{bottom:65px;right:8px;left:8px}
+  .controls .btn{font-size:11px;padding:8px}
+  .hud{top:10px;left:10px}
+  input,textarea,select{font-size:16px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">↗</div>
+    <div>
+      <h1>My Reading Universe</h1>
+      <div class="sub">나의 독서 경험을 연결하는 지도</div>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn" id="export">내보내기</button>
+    <button class="btn" id="import">가져오기</button>
+    <input type="file" id="file" accept=".json,application/json" hidden>
+    <button class="btn primary" id="add">＋ 책 추가</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="left" id="leftPanel">
+    <button class="btn close-panel" id="closeLeft">닫기 ✕</button>
+    <div class="st">지도 탐색</div>
+    <input id="search" placeholder="책 제목 또는 작가 검색">
+    <div class="st">독서 연도</div>
+    <div id="years"></div>
+    <div class="st">관계 유형</div>
+    <div id="types"></div>
+    <div class="st">표시 설정</div>
+    <label class="filter">
+      <input type="checkbox" id="labels" checked> 책 제목 표시
+    </label>
+    <label class="filter">
+      <input type="checkbox" id="physics" checked> 탄성 배치
+    </label>
+    <div class="st">지도 정보</div>
+    <div class="stats">
+      <div class="stat"><b id="bc">0</b><span>전체 책</span></div>
+      <div class="stat"><b id="ec">0</b><span>연결 관계</span></div>
+    </div>
+    <p class="notice">
+      책을 드래그하면 연결된 책들이 탄성 있게 움직입니다.
+      데이터는 현재 브라우저에 저장됩니다.
+      다른 기기와 자동 동기화되지는 않으므로 JSON으로 백업하세요.
+    </p>
+  </aside>
+
+  <main id="graph">
+    <canvas id="cv"></canvas>
+    <div class="hud">
+      전체 독서 지도
+      <small id="hsub">책을 선택하거나 움직여 보세요.</small>
+    </div>
+    <div class="empty show" id="empty">
+      <div class="card">
+        <h2>나만의 독서 지도를 시작해 보세요</h2>
+        <p>책을 추가하고 서로 연결하면<br>나만의 독서 세계가 펼쳐집니다.</p>
+        <button class="btn primary" id="demo">예시 지도 보기</button>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn" id="fit">전체 보기</button>
+      <button class="btn" id="relayout">탄성 재배치</button>
+      <button class="btn" id="pause">움직임 멈춤</button>
+      <button class="btn" id="zoomIn">＋</button>
+      <button class="btn" id="zoomOut">－</button>
+    </div>
+    <div class="mobile-nav">
+      <button class="btn" id="mobileFilters">☰ 필터·설정</button>
+      <button class="btn" id="mobileDetails">📖 책 정보·메모</button>
+    </div>
+  </main>
+
+  <aside class="right" id="rightPanel">
+    <button class="btn close-panel" id="closeRight">닫기 ✕</button>
+    <div class="st">선택한 책</div>
+    <div id="detail">책을 선택하면 정보가 표시됩니다.</div>
+  </aside>
+</div>
+
+<div class="modalbg" id="bookmodal">
+  <div class="modal">
+    <h2>책 추가</h2>
+    <div class="field">
+      <label>책 제목 *</label>
+      <input id="title" placeholder="예: 구의 증명">
+    </div>
+    <div class="field">
+      <label>작가 *</label>
+      <input id="author" placeholder="예: 최진영">
+    </div>
+    <div class="field">
+      <label>읽은 연도</label>
+      <select id="year"></select>
+    </div>
+    <div class="field">
+      <label>완독 날짜 (선택)</label>
+      <input type="date" id="finished">
+    </div>
+    <div class="field">
+      <label>독서 메모</label>
+      <textarea id="memo" rows="4"></textarea>
+    </div>
+    <div class="modalfoot">
+      <button class="btn" id="cancelBook">취소</button>
+      <button class="btn primary" id="savebook">책 추가</button>
+    </div>
+  </div>
+</div>
+
+<div class="modalbg" id="edgemodal">
+  <div class="modal">
+    <h2>책 연결하기</h2>
+    <p id="edgeintro"></p>
+    <div class="field">
+      <label>연결할 책</label>
+      <select id="target"></select>
+    </div>
+    <div class="field">
+      <label>관계 유형</label>
+      <select id="rtype"></select>
+    </div>
+    <div class="field">
+      <label>연결 이유</label>
+      <textarea id="reason" rows="3"></textarea>
+    </div>
+    <div class="modalfoot">
+      <button class="btn" id="cancelEdge">취소</button>
+      <button class="btn primary" id="saveedge">연결하기</button>
+    </div>
+  </div>
+</div>
+
 <script>
-const rels=[['author','동일 작가',false,'#83b9ff'],['topic','동일 주제',false,'#7bd7ae'],['inspired','독서 계기',true,'#ffcb7a'],['mentioned','책 속 언급',true,'#bb9eff'],['thought','사상적 연결',false,'#f59ac0'],['opposed','대립 관계',false,'#f07878'],['custom','직접 지정',false,'#c7d0da']];
-let books=[],edges=[],yearFilter='all',typeFilter='all',selected=null,source=null,drag=null,scale=1,offset={x:0,y:0},ctx,canvas,run=true,alpha=1,frame=0;const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const group=y=>y<=2026?'2026년까지':String(y);const rid=()=>Math.random().toString(36).slice(2,11);
-function save(){try{localStorage.setItem('mru-data',JSON.stringify({books,edges}))}catch(e){console.warn('저장 제한:',e)}}function normalize(){books=books.filter(b=>b&&b.id&&b.title&&b.author).map(b=>({...b,x:Number.isFinite(+b.x)?+b.x:Math.random()*500-250,y:Number.isFinite(+b.y)?+b.y:Math.random()*500-250,vx:0,vy:0,yearGroup:b.yearGroup||'2026년까지'}));let ids=new Set(books.map(b=>b.id));edges=edges.filter(e=>ids.has(e.from)&&ids.has(e.to)&&e.from!==e.to)}
-function init(){canvas=$('cv');ctx=canvas.getContext('2d');$('year').innerHTML='<option value="2026">2026년까지</option>'+Array.from({length:25},(_,i)=>`<option value="${2027+i}">${2027+i}년</option>`).join('');$('rtype').innerHTML=rels.map(r=>`<option value="${r[0]}">${r[1]}</option>`).join('');try{let d=JSON.parse(localStorage.getItem('mru-data'));if(d){books=d.books||[];edges=d.edges||[]}}catch{}normalize();resize();render();if(books.length)fit();requestAnimationFrame(loop)}
-function resize(){let r=$('graph').getBoundingClientRect(),d=devicePixelRatio||1;canvas.width=Math.max(1,r.width*d);canvas.height=Math.max(1,r.height*d);ctx.setTransform(d,0,0,d,0,0)}
-function visible(){let bs=books.filter(b=>yearFilter==='all'||b.yearGroup===yearFilter),ids=new Set(bs.map(b=>b.id));return{bs,es:edges.filter(e=>ids.has(e.from)&&ids.has(e.to)&&(typeFilter==='all'||e.type===typeFilter))}}
-function pos(b){return{x:canvas.clientWidth/2+offset.x+b.x*scale,y:canvas.clientHeight/2+offset.y+b.y*scale}}
-function physics(){if(!run||!$('physics').checked||!books.length)return;let n=books.length,charge=11000,center=.0014,friction=.84,dt=.55;let fx=new Float64Array(n),fy=new Float64Array(n),map=new Map(books.map((b,i)=>[b.id,i]));for(let i=0;i<n;i++){let a=books[i];fx[i]-=a.x*center;fy[i]-=a.y*center;for(let j=i+1;j<n;j++){let b=books[j],dx=a.x-b.x,dy=a.y-b.y,d2=dx*dx+dy*dy+1200,dist=Math.sqrt(d2),f=Math.min(3.5,charge/d2);fx[i]+=dx/dist*f;fy[i]+=dy/dist*f;fx[j]-=dx/dist*f;fy[j]-=dy/dist*f}}for(let e of edges){let i=map.get(e.from),j=map.get(e.to);if(i===undefined||j===undefined)continue;let a=books[i],b=books[j],dx=b.x-a.x,dy=b.y-a.y,dist=Math.max(1,Math.hypot(dx,dy)),rest=e.type==='author'?125:180,f=(dist-rest)*.0045;fx[i]+=dx/dist*f;fy[i]+=dy/dist*f;fx[j]-=dx/dist*f;fy[j]-=dy/dist*f}let energy=0;books.forEach((b,i)=>{if(drag?.b===b){b.vx=b.vy=0;return}b.vx=Math.max(-9,Math.min(9,(b.vx+fx[i]*dt)*friction));b.vy=Math.max(-9,Math.min(9,(b.vy+fy[i]*dt)*friction));b.x+=b.vx*dt;b.y+=b.vy*dt;energy+=Math.abs(b.vx)+Math.abs(b.vy)});if(++frame%100===0)save();if(energy<.09*n&&frame>150){run=false;$('pause').textContent='움직임 재개';save()}}
-function loop(){physics();draw();requestAnimationFrame(loop)}
-function draw(){let w=canvas.clientWidth,h=canvas.clientHeight;ctx.clearRect(0,0,w,h);let {bs,es}=visible(),map=new Map(bs.map(b=>[b.id,b]));es.forEach(e=>{let a=map.get(e.from),b=map.get(e.to);if(!a||!b)return;let p=pos(a),q=pos(b),r=rels.find(t=>t[0]===e.type)||rels[6],active=!selected||e.from===selected||e.to===selected;ctx.globalAlpha=active?.75:.07;ctx.strokeStyle=r[3];ctx.lineWidth=active?1.6:1;ctx.setLineDash(e.type==='opposed'?[5,4]:[]);ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();ctx.setLineDash([]);if(r[2]){let ang=Math.atan2(q.y-p.y,q.x-p.x),x=q.x-Math.cos(ang)*14,y=q.y-Math.sin(ang)*14;ctx.fillStyle=r[3];ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-7*Math.cos(ang-.5),y-7*Math.sin(ang-.5));ctx.lineTo(x-7*Math.cos(ang+.5),y-7*Math.sin(ang+.5));ctx.fill()}});ctx.globalAlpha=1;let neighbors=new Set(edges.filter(e=>e.from===selected||e.to===selected).flatMap(e=>[e.from,e.to]));bs.forEach(b=>{let p=pos(b),active=!selected||b.id===selected||neighbors.has(b.id),rad=b.id===selected?11:7;ctx.globalAlpha=active?1:.19;ctx.beginPath();ctx.arc(p.x,p.y,rad,0,Math.PI*2);let h=0;for(let c of b.author)h=(h*31+c.charCodeAt(0))|0;ctx.fillStyle=['#9bc7ff','#c4a7ff','#9ed9c1','#f2c58d','#f39fae','#a8c7d9'][Math.abs(h)%6];ctx.fill();ctx.strokeStyle=b.id===selected?'#fff':'#d9e7f8';ctx.lineWidth=b.id===selected?3:1;ctx.stroke();if($('labels').checked&&(scale>.6||b.id===selected)){ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillStyle='#f4f6fc';ctx.shadowColor='#101318';ctx.shadowBlur=5;ctx.fillText(b.title,p.x,p.y+21,145);ctx.shadowBlur=0}});ctx.globalAlpha=1}
-function render(){let groups=['all','2026년까지',...new Set(books.map(b=>b.yearGroup).filter(x=>x!=='2026년까지'))];$('years').innerHTML=groups.map(g=>`<div class="filter ${yearFilter===g?'active':''}" data-y="${g}">${g==='all'?'전체 연도':g} <span style="float:right">${g==='all'?books.length:books.filter(b=>b.yearGroup===g).length}</span></div>`).join('');$('years').querySelectorAll('[data-y]').forEach(x=>x.onclick=()=>{yearFilter=x.dataset.y;render()});$('types').innerHTML=`<div class="filter ${typeFilter==='all'?'active':''}" data-t="all">모든 관계</div>`+rels.map(r=>`<div class="filter ${typeFilter===r[0]?'active':''}" data-t="${r[0]}"><span class="dot" style="background:${r[3]}"></span> ${r[1]} <span style="float:right">${edges.filter(e=>e.type===r[0]).length}</span></div>`).join('');$('types').querySelectorAll('[data-t]').forEach(x=>x.onclick=()=>{typeFilter=x.dataset.t;render()});$('bc').textContent=books.length;$('ec').textContent=edges.length;$('empty').classList.toggle('show',!books.length);$('hud').firstChild.textContent=yearFilter==='all'?'전체 독서 지도':yearFilter+' 독서 지도';$('hsub').textContent=`${visible().bs.length}권 · ${visible().es.length}개 연결`;detail()}
-function detail(){let b=books.find(x=>x.id===selected);if(!b){$('detail').innerHTML='<div class="muted">책을 선택하면 독서 메모와 연결 관계를 확인하고 편집할 수 있습니다.</div>';return}let ls=edges.filter(e=>e.from===b.id||e.to===b.id);$('detail').innerHTML=`<div class="booktitle">${esc(b.title)}</div><div class="author">${esc(b.author)}</div><span class="tag">${esc(b.yearGroup)}</span><div class="detailfield"><label>완독 날짜</label><input id="editdate" type="date" value="${esc(b.finished||'')}"></div><div class="detailfield"><label>독서 메모</label><textarea id="editmemo" rows="5" placeholder="책에 대한 생각을 기록하세요">${esc(b.memo||'')}</textarea></div><button class="btn primary" id="savememo" style="width:100%;margin-top:8px">기록 저장</button><div class="st" style="margin-top:18px">연결된 책 · ${ls.length}</div><div class="connected">${ls.map(e=>{let o=books.find(x=>x.id===(e.from===b.id?e.to:e.from)),r=rels.find(r=>r[0]===e.type)||rels[6];return o?`<button data-jump="${esc(o.id)}"><span class="dot" style="background:${r[3]}"></span> ${esc(o.title)} · ${r[1]}${e.reason?`<small style="display:block;color:#9ba7b7;margin-top:4px">${esc(e.reason)}</small>`:''}</button>`:''}).join('')}</div><button class="btn" id="connect" style="width:100%;margin-top:14px">＋ 다른 책과 연결</button><button class="btn" id="del" style="width:100%;margin-top:7px;color:#ff9eaa">이 책 삭제</button>`;$('savememo').onclick=()=>{b.memo=$('editmemo').value;b.finished=$('editdate').value;save();$('savememo').textContent='저장 완료 ✓'};$('detail').querySelectorAll('[data-jump]').forEach(x=>x.onclick=()=>{selected=x.dataset.jump;centerOn(selected);detail()});$('connect').onclick=()=>edgeModal(b.id);$('del').onclick=()=>{if(confirm('이 책과 연결 관계를 삭제할까요?')){books=books.filter(x=>x.id!==b.id);edges=edges.filter(e=>e.from!==b.id&&e.to!==b.id);selected=null;save();render()}}}
-function centerOn(id){let b=books.find(x=>x.id===id);if(b){offset={x:-b.x*scale,y:-b.y*scale};selected=id}}
-function fit(){if(!books.length)return;let xs=books.map(b=>b.x),ys=books.map(b=>b.y),w=canvas.clientWidth,h=canvas.clientHeight,dx=Math.max(...xs)-Math.min(...xs),dy=Math.max(...ys)-Math.min(...ys);scale=Math.max(.12,Math.min((w-100)/(dx+100),(h-100)/(dy+100),1.3));offset={x:-(Math.min(...xs)+Math.max(...xs))/2*scale,y:-(Math.min(...ys)+Math.max(...ys))/2*scale}}
-function kick(){run=true;frame=0;$('pause').textContent='움직임 멈춤'}
-function edgeModal(id){if(books.length<2)return alert('책이 두 권 이상 필요합니다.');source=id;$('edgeintro').textContent=`${books.find(b=>b.id===id).title}와 연결할 책을 선택하세요.`;$('target').innerHTML=books.filter(b=>b.id!==id).map(b=>`<option value="${esc(b.id)}">${esc(b.title)} — ${esc(b.author)}</option>`).join('');$('reason').value='';$('edgemodal').classList.add('open')}
-$('add').onclick=()=>{$('title').value='';$('author').value='';$('finished').value='';$('memo').value='';$('bookmodal').classList.add('open')};$('savebook').onclick=()=>{let title=$('title').value.trim(),author=$('author').value.trim();if(!title||!author)return alert('제목과 작가를 입력해 주세요.');if(books.some(b=>b.title===title&&b.author===author))return alert('이미 등록된 책입니다.');let n=books.length,a=n*2.399;books.push({id:'b'+rid(),title,author,yearGroup:group(+$('year').value),finished:$('finished').value,memo:$('memo').value,x:Math.cos(a)*Math.sqrt(n)*60,y:Math.sin(a)*Math.sqrt(n)*60,vx:0,vy:0});$('bookmodal').classList.remove('open');save();kick();render()};$('saveedge').onclick=()=>{let to=$('target').value,type=$('rtype').value;if(edges.some(e=>e.type===type&&((e.from===source&&e.to===to)||(e.from===to&&e.to===source))))return alert('이미 같은 관계가 있습니다.');edges.push({id:'e'+rid(),from:source,to,type,reason:$('reason').value.trim()});$('edgemodal').classList.remove('open');save();kick();render()};document.querySelectorAll('[data-close]').forEach(x=>x.onclick=()=>$(x.dataset.close).classList.remove('open'));
-$('demo').onclick=()=>{let s=[['데미안','헤르만 헤세'],['싯다르타','헤르만 헤세'],['어린 왕자','생텍쥐페리'],['이방인','알베르 카뮈']];books=s.map((x,i)=>({id:'b'+i,title:x[0],author:x[1],yearGroup:'2026년까지',x:Math.cos(i*1.57)*180,y:Math.sin(i*1.57)*180,vx:0,vy:0}));edges=[{id:'e1',from:'b0',to:'b1',type:'author'}];save();kick();render();fit()};$('fit').onclick=fit;$('relayout').onclick=()=>{books.forEach((b,i)=>{let a=i*2.399,r=65+Math.sqrt(i)*40;b.x=Math.cos(a)*r;b.y=Math.sin(a)*r;b.vx=b.vy=0});kick();fit()};$('pause').onclick=()=>{run=!run;$('pause').textContent=run?'움직임 멈춤':'움직임 재개';if(!run)save()};$('physics').onchange=()=>{if($('physics').checked)kick()};$('search').oninput=e=>{let q=e.target.value.toLowerCase().trim();if(!q)return;let b=books.find(b=>b.title.toLowerCase().includes(q)||b.author.toLowerCase().includes(q));if(b){yearFilter='all';typeFilter='all';selected=b.id;centerOn(b.id);render()}};
-$('export').onclick=()=>{save();let a=document.createElement('a'),u=URL.createObjectURL(new Blob([JSON.stringify({books:books.map(({vx,vy,...b})=>b),edges},null,2)],{type:'application/json'}));a.href=u;a.download='my-reading-universe.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)};$('import').onclick=()=>$('file').click();$('file').onchange=async e=>{try{if(!e.target.files?.[0])return;let d=JSON.parse(await e.target.files[0].text());if(!Array.isArray(d.books)||!Array.isArray(d.edges))throw Error('형식 오류');if(confirm('현재 지도를 가져온 데이터로 교체할까요? 기존 기록은 먼저 내보내기로 백업하세요.')){books=d.books;edges=d.edges;normalize();selected=null;yearFilter='all';typeFilter='all';save();kick();render();fit()}}catch(err){alert('올바른 JSON 파일이 아닙니다.')}finally{e.target.value=''}};
-function hit(x,y){let bs=visible().bs;for(let i=bs.length-1;i>=0;i--){let p=pos(bs[i]);if(Math.hypot(x-p.x,y-p.y)<17)return bs[i]}return null}canvas.addEventListener('pointerdown',e=>{let r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,b=hit(x,y);if(b){selected=b.id;drag={b,ox:x,oy:y,bx:b.x,by:b.y};detail();kick()}else{drag={pan:true,ox:x,oy:y,offx:offset.x,offy:offset.y};selected=null;detail()}canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(!drag)return;let r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;if(drag.pan){offset.x=drag.offx+x-drag.ox;offset.y=drag.offy+y-drag.oy}else{drag.b.x=drag.bx+(x-drag.ox)/scale;drag.b.y=drag.by+(y-drag.oy)/scale}});canvas.addEventListener('pointerup',()=>{if(drag&&!drag.pan)save();drag=null});canvas.addEventListener('pointercancel',()=>drag=null);canvas.addEventListener('wheel',e=>{e.preventDefault();scale=Math.max(.1,Math.min(3,scale*(e.deltaY<0?1.1:.9)))},{passive:false});window.addEventListener('resize',()=>{resize();draw()});
-function toggleMobile(which){const left=document.querySelector('.left'),right=document.querySelector('.right');let panel=which==='left'?left:right,other=which==='left'?right:left;other.classList.remove('mobile-open');panel.classList.toggle('mobile-open');}
-$('mobileFilters').addEventListener('click',()=>toggleMobile('left'));
-$('mobileDetails').addEventListener('click',()=>toggleMobile('right'));
-init();
-</script></body></html>
+"use strict";
+
+const $ = id => document.getElementById(id);
+
+const rels = [
+  ["author","동일 작가",false,"#83b9ff"],
+  ["topic","동일 주제",false,"#7bd7ae"],
+  ["inspired","독서 계기",true,"#ffcb7a"],
+  ["mentioned","책 속 언급",true,"#bb9eff"],
+  ["thought","사상적 연결",false,"#f59ac0"],
+  ["opposed","대립 관계",false,"#f07878"],
+  ["custom","직접 지정",false,"#c7d0da"]
+];
+
+let books = [];
+let edges = [];
+let selected = null;
+let source = null;
+let yearFilter = "all";
+let typeFilter = "all";
+let scale = 1;
+let offset = {x:0,y:0};
+let running = true;
+let drag = null;
+let frame = 0;
+
+const canvas = $("cv");
+const ctx = canvas.getContext("2d");
+const graph = $("graph");
+
+function uid(){
+  return "id"+Date.now().toString(36)+
+    Math.random().toString(36).slice(2,9);
+}
+function esc(s){
+  return String(s??"").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",
+    '"':"&quot;","'":"&#39;"
+  })[c]);
+}
+function save(){
+  try{
+    localStorage.setItem("mru-data",JSON.stringify({books,edges}));
+  }catch(e){
+    console.warn("저장 실패",e);
+  }
+}
+function load(){
+  try{
+    const d=JSON.parse(localStorage.getItem("mru-data"));
+    if(d && Array.isArray(d.books) && Array.isArray(d.edges)){
+      books=d.books;
+      edges=d.edges;
+      normalize();
+    }
+  }catch(e){console.warn(e)}
+}
+function normalize(){
+  books=books.filter(b=>b&&b.id&&b.title&&b.author);
+  books.forEach((b,i)=>{
+    if(!Number.isFinite(Number(b.x))) b.x=Math.cos(i*2.4)*100;
+    if(!Number.isFinite(Number(b.y))) b.y=Math.sin(i*2.4)*100;
+    b.x=Number(b.x);
+    b.y=Number(b.y);
+    b.vx=0;
+    b.vy=0;
+    b.yearGroup=b.yearGroup||"2026년까지";
+    b.memo=b.memo||"";
+    b.finished=b.finished||"";
+  });
+  const ids=new Set(books.map(b=>b.id));
+  edges=edges.filter(e=>e&&ids.has(e.from)&&ids.has(e.to));
+}
+function visible(){
+  const bs=books.filter(b=>
+    yearFilter==="all"||b.yearGroup===yearFilter
+  );
+  const ids=new Set(bs.map(b=>b.id));
+  const es=edges.filter(e=>
+    ids.has(e.from)&&ids.has(e.to)&&
+    (typeFilter==="all"||e.type===typeFilter)
+  );
+  return {bs,es};
+}
+function resize(){
+  const r=graph.getBoundingClientRect();
+  const d=Math.min(window.devicePixelRatio||1,2);
+  canvas.width=Math.max(1,Math.round(r.width*d));
+  canvas.height=Math.max(1,Math.round(r.height*d));
+  ctx.setTransform(d,0,0,d,0,0);
+}
+function pos(b){
+  return {
+    x:canvas.clientWidth/2+offset.x+b.x*scale,
+    y:canvas.clientHeight/2+offset.y+b.y*scale
+  };
+}
+function fit(){
+  if(!books.length)return;
+  const xs=books.map(b=>b.x);
+  const ys=books.map(b=>b.y);
+  const minX=Math.min(...xs),maxX=Math.max(...xs);
+  const minY=Math.min(...ys),maxY=Math.max(...ys);
+  const w=canvas.clientWidth,h=canvas.clientHeight;
+  scale=Math.max(.08,Math.min(
+    (w-100)/(maxX-minX+100),
+    (h-120)/(maxY-minY+100),1.5
+  ));
+  offset={
+    x:-(minX+maxX)/2*scale,
+    y:-(minY+maxY)/2*scale
+  };
+}
+function centerOn(b){
+  offset={x:-b.x*scale,y:-b.y*scale};
+}
+function kick(){
+  running=true;
+  frame=0;
+  $("pause").textContent="움직임 멈춤";
+}
+
+/* 탄성 물리 시뮬레이션 */
+function simulate(){
+  if(!running||!$("physics").checked||!books.length)return;
+  if(frame++>1500){running=false;save();return}
+
+  const n=books.length;
+  const forces=books.map(()=>({x:0,y:0}));
+  const index=new Map(books.map((b,i)=>[b.id,i]));
+
+  // 노드 사이의 척력
+  for(let i=0;i<n;i++){
+    for(let j=i+1;j<n;j++){
+      const a=books[i],b=books[j];
+      let dx=b.x-a.x,dy=b.y-a.y;
+      let dist2=dx*dx+dy*dy+1;
+      let dist=Math.sqrt(dist2);
+      const repulsion=Math.min(90,8500/dist2);
+      const fx=dx/dist*repulsion;
+      const fy=dy/dist*repulsion;
+      forces[i].x-=fx;
+      forces[i].y-=fy;
+      forces[j].x+=fx;
+      forces[j].y+=fy;
+    }
+  }
+
+  // 관계가 있는 책 사이의 스프링 인력
+  edges.forEach(e=>{
+    const i=index.get(e.from),j=index.get(e.to);
+    if(i===undefined||j===undefined)return;
+    const a=books[i],b=books[j];
+    const dx=b.x-a.x,dy=b.y-a.y;
+    const dist=Math.max(1,Math.hypot(dx,dy));
+    const desired=e.type==="author"?125:155;
+    const strength=.006;
+    const force=(dist-desired)*strength;
+    const fx=dx/dist*force,fy=dy/dist*force;
+    forces[i].x+=fx;
+    forces[i].y+=fy;
+    forces[j].x-=fx;
+    forces[j].y-=fy;
+  });
+
+  // 중앙으로 약하게 끌어당김
+  books.forEach((b,i)=>{
+    if(drag&&drag.b===b)return;
+    const f=forces[i];
+    b.vx=(b.vx+f.x-b.x*.0005)*.86;
+    b.vy=(b.vy+f.y-b.y*.0005)*.86;
+    b.vx=Math.max(-12,Math.min(12,b.vx));
+    b.vy=Math.max(-12,Math.min(12,b.vy));
+    b.x+=b.vx;
+    b.y+=b.vy;
+  });
+}
+
+function draw(){
+  const w=canvas.clientWidth,h=canvas.clientHeight;
+  ctx.clearRect(0,0,w,h);
+  const {bs,es}=visible();
+  const map=new Map(bs.map(b=>[b.id,b]));
+  const neighbors=new Set();
+
+  if(selected){
+    edges.forEach(e=>{
+      if(e.from===selected)neighbors.add(e.to);
+      if(e.to===selected)neighbors.add(e.from);
+    });
+  }
+
+  es.forEach(e=>{
+    const a=map.get(e.from),b=map.get(e.to);
+    if(!a||!b)return;
+    const p=pos(a),q=pos(b);
+    const rel=rels.find(r=>r[0]===e.type)||rels[6];
+    const active=!selected||
+      e.from===selected||e.to===selected;
+
+    ctx.globalAlpha=active?.8:.06;
+    ctx.strokeStyle=rel[3];
+    ctx.lineWidth=active?1.6:1;
+    ctx.setLineDash(e.type==="opposed"?[5,4]:[]);
+    ctx.beginPath();
+    ctx.moveTo(p.x,p.y);
+    ctx.lineTo(q.x,q.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    if(rel[2]){
+      const angle=Math.atan2(q.y-p.y,q.x-p.x);
+      const x=q.x-Math.cos(angle)*15;
+      const y=q.y-Math.sin(angle)*15;
+      ctx.fillStyle=rel[3];
+      ctx.beginPath();
+      ctx.moveTo(x,y);
+      ctx.lineTo(
+        x-8*Math.cos(angle-.5),
+        y-8*Math.sin(angle-.5)
+      );
+      ctx.lineTo(
+        x-8*Math.cos(angle+.5),
+        y-8*Math.sin(angle+.5)
+      );
+      ctx.closePath();
+      ctx.fill();
+    }
+  });
+
+  ctx.globalAlpha=1;
+
+  bs.forEach(b=>{
+    const p=pos(b);
+    const active=!selected||
+      selected===b.id||neighbors.has(b.id);
+    ctx.globalAlpha=active?1:.17;
+    const radius=selected===b.id?11:7;
+
+    let hash=0;
+    for(const c of b.author)
+      hash=(hash*31+c.charCodeAt(0))|0;
+    const colors=[
+      "#9bc7ff","#c4a7ff","#9ed9c1",
+      "#f2c58d","#f39fae","#a8c7d9"
+    ];
+
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,radius,0,Math.PI*2);
+    ctx.fillStyle=colors[Math.abs(hash)%colors.length];
+    ctx.fill();
+    ctx.strokeStyle=selected===b.id?"white":"#d9e7f8";
+    ctx.lineWidth=selected===b.id?3:1;
+    ctx.stroke();
+
+    if($("labels").checked&&(scale>.55||selected===b.id)){
+      ctx.font="11px sans-serif";
+      ctx.textAlign="center";
+      ctx.fillStyle="#f4f6fc";
+      ctx.shadowColor="#101318";
+      ctx.shadowBlur=5;
+      ctx.fillText(b.title,p.x,p.y+22,150);
+      ctx.shadowBlur=0;
+    }
+  });
+  ctx.globalAlpha=1;
+}
+function loop(){
+  simulate();
+  draw();
+  requestAnimationFrame(loop);
+}
+function render(){
+  const groups=[
+    "all","2026년까지",
+    ...new Set(books.map(b=>b.yearGroup)
+      .filter(y=>y!=="2026년까지"))
+  ];
+
+  $("years").innerHTML=groups.map(g=>`
+    <div class="filter ${yearFilter===g?"active":""}"
+         data-year="${esc(g)}">
+      ${g==="all"?"전체 연도":esc(g)}
+      <span style="float:right">
+      ${g==="all"?books.length:
+        books.filter(b=>b.yearGroup===g).length}
+      </span>
+    </div>
+  `).join("");
+
+  document.querySelectorAll("[data-year]").forEach(el=>{
+    el.onclick=()=>{
+      yearFilter=el.dataset.year;
+      render();
+    };
+  });
+
+  $("types").innerHTML=`
+    <div class="filter ${typeFilter==="all"?"active":""}"
+         data-type="all">모든 관계</div>
+  `+rels.map(r=>`
+    <div class="filter ${typeFilter===r[0]?"active":""}"
+         data-type="${r[0]}">
+      <span class="dot" style="background:${r[3]}"></span>
+      ${r[1]}
+      <span style="float:right">
+        ${edges.filter(e=>e.type===r[0]).length}
+      </span>
+    </div>
+  `).join("");
+
+  document.querySelectorAll("[data-type]").forEach(el=>{
+    el.onclick=()=>{
+      typeFilter=el.dataset.type;
+      render();
+    };
+  });
+
+  $("bc").textContent=books.length;
+  $("ec").textContent=edges.length;
+  $("empty").classList.toggle("show",!books.length);
+  $("hsub").textContent=
+    `${visible().bs.length}권 · ${visible().es.length}개 연결`;
+  detail();
+}
+function detail(){
+  const b=books.find(x=>x.id===selected);
+  if(!b){
+    $("detail").innerHTML=
+      '<p class="notice">지도에서 책을 선택하세요.</p>';
+    return;
+  }
+  const ls=edges.filter(e=>e.from===b.id||e.to===b.id);
+
+  $("detail").innerHTML=`
+    <div class="booktitle">${esc(b.title)}</div>
+    <div class="author">${esc(b.author)}</div>
+    <span class="tag">${esc(b.yearGroup)}</span>
+
+    <div class="field">
+      <label>완독 날짜</label>
+      <input type="date" id="editdate"
+             value="${esc(b.finished||"")}">
+    </div>
+    <div class="field">
+      <label>독서 메모</label>
+      <textarea id="editmemo" rows="5"
+        placeholder="책에 대한 생각을 기록하세요">${esc(b.memo)}</textarea>
+    </div>
+    <button class="btn primary" id="savememo"
+            style="width:100%;margin-top:10px">기록 저장</button>
+
+    <div class="st">연결된 책 · ${ls.length}</div>
+    <div class="connected">
+    ${ls.map(e=>{
+      const other=books.find(x=>x.id===
+        (e.from===b.id?e.to:e.from));
+      if(!other)return "";
+      const rel=rels.find(r=>r[0]===e.type)||rels[6];
+      return `
+        <button data-jump="${esc(other.id)}">
+          <span class="dot"
+            style="background:${rel[3]}"></span>
+          ${esc(other.title)} · ${rel[1]}
+          ${e.reason?`
+            <small style="display:block;color:#9ba7b7">
+              ${esc(e.reason)}
+            </small>`:""}
+        </button>`;
+    }).join("")}
+    </div>
+    <button class="btn" id="connect"
+      style="width:100%;margin-top:15px">
+      ＋ 다른 책과 연결
+    </button>
+    <button class="btn" id="del"
+      style="width:100%;margin-top:8px;color:#ff9eaa">
+      이 책 삭제
+    </button>
+  `;
+
+  $("savememo").onclick=()=>{
+    b.memo=$("editmemo").value;
+    b.finished=$("editdate").value;
+    save();
+    $("savememo").textContent="저장 완료 ✓";
+  };
+  document.querySelectorAll("[data-jump]").forEach(el=>{
+    el.onclick=()=>{
+      selected=el.dataset.jump;
+      const target=books.find(x=>x.id===selected);
+      if(target)centerOn(target);
+      detail();
+    };
+  });
+  $("connect").onclick=()=>edgeModal(b.id);
+  $("del").onclick=()=>{
+    if(!confirm("이 책과 연결 관계를 삭제할까요?"))return;
+    books=books.filter(x=>x.id!==b.id);
+    edges=edges.filter(e=>e.from!==b.id&&e.to!==b.id);
+    selected=null;
+    save();render();
+  };
+}
+function edgeModal(id){
+  if(books.length<2){
+    alert("책을 두 권 이상 추가해 주세요.");
+    return;
+  }
+  source=id;
+  const b=books.find(x=>x.id===id);
+  $("edgeintro").textContent=`${b.title}와 연결할 책을 선택하세요.`;
+  $("target").innerHTML=books.filter(x=>x.id!==id)
+    .map(x=>`<option value="${esc(x.id)}">
+      ${esc(x.title)} — ${esc(x.author)}
+    </option>`).join("");
+  $("reason").value="";
+  $("edgemodal").classList.add("open");
+}
+
+$("year").innerHTML=
+  '<option value="2026">2026년까지</option>'+
+  Array.from({length:20},(_,i)=>2027+i)
+    .map(y=>`<option value="${y}">${y}년</option>`).join("");
+
+$("rtype").innerHTML=rels.map(r=>
+  `<option value="${r[0]}">${r[1]}</option>`
+).join("");
+
+$("add").onclick=()=>{
+  ["title","author","finished","memo"].forEach(id=>$(id).value="");
+  $("bookmodal").classList.add("open");
+};
+$("cancelBook").onclick=()=>$("bookmodal").classList.remove("open");
+$("cancelEdge").onclick=()=>$("edgemodal").classList.remove("open");
+
+$("savebook").onclick=()=>{
+  const title=$("title").value.trim();
+  const author=$("author").value.trim();
+  if(!title||!author){
+    alert("제목과 작가를 입력해 주세요.");
+    return;
+  }
+  if(books.some(b=>b.title===title&&b.author===author)){
+    alert("이미 등록된 책입니다.");
+    return;
+  }
+  const i=books.length;
+  const a=i*2.399;
+  books.push({
+    id:uid(),title,author,
+    yearGroup:Number($("year").value)<=2026?
+      "2026년까지":$("year").value,
+    finished:$("finished").value,
+    memo:$("memo").value,
+    x:Math.cos(a)*Math.sqrt(i)*60,
+    y:Math.sin(a)*Math.sqrt(i)*60,
+    vx:0,vy:0
+  });
+  $("bookmodal").classList.remove("open");
+  save();kick();render();
+};
+
+$("saveedge").onclick=()=>{
+  const to=$("target").value;
+  const type=$("rtype").value;
+  if(edges.some(e=>e.type===type&&(
+    (e.from===source&&e.to===to)||
+    (e.from===to&&e.to===source)
+  ))){
+    alert("이미 같은 관계가 있습니다.");
+    return;
+  }
+  edges.push({
+    id:uid(),from:source,to,type,
+    reason:$("reason").value.trim()
+  });
+  $("edgemodal").classList.remove("open");
+  save();kick();render();
+};
+
+$("demo").onclick=()=>{
+  const data=[
+    ["데미안","헤르만 헤세"],
+    ["싯다르타","헤르만 헤세"],
+    ["어린 왕자","생텍쥐페리"],
+    ["이방인","알베르 카뮈"]
+  ];
+  books=data.map((x,i)=>({
+    id:"demo"+i,title:x[0],author:x[1],
+    yearGroup:"2026년까지",memo:"",finished:"",
+    x:Math.cos(i*1.57)*180,
+    y:Math.sin(i*1.57)*180,vx:0,vy:0
+  }));
+  edges=[{
+    id:uid(),from:"demo0",to:"demo1",
+    type:"author",reason:""
+  }];
+  save();kick();render();fit();
+};
+
+$("fit").onclick=fit;
+$("relayout").onclick=()=>{
+  books.forEach((b,i)=>{
+    const a=i*2.399;
+    const r=65+Math.sqrt(i)*40;
+    b.x=Math.cos(a)*r;
+    b.y=Math.sin(a)*r;
+    b.vx=b.vy=0;
+  });
+  kick();fit();save();
+};
+$("pause").onclick=()=>{
+  running=!running;
+  $("pause").textContent=running?"움직임 멈춤":"움직임 재개";
+  if(!running)save();
+};
+$("physics").onchange=()=>{
+  if($("physics").checked)kick();
+};
+$("zoomIn").onclick=()=>{
+  scale=Math.min(4,scale*1.25);
+};
+$("zoomOut").onclick=()=>{
+  scale=Math.max(.05,scale/1.25);
+};
+
+$("search").oninput=e=>{
+  const q=e.target.value.toLowerCase().trim();
+  if(!q)return;
+  const b=books.find(b=>
+    b.title.toLowerCase().includes(q)||
+    b.author.toLowerCase().includes(q)
+  );
+  if(b){
+    selected=b.id;
+    yearFilter="all";
+    typeFilter="all";
+    centerOn(b);
+    render();
+  }
+};
+
+$("export").onclick=()=>{
+  const data={
+    books:books.map(({vx,vy,...b})=>b),
+    edges
+  };
+  const blob=new Blob(
+    [JSON.stringify(data,null,2)],
+    {type:"application/json"}
+  );
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="my-reading-universe.json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+};
+
+$("import").onclick=()=>$("file").click();
+
+$("file").onchange=async e=>{
+  try{
+    const file=e.target.files?.[0];
+    if(!file)return;
+    const raw=await new Promise((resolve,reject)=>{
+      const reader=new FileReader();
+      reader.onload=()=>resolve(reader.result);
+      reader.onerror=()=>reject(new Error("파일 읽기 실패"));
+      reader.readAsText(file,"UTF-8");
+    });
+    let data;
+    try{
+      data=JSON.parse(String(raw).replace(/^\uFEFF/,""));
+    }catch(err){
+      throw new Error("JSON 문법 오류입니다. .json 파일을 선택했는지 확인하세요.");
+    }
+    if(!Array.isArray(data.books)||!Array.isArray(data.edges)){
+      throw new Error("books 또는 edges 목록이 없습니다.");
+    }
+    if(!confirm("현재 지도를 가져온 데이터로 교체할까요?"))return;
+    books=data.books;
+    edges=data.edges;
+    normalize();
+    selected=null;
+    yearFilter="all";
+    typeFilter="all";
+    save();kick();render();fit();
+    alert(`${books.length}권을 가져왔습니다.`);
+  }catch(err){
+    alert("가져오기 실패: "+err.message);
+  }finally{
+    e.target.value="";
+  }
+};
+
+function hit(x,y){
+  const bs=visible().bs;
+  for(let i=bs.length-1;i>=0;i--){
+    const p=pos(bs[i]);
+    if(Math.hypot(x-p.x,y-p.y)<20)return bs[i];
+  }
+  return null;
+}
+
+canvas.addEventListener("pointerdown",e=>{
+  const r=canvas.getBoundingClientRect();
+  const x=e.clientX-r.left,y=e.clientY-r.top;
+  const b=hit(x,y);
+  if(b){
+    selected=b.id;
+    drag={b,ox:x,oy:y,bx:b.x,by:b.y};
+    detail();kick();
+  }else{
+    selected=null;
+    drag={
+      pan:true,ox:x,oy:y,
+      offx:offset.x,offy:offset.y
+    };
+    detail();
+  }
+  canvas.setPointerCapture(e.pointerId);
+});
+
+canvas.addEventListener("pointermove",e=>{
+  if(!drag)return;
+  const r=canvas.getBoundingClientRect();
+  const x=e.clientX-r.left,y=e.clientY-r.top;
+  if(drag.pan){
+    offset.x=drag.offx+x-drag.ox;
+    offset.y=drag.offy+y-drag.oy;
+  }else{
+    drag.b.x=drag.bx+(x-drag.ox)/scale;
+    drag.b.y=drag.by+(y-drag.oy)/scale;
+  }
+});
+canvas.addEventListener("pointerup",()=>{
+  if(drag&&!drag.pan)save();
+  drag=null;
+});
+canvas.addEventListener("pointercancel",()=>drag=null);
+canvas.addEventListener("wheel",e=>{
+  e.preventDefault();
+  scale=Math.max(.05,Math.min(4,
+    scale*(e.deltaY<0?1.1:.9)
+  ));
+},{passive:false});
+
+function togglePanel(which){
+  const left=$("leftPanel"),right=$("rightPanel");
+  const panel=which==="left"?left:right;
+  const other=which==="left"?right:left;
+  other.classList.remove("mobile-open");
+  panel.classList.toggle("mobile-open");
+}
+$("mobileFilters").onclick=()=>togglePanel("left");
+$("mobileDetails").onclick=()=>togglePanel("right");
+$("closeLeft").onclick=()=>$("leftPanel").classList.remove("mobile-open");
+$("closeRight").onclick=()=>$("rightPanel").classList.remove("mobile-open");
+
+window.addEventListener("resize",()=>{
+  resize();draw();
+});
+
+load();
+resize();
+render();
+fit();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
