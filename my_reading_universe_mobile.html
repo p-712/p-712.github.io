@@ -4,485 +4,372 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>My Reading Universe</title>
-
 <style>
 :root{
-  --bg:#10141b;
-  --panel:#1a202a;
-  --border:#343e4d;
-  --text:#eef3fb;
-  --muted:#9ba9ba;
-  --accent:#a9caff;
+  --bg:#10151e;
+  --panel:#1b2430;
+  --border:#354458;
+  --text:#eef4ff;
+  --muted:#a4b4c9;
 }
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;overflow:hidden}
 body{
   background:var(--bg);color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font:14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
 button,input,select,textarea{font:inherit}
-button{cursor:pointer;touch-action:manipulation}
-button:active{opacity:.75}
-header{
-  height:64px;padding:10px 15px;background:#141922;
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-}
-.brand{display:flex;align-items:center;gap:10px;min-width:0}
-.logo{
-  width:36px;height:36px;border-radius:11px;
-  background:linear-gradient(135deg,#8dbaff,#c6a7ff);
-  color:#142033;display:grid;place-items:center;font-weight:bold;
-}
-h1{font-size:16px;margin:0}
-.subtitle{font-size:11px;color:var(--muted);margin-top:3px}
-.actions{display:flex;gap:7px}
-.btn{
-  background:#26303e;color:var(--text);
+button{
   border:1px solid var(--border);border-radius:9px;
-  padding:10px 12px;font-size:12px;min-height:40px;
+  padding:10px;background:#2b394b;color:var(--text);
+  cursor:pointer;touch-action:manipulation;
 }
-.primary{background:#d4e5ff;color:#142033;font-weight:700}
+button.primary{background:#c7dfff;color:#142033;font-weight:700}
+input,select,textarea{
+  width:100%;padding:11px;border:1px solid var(--border);
+  border-radius:9px;background:#101722;color:var(--text);
+  font-size:16px;
+}
+textarea{resize:vertical}
+label{display:block;margin:12px 0 6px;color:var(--muted);font-size:12px}
+header{
+  height:64px;background:#151d28;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;gap:8px;
+}
+header strong{font-size:17px}
+header small{display:block;color:var(--muted);margin-top:3px}
+.actions{display:flex;gap:6px}
+.actions button{font-size:12px}
 .layout{
   height:calc(100% - 64px);
-  display:grid;grid-template-columns:225px minmax(0,1fr) 275px;
-  min-height:0;
+  display:grid;grid-template-columns:225px minmax(0,1fr)290px;
 }
-aside{background:var(--panel);padding:16px;overflow:auto}
+.panel{background:var(--panel);padding:15px;overflow:auto}
 .left{border-right:1px solid var(--border)}
 .right{border-left:1px solid var(--border)}
-.section{
-  font-size:11px;color:var(--muted);
-  font-weight:700;letter-spacing:.5px;margin:18px 0 10px;
-}
-input,select,textarea{
-  width:100%;background:#111720;color:var(--text);
-  border:1px solid var(--border);border-radius:9px;
-  padding:11px;font-size:14px;
-}
-textarea{resize:vertical;line-height:1.6}
-input[type=checkbox]{width:auto}
+h3{font-size:12px;color:#aebdd2;margin:20px 0 10px}
+.hint{font-size:12px;line-height:1.7;color:var(--muted)}
 .filter{
-  display:block;padding:10px;border-radius:8px;
-  font-size:12px;color:#c9d3df;cursor:pointer;
+  padding:9px 10px;border-radius:8px;
+  cursor:pointer;font-size:12px;
 }
-.filter.active{background:#304054;color:#fff}
-.stats{display:flex;gap:8px}
-.stat{flex:1;background:#111720;border-radius:10px;padding:12px}
-.stat strong{display:block;font-size:23px}
-.stat span{font-size:11px;color:var(--muted)}
-.notice{font-size:11px;line-height:1.7;color:var(--muted)}
-#graph{
-  position:relative;min-width:0;min-height:0;overflow:hidden;
-  background-color:#10141b;
-  background-image:radial-gradient(#293240 1px,transparent 1px);
-  background-size:24px 24px;
-  touch-action:none;
-}
-#viewport{
-  position:absolute;inset:0;overflow:hidden;
-  touch-action:none;
-}
-#world{
-  position:absolute;left:50%;top:50%;
-  width:0;height:0;transform-origin:0 0;
-  will-change:transform;
-  pointer-events:none;
-}
-#connections{
-  position:absolute;overflow:visible;
-  width:1px;height:1px;
-  pointer-events:none;
-}
-.book{
-  position:absolute;width:154px;min-height:50px;
-  transform:translate(-50%,-50%);
-  border-radius:12px;
-  padding:9px 11px;
-  background:#263548;
-  border:1.5px solid #7897b7;
-  box-shadow:0 3px 12px #0004;
-  display:flex;align-items:center;justify-content:center;
-  text-align:center;
-  color:#eef5ff;
-  font-size:12px;font-weight:600;line-height:1.4;
-  overflow-wrap:anywhere;
-  pointer-events:auto;
-  cursor:pointer;
-  user-select:none;-webkit-user-select:none;
-  -webkit-tap-highlight-color:transparent;
-}
-.book.selected{
-  background:#e0ecff!important;color:#142033;
-  border:2px solid #fff!important;
-  box-shadow:0 0 0 5px #91bdff44,0 6px 22px #0008;
-  z-index:10;
-}
-.book.dim{opacity:.23}
-.book.neighbor{border-width:2px}
-.hud{
-  position:absolute;top:14px;left:14px;
-  pointer-events:none;z-index:3;
-  font-size:13px;font-weight:700;
-}
-.hud small{
-  display:block;color:var(--muted);
-  font-size:11px;font-weight:400;margin-top:5px;
-}
-.controls{
-  position:absolute;bottom:15px;right:15px;
-  display:flex;gap:7px;z-index:5;flex-wrap:wrap;
-  justify-content:flex-end;
-}
-.empty{
-  display:none;position:absolute;inset:0;
-  align-items:center;justify-content:center;
-  pointer-events:none;z-index:4;padding:20px;
-}
-.empty.show{display:flex}
-.empty-card{
-  background:#1c2531;border:1px solid var(--border);
-  border-radius:16px;padding:25px;text-align:center;
-  max-width:330px;pointer-events:auto;
-}
-.empty-card h2{font-size:17px}
-.empty-card p{font-size:12px;color:var(--muted);line-height:1.7}
-.book-title{font-size:19px;font-weight:700;margin:12px 0}
-.author{font-size:13px;color:var(--muted)}
-.tag{
-  display:inline-block;background:#304054;
-  padding:6px 11px;border-radius:20px;
-  font-size:11px;margin-top:12px;
-}
-.field{margin-top:15px}
-.field label{
-  display:block;color:var(--muted);
-  font-size:12px;margin-bottom:7px;
-}
-.connected{display:grid;gap:7px;margin-top:10px}
-.connected button{
-  text-align:left;background:#111720;color:var(--text);
-  border:1px solid var(--border);border-radius:9px;
-  padding:11px;font-size:12px;line-height:1.5;
-}
+.filter.on{background:#394c63}
 .dot{
   display:inline-block;width:9px;height:9px;
-  border-radius:50%;margin-right:6px;
+  border-radius:50%;margin-right:7px;
 }
-.modalbg{
-  display:none;position:fixed;inset:0;z-index:30;
-  background:#000b;align-items:center;justify-content:center;
-  padding:15px;
+#graph{
+  position:relative;overflow:hidden;touch-action:none;
+  background-color:#10151e;
+  background-image:radial-gradient(#293747 1px,transparent 1px);
+  background-size:24px 24px;
 }
-.modalbg.open{display:flex}
+#viewport{position:absolute;inset:0;touch-action:none;overflow:hidden}
+#world{
+  position:absolute;left:50%;top:50%;width:0;height:0;
+  transform-origin:0 0;pointer-events:none;
+}
+#lines{
+  position:absolute;left:0;top:0;width:1px;height:1px;
+  overflow:visible;pointer-events:none;
+}
+#nodes{position:absolute;left:0;top:0}
+.book{
+  position:absolute;transform:translate(-50%,-50%);
+  width:164px;min-height:58px;
+  border:2px solid #779dc9;border-radius:12px;
+  padding:8px 10px;background:#283a52;color:#f2f6ff;
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;font-size:12px;font-weight:650;
+  line-height:1.4;overflow-wrap:anywhere;
+  pointer-events:auto;user-select:none;-webkit-user-select:none;
+  box-shadow:0 3px 10px #0005;
+}
+.book.selected{
+  background:#e4efff!important;color:#152334;
+  border-color:#fff!important;z-index:5;
+  box-shadow:0 0 0 5px #a6ccff55;
+}
+.book.dim{opacity:.25}
+.book.neighbor{border-width:3px}
+.controls{
+  position:absolute;right:12px;bottom:15px;
+  display:flex;gap:6px;flex-wrap:wrap;
+  justify-content:flex-end;z-index:4;
+}
+.controls button{font-size:12px}
+.counter{
+  position:absolute;left:12px;top:12px;z-index:4;
+  pointer-events:none;background:#10151ed9;
+  padding:8px;border-radius:9px;font-size:12px;
+}
+.modalBack{
+  display:none;position:fixed;inset:0;
+  background:#000b;z-index:30;
+  align-items:center;justify-content:center;padding:12px;
+}
+.modalBack.open{display:flex}
 .modal{
-  width:min(440px,100%);max-height:90%;
-  overflow:auto;background:#1c2530;
-  border:1px solid #445267;border-radius:16px;padding:20px;
+  background:#1c2634;border:1px solid #4b5b71;
+  border-radius:16px;padding:18px;
+  width:min(480px,100%);max-height:90vh;overflow:auto;
 }
-.modal h2{font-size:18px;margin:0 0 15px}
-.modalfoot{
-  display:flex;justify-content:flex-end;
-  gap:8px;margin-top:20px;
+.modal h2{margin:0 0 12px;font-size:18px}
+.modalFoot{
+  display:flex;gap:7px;justify-content:flex-end;margin-top:18px;
 }
-.series-item{
-  padding:12px;background:#111720;border:1px solid var(--border);
-  border-radius:10px;margin-bottom:8px;
+.results{max-height:260px;overflow:auto;margin-top:8px}
+.item{
+  display:block;width:100%;text-align:left;
+  margin:6px 0;line-height:1.5;
 }
-.series-item strong{font-size:13px}
-.series-item small{display:block;color:var(--muted);margin-top:5px}
-.series-actions{display:flex;gap:6px;margin-top:10px}
-.series-actions button{flex:1}
-.member-list{
-  max-height:240px;overflow:auto;
-  border:1px solid var(--border);border-radius:10px;
-  margin-top:10px;
+.item small{display:block;color:var(--muted)}
+.choice{
+  padding:9px;border:1px solid var(--border);
+  border-radius:9px;margin:5px 0;
+  display:flex;gap:9px;align-items:center;cursor:pointer;
 }
-.member{
-  display:flex;align-items:center;gap:9px;
-  padding:10px;border-bottom:1px solid #303948;
-  font-size:12px;
+.choice input{width:18px;flex-shrink:0}
+.chip{
+  display:inline-block;background:#3d4c62;
+  border-radius:20px;padding:5px 9px;
+  margin:4px 4px 0 0;font-size:11px;
 }
-.member:last-child{border-bottom:0}
-.member input{width:18px;height:18px;flex-shrink:0}
-.member span{flex:1}
-.mobile-nav,.close-panel{display:none}
-
+.row{display:flex;gap:7px;align-items:center}
+.row button{flex:1}
+.mobileNav,.mobileClose{display:none}
+.empty{
+  position:absolute;left:50%;top:45%;
+  transform:translate(-50%,-50%);
+  text-align:center;color:var(--muted);
+  line-height:1.8;pointer-events:none;
+}
 @media(max-width:850px){
   .layout{grid-template-columns:190px minmax(0,1fr)}
   .right{display:none}
 }
 @media(max-width:650px){
   header{
-    height:108px;flex-direction:column;
-    justify-content:center;align-items:stretch;
-    padding:8px 10px;gap:7px;
+    height:102px;display:block;text-align:center;padding:8px;
   }
-  .brand{justify-content:center}
-  .logo{width:27px;height:27px}
-  h1{font-size:14px}
-  .subtitle{display:none}
-  .actions{width:100%}
-  .actions .btn{flex:1}
+  header strong{font-size:15px}
+  header small{display:none}
+  .actions{margin-top:8px}
+  .actions button{flex:1}
   .layout{
-    height:calc(100% - 108px);
+    height:calc(100% - 102px);
     display:block;position:relative;
   }
   #graph{width:100%;height:100%}
   .left,.right{display:none}
-  .left.mobile-open,.right.mobile-open{
-    display:block;position:absolute;z-index:15;
-    left:0;right:0;width:100%;
-    background:var(--panel);overflow:auto;border:0;
+  .left.open,.right.open{
+    display:block;position:absolute;z-index:12;
+    left:0;right:0;width:100%;border:0;overflow:auto;
   }
-  .left.mobile-open{top:0;bottom:55px}
-  .right.mobile-open{
-    bottom:55px;top:auto;max-height:78%;
-    border-radius:18px 18px 0 0;
-    border-top:2px solid var(--accent);
+  .left.open{top:0;bottom:54px}
+  .right.open{
+    bottom:54px;max-height:77%;
+    border-radius:16px 16px 0 0;
+    border-top:2px solid #b7d3ff;
   }
-  .mobile-nav{
+  .mobileNav{
     display:flex;position:absolute;bottom:0;left:0;right:0;
-    z-index:20;padding:7px;gap:7px;
-    background:#141922;border-top:1px solid var(--border);
+    z-index:20;background:#151d28;padding:6px;gap:6px;
+    border-top:1px solid var(--border);
   }
-  .mobile-nav button{flex:1;min-height:42px}
-  .close-panel{display:block;float:right}
+  .mobileNav button{flex:1}
+  .mobileClose{display:block;float:right}
   .controls{
-    bottom:65px;right:8px;left:8px;
-    justify-content:center;
+    bottom:64px;left:7px;right:7px;justify-content:center;
   }
-  .controls .btn{font-size:11px;padding:8px}
-  .hud{top:10px;left:10px}
-  input,select,textarea{font-size:16px}
+  .controls button{padding:8px;font-size:11px}
 }
 </style>
 </head>
-
 <body>
 
 <header>
-  <div class="brand">
-    <div class="logo">↗</div>
-    <div>
-      <h1>My Reading Universe</h1>
-      <div class="subtitle">나의 독서 경험을 연결하는 지도</div>
-    </div>
+  <div>
+    <strong>✦ My Reading Universe</strong>
+    <small>책과 책 사이의 연결을 발견하는 독서 지도</small>
   </div>
   <div class="actions">
-    <button class="btn" id="export">내보내기</button>
-    <button class="btn" id="import">가져오기</button>
-    <input type="file" id="file" accept=".json,application/json" hidden>
-    <button class="btn primary" id="add">＋ 책 추가</button>
+    <button id="export">내보내기</button>
+    <button id="import">가져오기</button>
+    <input id="file" type="file" accept=".json,application/json" hidden>
+    <button class="primary" id="addBook">＋ 책 추가</button>
   </div>
 </header>
 
 <div class="layout">
-  <aside class="left" id="leftPanel">
-    <button class="btn close-panel" id="closeLeft">닫기 ✕</button>
+  <aside class="panel left" id="left">
+    <button class="mobileClose" id="closeLeft">닫기 ✕</button>
 
-    <div class="section">지도 탐색</div>
-    <input id="search" placeholder="책 제목 또는 작가 검색">
+    <h3>책 찾기</h3>
+    <input id="search" placeholder="제목·작가 검색">
 
-    <div class="section">독서 연도</div>
+    <h3>독서 연도</h3>
     <div id="years"></div>
 
-    <div class="section">관계 유형</div>
+    <h3>관계 유형</h3>
     <div id="types"></div>
 
-    <div class="section">시리즈 관리</div>
-    <button class="btn primary" id="manageSeries"
-      style="width:100%">＋ 시리즈 만들기·관리</button>
-    <div id="seriesSummary"></div>
+    <h3>시리즈</h3>
+    <button class="primary" id="manageSeries" style="width:100%">
+      ＋ 시리즈 만들기·관리
+    </button>
+    <div id="seriesCount" class="hint"></div>
 
-    <div class="section">표시 설정</div>
-    <label class="filter">
-      <input type="checkbox" id="showLines" checked>
+    <h3>표시 설정</h3>
+    <label>
+      <input type="checkbox" id="showLines" checked style="width:auto">
       연결선 표시
     </label>
-    <label class="filter">
-      <input type="checkbox" id="highlight" checked>
-      선택한 책의 관계 강조
+    <label>
+      <input type="checkbox" id="highlight" checked style="width:auto">
+      선택한 책과 연결된 책 강조
     </label>
 
-    <div class="section">지도 정보</div>
-    <div class="stats">
-      <div class="stat">
-        <strong id="bc">0</strong><span>전체 책</span>
-      </div>
-      <div class="stat">
-        <strong id="ec">0</strong><span>연결 관계</span>
-      </div>
-    </div>
+    <h3>지도 정보</h3>
+    <div id="stats" class="hint"></div>
 
-    <p class="notice">
-      동일 작가의 책은 자동으로 연결됩니다.<br>
-      같은 시리즈에 속한 책들도 모두 자동으로 연결됩니다.<br>
-      한 손가락으로 지도 이동, 두 손가락으로 확대·축소할 수 있습니다.<br>
-      책을 선택해도 위치는 움직이지 않습니다.
+    <p class="hint">
+      동일 작가와 같은 시리즈는 자동으로 연결됩니다.
+      공동 저자도 인식합니다.
+      재배치는 연결 관계를 중심으로 책들을 모으고
+      카드가 겹치지 않도록 정렬합니다.
+      한 손가락으로 이동하고 두 손가락으로 확대·축소하세요.
     </p>
   </aside>
 
   <main id="graph">
     <div id="viewport">
       <div id="world">
-        <svg id="connections" xmlns="http://www.w3.org/2000/svg"></svg>
+        <svg id="lines"></svg>
         <div id="nodes"></div>
       </div>
     </div>
 
-    <div class="hud">
-      전체 독서 지도
-      <small id="hsub">책을 눌러 독서 기록을 확인하세요.</small>
-    </div>
+    <div class="counter" id="counter"></div>
 
-    <div class="empty show" id="empty">
-      <div class="empty-card">
-        <h2>나만의 독서 지도를 시작해 보세요</h2>
-        <p>책을 추가하고 연결하면 독서 세계가 펼쳐집니다.</p>
-        <button class="btn primary" id="demo">예시 지도 보기</button>
-      </div>
+    <div class="empty" id="empty">
+      책이 없습니다.<br>
+      책을 추가하거나 JSON을 가져오세요.
     </div>
 
     <div class="controls">
-      <button class="btn" id="fit">전체 보기</button>
-      <button class="btn" id="relayout">재배치</button>
-      <button class="btn" id="zoomOut">－ 축소</button>
-      <button class="btn" id="zoomIn">＋ 확대</button>
+      <button id="fit">전체 보기</button>
+      <button id="relayout">관계 중심 재배치</button>
+      <button id="minus">－ 축소</button>
+      <button id="plus">＋ 확대</button>
     </div>
 
-    <div class="mobile-nav">
-      <button class="btn" id="mobileFilters">☰ 필터·시리즈</button>
-      <button class="btn" id="mobileDetails">📖 책 정보·메모</button>
+    <div class="mobileNav">
+      <button id="mobileFilters">☰ 필터·시리즈</button>
+      <button id="mobileDetail">📖 책 정보·메모</button>
     </div>
   </main>
 
-  <aside class="right" id="rightPanel">
-    <button class="btn close-panel" id="closeRight">닫기 ✕</button>
-    <div class="section">선택한 책</div>
-    <div id="detail">
-      <p class="notice">지도에서 책을 선택하세요.</p>
-    </div>
+  <aside class="panel right" id="right">
+    <button class="mobileClose" id="closeRight">닫기 ✕</button>
+    <h3>선택한 책</h3>
+    <div id="detail" class="hint">책을 선택하세요.</div>
   </aside>
 </div>
 
-<!-- 책 추가 -->
-<div class="modalbg" id="bookmodal">
+<div class="modalBack" id="bookModal">
   <div class="modal">
-    <h2>책 추가</h2>
-    <div class="field">
-      <label>책 제목 *</label>
-      <input id="title" placeholder="책 제목">
-    </div>
-    <div class="field">
-      <label>작가 *</label>
-      <input id="author" placeholder="작가 이름">
-    </div>
-    <div class="field">
-      <label>읽은 연도</label>
-      <select id="year"></select>
-    </div>
-    <div class="field">
-      <label>완독 날짜</label>
-      <input type="date" id="finished">
-    </div>
-    <div class="field">
-      <label>독서 메모</label>
-      <textarea id="memo" rows="4"></textarea>
-    </div>
-    <div class="modalfoot">
-      <button class="btn" id="cancelBook">취소</button>
-      <button class="btn primary" id="savebook">책 추가</button>
-    </div>
-  </div>
-</div>
+    <h2 id="bookHeading">책 추가</h2>
 
-<!-- 관계 추가 -->
-<div class="modalbg" id="edgemodal">
-  <div class="modal">
-    <h2>책 연결하기</h2>
-    <p id="edgeintro" class="notice"></p>
+    <label>책 제목</label>
+    <input id="bookTitle">
 
-    <div class="field">
-      <label>연결할 책</label>
-      <select id="target"></select>
-    </div>
+    <label>작가 (여러 명은 쉼표로 구분)</label>
+    <input id="bookAuthors" placeholder="예: 김초엽, 다른 작가">
 
-    <div class="field">
-      <label>관계 유형</label>
-      <select id="rtype"></select>
-    </div>
-
-    <div class="field" id="seriesChoiceField" style="display:none">
-      <label>시리즈 선택</label>
-      <select id="seriesChoice"></select>
-      <p class="notice">
-        기존 시리즈를 선택하거나 새 시리즈 이름을 입력하세요.
-      </p>
-      <input id="newSeriesName" placeholder="새 시리즈 이름"
-        style="margin-top:8px">
-    </div>
-
-    <div class="field" id="reasonField">
-      <label>연결 이유</label>
-      <textarea id="reason" rows="3"></textarea>
-    </div>
-
-    <div class="modalfoot">
-      <button class="btn" id="cancelEdge">취소</button>
-      <button class="btn primary" id="saveedge">연결하기</button>
-    </div>
-  </div>
-</div>
-
-<!-- 시리즈 관리 -->
-<div class="modalbg" id="seriesmodal">
-  <div class="modal">
-    <h2>시리즈 관리</h2>
-
-    <p class="notice">
-      시리즈를 만들고 책을 여러 권 선택하세요.
-      같은 시리즈의 모든 책은 자동으로 서로 연결됩니다.
+    <p class="hint">
+      공동 저자는 한 명이라도 겹치면
+      동일 작가 관계로 자동 연결됩니다.
     </p>
 
-    <div id="seriesList"></div>
+    <label>읽은 연도</label>
+    <input id="bookYear" placeholder="예: 2026년까지">
 
-    <button class="btn primary" id="newSeries"
-      style="width:100%;margin-top:12px">
-      ＋ 새 시리즈 만들기
-    </button>
+    <label>완독 날짜</label>
+    <input id="bookDate" type="date">
 
-    <div class="modalfoot">
-      <button class="btn" id="closeSeries">닫기</button>
+    <label>독서 메모</label>
+    <textarea id="bookMemo" rows="4"></textarea>
+
+    <div class="modalFoot">
+      <button id="cancelBook">취소</button>
+      <button class="primary" id="saveBook">저장</button>
     </div>
   </div>
 </div>
 
-<!-- 시리즈 편집 -->
-<div class="modalbg" id="seriesEditModal">
+<div class="modalBack" id="edgeModal">
   <div class="modal">
-    <h2 id="seriesEditTitle">시리즈 편집</h2>
+    <h2>책과 연결하기</h2>
+    <p id="edgeSource" class="hint"></p>
 
-    <div class="field">
-      <label>시리즈 이름</label>
-      <input id="seriesName" placeholder="예: 세계문학 시리즈">
+    <label>연결할 책 검색 (제목·작가)</label>
+    <input id="edgeSearch" placeholder="책 제목이나 작가 입력">
+    <div class="results" id="edgeResults"></div>
+    <p class="hint" id="edgeChosen">선택된 책 없음</p>
+
+    <label>관계 유형</label>
+    <select id="edgeType"></select>
+
+    <div id="edgeSeriesBox" style="display:none">
+      <label>시리즈 선택</label>
+      <select id="edgeSeries"></select>
+      <label>새 시리즈 이름</label>
+      <input id="edgeSeriesName" placeholder="예: 세계문학 시리즈">
     </div>
 
-    <div class="field">
-      <label>책 검색</label>
-      <input id="memberSearch" placeholder="책 제목 또는 작가">
+    <div id="edgeReasonBox">
+      <label>연결 이유 (선택)</label>
+      <textarea id="edgeReason" rows="3"></textarea>
     </div>
 
-    <div class="field">
-      <label>시리즈에 포함할 책 선택</label>
-      <div class="member-list" id="memberList"></div>
+    <div class="modalFoot">
+      <button id="cancelEdge">취소</button>
+      <button class="primary" id="saveEdge">연결하기</button>
     </div>
+  </div>
+</div>
 
-    <p class="notice" id="memberCount"></p>
+<div class="modalBack" id="seriesModal">
+  <div class="modal">
+    <h2>시리즈 관리</h2>
+    <div id="seriesList"></div>
+    <button class="primary" id="newSeries" style="width:100%">
+      ＋ 새 시리즈
+    </button>
+    <div class="modalFoot">
+      <button id="closeSeries">닫기</button>
+    </div>
+  </div>
+</div>
 
-    <div class="modalfoot">
-      <button class="btn" id="cancelSeriesEdit">취소</button>
-      <button class="btn primary" id="saveSeriesEdit">저장</button>
+<div class="modalBack" id="seriesEditModal">
+  <div class="modal">
+    <h2>시리즈 편집</h2>
+
+    <label>시리즈 이름</label>
+    <input id="seriesName">
+
+    <label>책 검색</label>
+    <input id="memberSearch" placeholder="제목·작가 검색">
+
+    <div class="results" id="memberResults"></div>
+    <p id="memberCount" class="hint"></p>
+
+    <div class="modalFoot">
+      <button id="cancelSeriesEdit">취소</button>
+      <button class="primary" id="saveSeries">저장</button>
     </div>
   </div>
 </div>
@@ -492,7 +379,7 @@ input[type=checkbox]{width:auto}
 
 const $=id=>document.getElementById(id);
 
-const relations=[
+const types=[
   ["author","동일 작가","#83b9ff"],
   ["topic","동일 주제","#7bd7ae"],
   ["series","같은 시리즈","#b9a0ff"],
@@ -501,53 +388,42 @@ const relations=[
   ["custom","직접 지정","#c7d0da"]
 ];
 
-const palette=[
-  ["#293e58","#87baff"],
-  ["#403451","#c3a6f7"],
-  ["#29483e","#8cdbb7"],
-  ["#51402e","#f1c78a"],
-  ["#50343e","#f4a6ba"],
-  ["#304552","#a6d5e9"]
-];
-
 let books=[];
 let edges=[];
 let series=[];
-
 let selected=null;
-let source=null;
 let yearFilter="all";
 let typeFilter="all";
+let editingBook=null;
+let editingSeries=null;
+let chosenMembers=new Set();
+let edgeFrom=null;
+let edgeTo=null;
 
-let zoom=1;
-let panX=0;
-let panY=0;
-
-let editingSeriesId=null;
-let editingMembers=new Set();
-
+let zoom=1,panX=0,panY=0;
+let drag=null;
 const pointers=new Map();
-let gesture=null;
-let nodeElements=new Map();
 
 const viewport=$("viewport");
 const world=$("world");
-const nodes=$("nodes");
-const svg=$("connections");
 
-function uid(){
-  return "id"+Date.now().toString(36)+
-    Math.random().toString(36).slice(2,9);
+const uid=()=>
+  "id"+Date.now().toString(36)+
+  Math.random().toString(36).slice(2,9);
+
+function esc(x){
+  return String(x??"").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",
+    '"':"&quot;","'":"&#39;"
+  }[c]));
 }
 
-function esc(value){
-  return String(value??"").replace(/[&<>"']/g,c=>({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#39;"
-  })[c]);
+function authorNames(b){
+  let a=Array.isArray(b.authors)?b.authors:[];
+  if(!a.length){
+    a=String(b.author||"").split(/[,，、;；\n]|\s+\/\s+/);
+  }
+  return [...new Set(a.map(x=>String(x).trim()).filter(Boolean))];
 }
 
 function save(){
@@ -556,173 +432,131 @@ function save(){
       books,edges,series
     }));
   }catch(e){
-    console.warn("저장 실패",e);
+    alert("브라우저 저장 공간이 부족할 수 있습니다. JSON으로 백업하세요.");
   }
 }
 
 function load(){
   try{
-    const data=JSON.parse(localStorage.getItem("mru-data"));
-    if(data&&Array.isArray(data.books)&&Array.isArray(data.edges)){
-      books=data.books;
-      edges=data.edges;
-      series=Array.isArray(data.series)?data.series:[];
+    const d=JSON.parse(localStorage.getItem("mru-data"));
+    if(d&&Array.isArray(d.books)){
+      books=d.books;
+      edges=Array.isArray(d.edges)?d.edges:[];
+      series=Array.isArray(d.series)?d.series:[];
       normalize();
     }
-  }catch(e){
-    console.warn(e);
-  }
+  }catch(e){console.warn(e)}
 }
 
 function normalize(){
-  books=books.filter(b=>b&&b.id&&b.title&&b.author);
-
+  books=books.filter(b=>b&&b.id&&b.title);
   books.forEach((b,i)=>{
     b.id=String(b.id);
     b.title=String(b.title);
-    b.author=String(b.author).trim();
-
-    const angle=i*2.399963;
-    const radius=180+Math.sqrt(i)*105;
-
-    b.x=Number(b.x);
-    b.y=Number(b.y);
-
-    if(!Number.isFinite(b.x)||Math.abs(b.x)>100000){
-      b.x=Math.cos(angle)*radius;
-    }
-    if(!Number.isFinite(b.y)||Math.abs(b.y)>100000){
-      b.y=Math.sin(angle)*radius;
-    }
-
+    b.authors=authorNames(b);
+    b.author=b.authors.join(", ");
     b.yearGroup=String(b.yearGroup||"2026년까지");
     b.memo=String(b.memo||"");
     b.finished=String(b.finished||"");
+
+    if(!Number.isFinite(Number(b.x))||
+       !Number.isFinite(Number(b.y))||
+       b.x===null||b.y===null){
+      const a=i*2.399963;
+      const r=200+Math.sqrt(i)*110;
+      b.x=Math.cos(a)*r;
+      b.y=Math.sin(a)*r;
+    }else{
+      b.x=Number(b.x);
+      b.y=Number(b.y);
+    }
   });
 
   const ids=new Set(books.map(b=>b.id));
-
   edges=edges.filter(e=>
     e&&ids.has(String(e.from))&&ids.has(String(e.to))
   );
-
   edges.forEach(e=>{
     e.from=String(e.from);
     e.to=String(e.to);
-    e.type=e.type||"custom";
+    e.type=String(e.type||"custom");
     e.reason=String(e.reason||"");
   });
 
   series=series.filter(s=>s&&s.id&&s.name);
-
   series.forEach(s=>{
     s.id=String(s.id);
-    s.name=String(s.name).trim();
+    s.name=String(s.name);
     s.members=[...new Set(
       (Array.isArray(s.members)?s.members:[])
-        .map(String).filter(id=>ids.has(id))
+      .map(String).filter(x=>ids.has(x))
     )];
   });
 
-  migrateOldSeries();
+  migrateSeries();
 }
 
-/*
- 기존 JSON의 series 유형 연결선을 그룹으로 변환한다.
- 기존에 시리즈 이름이 없는 연결은 연결 요소별로 묶는다.
-*/
-function migrateOldSeries(){
+function migrateSeries(){
   const old=edges.filter(e=>e.type==="series");
   if(!old.length)return;
 
   const parent=new Map();
-
   function root(x){
     if(!parent.has(x))parent.set(x,x);
-    if(parent.get(x)!==x){
-      parent.set(x,root(parent.get(x)));
-    }
+    if(parent.get(x)!==x)parent.set(x,root(parent.get(x)));
     return parent.get(x);
   }
-
-  function union(a,b){
-    parent.set(root(a),root(b));
-  }
-
+  function union(a,b){parent.set(root(a),root(b))}
   old.forEach(e=>union(e.from,e.to));
 
   const groups=new Map();
-
   old.forEach(e=>{
-    for(const id of [e.from,e.to]){
-      const r=root(id);
+    for(const x of [e.from,e.to]){
+      const r=root(x);
       if(!groups.has(r))groups.set(r,new Set());
-      groups.get(r).add(id);
+      groups.get(r).add(x);
     }
   });
 
-  let count=1;
-
-  groups.forEach(members=>{
-    const ids=[...members];
-
-    const matching=series.find(s=>
-      ids.some(id=>s.members.includes(id))
+  let n=1;
+  groups.forEach(g=>{
+    const members=[...g];
+    const existing=series.find(s=>
+      members.some(x=>s.members.includes(x))
     );
-
-    if(matching){
-      matching.members=[
-        ...new Set([...matching.members,...ids])
-      ];
+    if(existing){
+      existing.members=[...new Set([...existing.members,...members])];
     }else{
       series.push({
         id:uid(),
-        name:"기존 시리즈 "+count++,
-        members:ids
+        name:"기존 시리즈 "+n++,
+        members
       });
     }
   });
-
   edges=edges.filter(e=>e.type!=="series");
 }
 
-/*
- 자동 관계 생성
- 1. 같은 작가의 모든 책을 서로 연결
- 2. 같은 시리즈의 모든 책을 서로 연결
- 3. 나머지 수동 관계를 유지
-*/
 function allRelations(){
   const result=[];
   const seen=new Set();
 
-  function add(from,to,type,reason="",auto=false){
-    if(from===to)return;
-
-    const a=String(from);
-    const b=String(to);
-
-    const pair=[a,b].sort().join("|");
+  function add(a,b,type,reason="",auto=false){
+    if(a===b)return;
+    const pair=[String(a),String(b)].sort().join("|");
     const key=type+"|"+pair+
       (type==="series"?"|"+reason:"");
-
     if(seen.has(key))return;
     seen.add(key);
-
-    result.push({
-      from:a,to:b,type,reason,auto
-    });
+    result.push({from:a,to:b,type,reason,auto});
   }
 
-  // 동일 작가 자동 연결
   const authors=new Map();
-
   books.forEach(b=>{
-    const name=b.author.trim();
-    if(!name)return;
-
-    if(!authors.has(name))authors.set(name,[]);
-    authors.get(name).push(b.id);
+    authorNames(b).forEach(name=>{
+      if(!authors.has(name))authors.set(name,[]);
+      authors.get(name).push(b.id);
+    });
   });
 
   authors.forEach(ids=>{
@@ -733,26 +567,17 @@ function allRelations(){
     }
   });
 
-  // 같은 시리즈 자동 연결
   series.forEach(s=>{
-    const ids=s.members.filter(id=>
-      books.some(b=>b.id===id)
-    );
-
-    for(let i=0;i<ids.length;i++){
-      for(let j=i+1;j<ids.length;j++){
-        add(ids[i],ids[j],"series",s.name,true);
+    for(let i=0;i<s.members.length;i++){
+      for(let j=i+1;j<s.members.length;j++){
+        add(s.members[i],s.members[j],"series",s.name,true);
       }
     }
   });
 
-  // 수동 관계
   edges.forEach(e=>{
-    if(e.type==="author")return;
-    if(e.type==="series")return;
-    if(e.type==="thought"||e.type==="opposed")return;
-
-    add(e.from,e.to,e.type,e.reason||"",false);
+    if(["author","series","thought","opposed"].includes(e.type))return;
+    add(e.from,e.to,e.type,e.reason,false);
   });
 
   return result;
@@ -762,29 +587,31 @@ function visible(){
   const bs=books.filter(b=>
     yearFilter==="all"||b.yearGroup===yearFilter
   );
-
   const ids=new Set(bs.map(b=>b.id));
-
   const es=allRelations().filter(e=>
     ids.has(e.from)&&ids.has(e.to)&&
     (typeFilter==="all"||e.type===typeFilter)
   );
-
   return {bs,es};
 }
 
-function relation(type){
-  return relations.find(r=>r[0]===type)||relations[5];
+function relation(t){
+  return types.find(x=>x[0]===t)||types[5];
 }
 
-function authorColor(author){
-  let hash=0;
-
-  for(const c of String(author)){
-    hash=(hash*31+c.charCodeAt(0))|0;
-  }
-
-  return palette[Math.abs(hash)%palette.length];
+function color(b){
+  const names=authorNames(b).join("|");
+  let h=0;
+  for(const c of names)h=(h*31+c.charCodeAt(0))|0;
+  const palette=[
+    ["#293e58","#87baff"],
+    ["#403451","#c3a6f7"],
+    ["#29483e","#8cdbb7"],
+    ["#51402e","#f1c78a"],
+    ["#50343e","#f4a6ba"],
+    ["#304552","#a6d5e9"]
+  ];
+  return palette[Math.abs(h)%palette.length];
 }
 
 function updateTransform(){
@@ -792,236 +619,238 @@ function updateTransform(){
     `translate(${panX}px,${panY}px) scale(${zoom})`;
 }
 
-function zoomAt(newZoom,cx,cy){
-  newZoom=Math.max(.025,Math.min(4,newZoom));
-
-  const ratio=newZoom/zoom;
-
-  panX=cx-(cx-panX)*ratio;
-  panY=cy-(cy-panY)*ratio;
-
-  zoom=newZoom;
+function zoomAt(z,cx=0,cy=0){
+  z=Math.max(.025,Math.min(5,z));
+  const r=z/zoom;
+  panX=cx-(cx-panX)*r;
+  panY=cy-(cy-panY)*r;
+  zoom=z;
   updateTransform();
-}
-
-function zoomCenter(factor){
-  zoomAt(zoom*factor,0,0);
 }
 
 function fit(){
   const bs=visible().bs;
   if(!bs.length)return;
 
-  const w=viewport.clientWidth;
-  const h=viewport.clientHeight;
-
-  if(w<10||h<10)return;
-
-  let minX=Infinity,maxX=-Infinity;
-  let minY=Infinity,maxY=-Infinity;
-
+  let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
   bs.forEach(b=>{
-    minX=Math.min(minX,b.x-80);
-    maxX=Math.max(maxX,b.x+80);
-    minY=Math.min(minY,b.y-35);
-    maxY=Math.max(maxY,b.y+35);
+    minX=Math.min(minX,b.x-90);
+    maxX=Math.max(maxX,b.x+90);
+    minY=Math.min(minY,b.y-40);
+    maxY=Math.max(maxY,b.y+40);
   });
 
-  const padding=35;
+  const w=viewport.clientWidth;
+  const h=viewport.clientHeight;
+  if(w<10||h<10)return;
 
-  zoom=Math.min(
-    (w-padding*2)/Math.max(100,maxX-minX),
-    (h-padding*2)/Math.max(100,maxY-minY),
-    1.3
-  );
-
-  zoom=Math.max(.025,zoom);
-
-  panX=-(minX+maxX)/2*zoom;
-  panY=-(minY+maxY)/2*zoom;
-
+  zoom=Math.max(.025,Math.min(
+    1.3,
+    (w-40)/Math.max(100,maxX-minX),
+    (h-110)/Math.max(100,maxY-minY)
+  ));
+  panX=-(minX+maxX)*zoom/2;
+  panY=-(minY+maxY)*zoom/2;
   updateTransform();
 }
 
+/*
+ 관계 중심 재배치:
+ 1. 연결 관계로 군집 구성
+ 2. 군집 안에서 연결 많은 책 우선 배치
+ 3. 카드가 겹치지 않는 격자 배치
+ 4. 군집을 크기에 따라 행 단위로 배치
+*/
 function arrange(){
   if(!books.length)return;
 
+  const ids=books.map(b=>b.id);
+  const parent=new Map(ids.map(x=>[x,x]));
+
+  function root(x){
+    if(parent.get(x)!==x)parent.set(x,root(parent.get(x)));
+    return parent.get(x);
+  }
+  function union(a,b){
+    if(parent.has(a)&&parent.has(b)){
+      const ra=root(a),rb=root(b);
+      if(ra!==rb)parent.set(ra,rb);
+    }
+  }
+
+  const rels=allRelations();
+  rels.forEach(e=>union(e.from,e.to));
+
   const groups=new Map();
-
   books.forEach(b=>{
-    const key=b.author.trim();
-
-    if(!groups.has(key))groups.set(key,[]);
-    groups.get(key).push(b);
+    const r=root(b.id);
+    if(!groups.has(r))groups.set(r,[]);
+    groups.get(r).push(b);
   });
 
-  const groupList=[...groups.values()].sort(
-    (a,b)=>b.length-a.length
-  );
+  const degree=new Map(ids.map(x=>[x,0]));
+  rels.forEach(e=>{
+    degree.set(e.from,(degree.get(e.from)||0)+1);
+    degree.set(e.to,(degree.get(e.to)||0)+1);
+  });
 
-  groupList.forEach((group,g)=>{
-    const angle=g*2.399963229728653;
-    const radius=180+Math.sqrt(g)*205;
+  const clusters=[...groups.values()].sort((a,b)=>b.length-a.length);
 
-    const cx=Math.cos(angle)*radius;
-    const cy=Math.sin(angle)*radius;
+  const CARD_W=190;
+  const CARD_H=86;
+  const GAP=180;
+  const TARGET_ROW_WIDTH=1900;
 
-    group.forEach((b,j)=>{
-      const columns=Math.max(
-        1,Math.ceil(Math.sqrt(group.length))
-      );
+  let rowX=0,rowY=0,rowH=0;
 
-      const row=Math.floor(j/columns);
-      const col=j%columns;
+  clusters.forEach(group=>{
+    group.sort((a,b)=>
+      (degree.get(b.id)||0)-(degree.get(a.id)||0)||
+      a.title.localeCompare(b.title,"ko")
+    );
 
-      b.x=cx+(col-(columns-1)/2)*185;
-      b.y=cy+
-        (row-(Math.ceil(group.length/columns)-1)/2)*95;
+    const cols=Math.max(1,Math.ceil(Math.sqrt(group.length*1.5)));
+    const rows=Math.ceil(group.length/cols);
+
+    const gw=cols*CARD_W+100;
+    const gh=rows*CARD_H+100;
+
+    if(rowX>0&&rowX+gw>TARGET_ROW_WIDTH){
+      rowX=0;
+      rowY+=rowH+GAP;
+      rowH=0;
+    }
+
+    group.forEach((b,i)=>{
+      const col=i%cols;
+      const row=Math.floor(i/cols);
+      b.x=rowX+80+col*CARD_W;
+      b.y=rowY+80+row*CARD_H;
     });
+
+    rowX+=gw+GAP;
+    rowH=Math.max(rowH,gh);
+  });
+
+  let minX=Math.min(...books.map(b=>b.x));
+  let maxX=Math.max(...books.map(b=>b.x));
+  let minY=Math.min(...books.map(b=>b.y));
+  let maxY=Math.max(...books.map(b=>b.y));
+
+  const cx=(minX+maxX)/2;
+  const cy=(minY+maxY)/2;
+
+  books.forEach(b=>{
+    b.x-=cx;
+    b.y-=cy;
   });
 
   save();
-  drawMap();
+  draw();
   fit();
 }
 
-/* 관계선 표시 */
-function drawConnections(bs,es){
+function draw(){
+  const {bs,es}=visible();
+  const svg=$("lines");
+  const nodes=$("nodes");
   const map=new Map(bs.map(b=>[b.id,b]));
-  const ns="http://www.w3.org/2000/svg";
 
   svg.replaceChildren();
-
-  if(!$("showLines").checked)return;
-
-  const fragment=document.createDocumentFragment();
-
-  es.forEach(e=>{
-    const a=map.get(e.from);
-    const b=map.get(e.to);
-
-    if(!a||!b)return;
-
-    const line=document.createElementNS(ns,"line");
-
-    line.setAttribute("x1",a.x);
-    line.setAttribute("y1",a.y);
-    line.setAttribute("x2",b.x);
-    line.setAttribute("y2",b.y);
-
-    line.setAttribute("stroke",relation(e.type)[2]);
-    line.setAttribute("stroke-width",
-      e.type==="series"?"2.4":"1.7"
-    );
-    line.setAttribute("stroke-opacity",
-      e.type==="series"?".75":".55"
-    );
-
-    fragment.appendChild(line);
-  });
-
-  svg.appendChild(fragment);
-}
-
-function drawMap(){
-  const {bs,es}=visible();
-  const fragment=document.createDocumentFragment();
-
   nodes.replaceChildren();
-  nodeElements.clear();
 
+  if($("showLines").checked){
+    const ns="http://www.w3.org/2000/svg";
+    const fragment=document.createDocumentFragment();
+
+    es.forEach(e=>{
+      const a=map.get(e.from),b=map.get(e.to);
+      if(!a||!b)return;
+      const line=document.createElementNS(ns,"line");
+      line.setAttribute("x1",a.x);
+      line.setAttribute("y1",a.y);
+      line.setAttribute("x2",b.x);
+      line.setAttribute("y2",b.y);
+      line.setAttribute("stroke",relation(e.type)[2]);
+      line.setAttribute("stroke-width",e.type==="series"?2.4:1.7);
+      line.setAttribute("stroke-opacity",".55");
+      fragment.appendChild(line);
+    });
+    svg.appendChild(fragment);
+  }
+
+  const fragment=document.createDocumentFragment();
   bs.forEach(b=>{
     const el=document.createElement("div");
-    const color=authorColor(b.author);
-
+    const c=color(b);
     el.className="book";
     el.textContent=b.title;
+    el.dataset.id=b.id;
     el.style.left=b.x+"px";
     el.style.top=b.y+"px";
-    el.style.background=color[0];
-    el.style.borderColor=color[1];
-    el.dataset.id=b.id;
-
-    nodeElements.set(b.id,el);
+    el.style.background=c[0];
+    el.style.borderColor=c[1];
     fragment.appendChild(el);
   });
-
   nodes.appendChild(fragment);
-  drawConnections(bs,es);
-  updateSelection();
 
-  $("empty").classList.toggle("show",books.length===0);
-  $("hsub").textContent=`${bs.length}권 · ${es.length}개 연결`;
+  $("empty").style.display=books.length?"none":"block";
+  $("counter").textContent=`${bs.length}권 · ${es.length}개 연결`;
+  updateSelection();
 }
 
 function updateSelection(){
   const neighbors=new Set();
-
   allRelations().forEach(e=>{
     if(e.from===selected)neighbors.add(e.to);
     if(e.to===selected)neighbors.add(e.from);
   });
 
-  nodeElements.forEach((el,id)=>{
+  document.querySelectorAll(".book").forEach(el=>{
+    const id=el.dataset.id;
     el.classList.toggle("selected",id===selected);
-
-    const dim=selected&&$("highlight").checked&&
-      id!==selected&&!neighbors.has(id);
-
-    el.classList.toggle("dim",!!dim);
     el.classList.toggle("neighbor",neighbors.has(id));
+    el.classList.toggle("dim",!!(
+      selected&&$("highlight").checked&&
+      id!==selected&&!neighbors.has(id)
+    ));
   });
 }
 
-function selectBook(id){
+function select(id){
   selected=id;
   updateSelection();
   detail();
-
-  if(window.innerWidth<=650){
-    $("rightPanel").classList.add("mobile-open");
-    $("leftPanel").classList.remove("mobile-open");
+  if(innerWidth<=650){
+    $("right").classList.add("open");
+    $("left").classList.remove("open");
   }
 }
 
 function render(){
-  const groups=[
-    "all",
-    ...new Set(books.map(b=>b.yearGroup))
-  ];
-
-  $("years").innerHTML=groups.map(g=>`
-    <div class="filter ${yearFilter===g?"active":""}"
-         data-year="${esc(g)}">
-      ${g==="all"?"전체 연도":esc(g)}
-      <span style="float:right">
-        ${g==="all"?books.length:
-          books.filter(b=>b.yearGroup===g).length}
-      </span>
+  const years=["all",...new Set(books.map(b=>b.yearGroup))];
+  $("years").innerHTML=years.map(y=>`
+    <div class="filter ${yearFilter===y?"on":""}" data-year="${esc(y)}">
+      ${y==="all"?"전체 연도":esc(y)}
     </div>
   `).join("");
 
   document.querySelectorAll("[data-year]").forEach(el=>{
     el.onclick=()=>{
       yearFilter=el.dataset.year;
-      render();
-      fit();
+      render();fit();
     };
   });
 
-  const relationsNow=allRelations();
-
+  const rels=allRelations();
   $("types").innerHTML=`
-    <div class="filter ${typeFilter==="all"?"active":""}"
-         data-type="all">모든 관계</div>
-  `+relations.map(r=>`
-    <div class="filter ${typeFilter===r[0]?"active":""}"
-         data-type="${r[0]}">
-      <span class="dot" style="background:${r[2]}"></span>
-      ${r[1]}
-      <span style="float:right">
-        ${relationsNow.filter(e=>e.type===r[0]).length}
-      </span>
+    <div class="filter ${typeFilter==="all"?"on":""}" data-type="all">
+      모든 관계
+    </div>
+  `+types.map(t=>`
+    <div class="filter ${typeFilter===t[0]?"on":""}" data-type="${t[0]}">
+      <span class="dot" style="background:${t[2]}"></span>
+      ${t[1]} (${rels.filter(e=>e.type===t[0]).length})
     </div>
   `).join("");
 
@@ -1032,25 +861,18 @@ function render(){
     };
   });
 
-  $("bc").textContent=books.length;
-  $("ec").textContent=relationsNow.length;
+  $("seriesCount").textContent=series.length+"개 시리즈";
+  $("stats").textContent=
+    `${books.length}권 · ${rels.length}개 연결 관계`;
 
-  $("seriesSummary").innerHTML=`
-    <p class="notice">
-      ${series.length}개 시리즈 등록됨
-    </p>
-  `;
-
-  drawMap();
+  draw();
   detail();
 }
 
 function detail(){
   const b=books.find(x=>x.id===selected);
-
   if(!b){
-    $("detail").innerHTML=
-      '<p class="notice">지도에서 책을 선택하세요.</p>';
+    $("detail").innerHTML="지도에서 책을 선택하세요.";
     return;
   }
 
@@ -1058,263 +880,313 @@ function detail(){
     e.from===b.id||e.to===b.id
   );
 
-  const mySeries=series.filter(s=>
-    s.members.includes(b.id)
-  );
+  const memberships=series.filter(s=>s.members.includes(b.id));
 
   $("detail").innerHTML=`
-    <div class="book-title">${esc(b.title)}</div>
-    <div class="author">${esc(b.author)}</div>
-    <span class="tag">${esc(b.yearGroup)}</span>
-
-    ${mySeries.map(s=>`
-      <span class="tag" style="background:#493b69">
-        📚 ${esc(s.name)}
-      </span>
+    <h2 style="font-size:19px">${esc(b.title)}</h2>
+    <p>${esc(authorNames(b).join(" · "))}</p>
+    <span class="chip">${esc(b.yearGroup)}</span>
+    ${memberships.map(s=>`
+      <span class="chip">📚 ${esc(s.name)}</span>
     `).join("")}
 
-    <div class="field">
-      <label>완독 날짜</label>
-      <input type="date" id="editdate"
-        value="${esc(b.finished)}">
-    </div>
+    <label>완독 날짜</label>
+    <input type="date" id="detailDate" value="${esc(b.finished)}">
 
-    <div class="field">
-      <label>독서 메모</label>
-      <textarea id="editmemo" rows="5"
-        placeholder="책에 대한 생각을 기록하세요">${esc(b.memo)}</textarea>
-    </div>
+    <label>독서 메모</label>
+    <textarea id="detailMemo" rows="5">${esc(b.memo)}</textarea>
 
-    <button class="btn primary" id="savememo"
-      style="width:100%;margin-top:10px">
+    <button class="primary" id="saveMemo" style="width:100%;margin-top:9px">
       기록 저장
     </button>
 
-    <div class="section">연결된 책 · ${connected.length}</div>
-
-    <div class="connected">
+    <h3>연결된 책 (${connected.length})</h3>
+    <div style="max-height:280px;overflow:auto">
       ${connected.map(e=>{
         const other=books.find(x=>x.id===
           (e.from===b.id?e.to:e.from)
         );
-
         if(!other)return "";
-
-        const r=relation(e.type);
-
         return `
-          <button data-jump="${esc(other.id)}">
-            <span class="dot"
-              style="background:${r[2]}"></span>
-            ${esc(other.title)} · ${r[1]}
-            ${e.reason?`
-              <small style="display:block;color:#9ba9ba">
-                ${esc(e.reason)}
-              </small>`:""}
+          <button class="item" data-jump="${esc(other.id)}">
+            <span class="dot" style="background:${relation(e.type)[2]}"></span>
+            ${esc(other.title)}
+            <small>${relation(e.type)[1]}
+              ${e.reason?" · "+esc(e.reason):""}
+            </small>
           </button>
         `;
       }).join("")}
     </div>
 
-    <button class="btn" id="connect"
-      style="width:100%;margin-top:15px">
+    <button id="connect" style="width:100%;margin-top:12px">
       ＋ 다른 책과 연결
     </button>
-
-    <button class="btn" id="addToSeries"
-      style="width:100%;margin-top:8px">
-      📚 시리즈에 추가
+    <button id="editBook" style="width:100%;margin-top:8px">
+      책 제목·공동 저자 수정
     </button>
-
-    <button class="btn" id="deleteBook"
-      style="width:100%;margin-top:8px;color:#ffa4b0">
+    <button id="deleteBook" style="width:100%;margin-top:8px;color:#ffa4b0">
       이 책 삭제
     </button>
   `;
 
-  $("savememo").onclick=()=>{
-    b.memo=$("editmemo").value;
-    b.finished=$("editdate").value;
+  $("saveMemo").onclick=()=>{
+    b.memo=$("detailMemo").value;
+    b.finished=$("detailDate").value;
     save();
-    $("savememo").textContent="저장 완료 ✓";
+    $("saveMemo").textContent="저장 완료 ✓";
   };
 
   document.querySelectorAll("[data-jump]").forEach(el=>{
     el.onclick=()=>{
       const target=books.find(x=>x.id===el.dataset.jump);
       if(!target)return;
-
-      selected=target.id;
-      updateSelection();
-      detail();
-
+      select(target.id);
       panX=-target.x*zoom;
       panY=-target.y*zoom;
       updateTransform();
     };
   });
 
-  $("connect").onclick=()=>openEdgeModal(b.id);
-
-  $("addToSeries").onclick=()=>{
-    openSeriesManager();
-  };
-
+  $("connect").onclick=()=>openEdge(b.id);
+  $("editBook").onclick=()=>openBook(b.id);
   $("deleteBook").onclick=()=>{
     if(!confirm("이 책과 연결 관계를 삭제할까요?"))return;
-
     books=books.filter(x=>x.id!==b.id);
-    edges=edges.filter(e=>
-      e.from!==b.id&&e.to!==b.id
-    );
-
+    edges=edges.filter(e=>e.from!==b.id&&e.to!==b.id);
     series.forEach(s=>{
-      s.members=s.members.filter(id=>id!==b.id);
+      s.members=s.members.filter(x=>x!==b.id);
     });
-
     selected=null;
-
-    save();
-    render();
+    save();render();
   };
 }
 
-/* 관계 추가 */
-function openEdgeModal(id){
-  if(books.length<2){
-    alert("책을 두 권 이상 추가해 주세요.");
+function modal(name,open=true){
+  $(name).classList.toggle("open",open);
+}
+
+function openBook(bid=null){
+  editingBook=bid;
+  const b=books.find(x=>x.id===bid);
+  $("bookHeading").textContent=b?"책 수정":"책 추가";
+  $("bookTitle").value=b?.title||"";
+  $("bookAuthors").value=b?authorNames(b).join(", "):"";
+  $("bookYear").value=b?.yearGroup||"2026년까지";
+  $("bookDate").value=b?.finished||"";
+  $("bookMemo").value=b?.memo||"";
+  modal("bookModal");
+}
+
+$("addBook").onclick=()=>openBook();
+$("cancelBook").onclick=()=>modal("bookModal",false);
+
+$("saveBook").onclick=()=>{
+  const title=$("bookTitle").value.trim();
+  const authors=[...new Set(
+    $("bookAuthors").value.split(/[,，、;；\n]/)
+    .map(x=>x.trim()).filter(Boolean)
+  )];
+
+  if(!title||!authors.length){
+    alert("제목과 작가를 입력하세요.");
     return;
   }
 
-  source=id;
+  let b=books.find(x=>x.id===editingBook);
+  const isNew=!b;
+  if(!b){
+    b={id:uid(),x:0,y:0};
+    books.push(b);
+  }
 
-  const b=books.find(x=>x.id===id);
-
-  $("edgeintro").textContent=
-    `${b.title}와 연결할 책을 선택하세요.`;
-
-  $("target").innerHTML=books
-    .filter(x=>x.id!==id)
-    .map(x=>`
-      <option value="${esc(x.id)}">
-        ${esc(x.title)} — ${esc(x.author)}
-      </option>
-    `).join("");
-
-  $("reason").value="";
-  $("newSeriesName").value="";
-
-  updateSeriesChoices();
-  updateRelationFields();
-
-  $("edgemodal").classList.add("open");
-}
-
-function updateSeriesChoices(){
-  $("seriesChoice").innerHTML=`
-    <option value="">새 시리즈 만들기</option>
-  `+series.map(s=>`
-    <option value="${esc(s.id)}">${esc(s.name)}</option>
-  `).join("");
-}
-
-function updateRelationFields(){
-  const type=$("rtype").value;
-  const isSeries=type==="series";
-
-  $("seriesChoiceField").style.display=
-    isSeries?"block":"none";
-
-  $("reasonField").style.display=
-    isSeries?"none":"block";
-}
-
-$("rtype").onchange=updateRelationFields;
-
-$("seriesChoice").onchange=()=>{
-  $("newSeriesName").style.display=
-    $("seriesChoice").value?"none":"block";
-};
-
-/* 시리즈 관리 */
-function openSeriesManager(){
-  renderSeriesList();
-  $("seriesmodal").classList.add("open");
-}
-
-function renderSeriesList(){
-  $("seriesList").innerHTML=series.length?
-    series.map(s=>`
-      <div class="series-item">
-        <strong>📚 ${esc(s.name)}</strong>
-        <small>${s.members.length}권 등록</small>
-
-        <div class="series-actions">
-          <button class="btn" data-editseries="${esc(s.id)}">
-            책 관리
-          </button>
-          <button class="btn" data-delseries="${esc(s.id)}">
-            삭제
-          </button>
-        </div>
-      </div>
-    `).join(""):
-    '<p class="notice">등록된 시리즈가 없습니다.</p>';
-
-  document.querySelectorAll("[data-editseries]").forEach(el=>{
-    el.onclick=()=>editSeries(el.dataset.editseries);
+  Object.assign(b,{
+    title,authors,
+    author:authors.join(", "),
+    yearGroup:$("bookYear").value.trim()||"2026년까지",
+    finished:$("bookDate").value,
+    memo:$("bookMemo").value
   });
 
-  document.querySelectorAll("[data-delseries]").forEach(el=>{
+  if(isNew){
+    const i=books.length-1;
+    const a=i*2.399963;
+    const r=200+Math.sqrt(i)*110;
+    b.x=Math.cos(a)*r;
+    b.y=Math.sin(a)*r;
+  }
+
+  selected=b.id;
+  modal("bookModal",false);
+  save();render();
+  if(books.length===1)fit();
+};
+
+function openEdge(bid){
+  if(books.length<2){
+    alert("책을 두 권 이상 등록하세요.");
+    return;
+  }
+  edgeFrom=bid;
+  edgeTo=null;
+  $("edgeSearch").value="";
+  $("edgeReason").value="";
+  $("edgeSeriesName").value="";
+  $("edgeChosen").textContent="선택된 책 없음";
+  $("edgeSource").textContent=
+    books.find(b=>b.id===bid)?.title+"와 연결할 책";
+
+  $("edgeType").innerHTML=types.filter(t=>t[0]!=="author")
+    .map(t=>`<option value="${t[0]}">${t[1]}</option>`).join("");
+
+  $("edgeSeries").innerHTML=
+    '<option value="">새 시리즈 만들기</option>'+
+    series.map(s=>`<option value="${esc(s.id)}">${esc(s.name)}</option>`).join("");
+
+  $("edgeType").value="topic";
+  edgeFields();
+  edgeResults();
+  modal("edgeModal");
+}
+
+function edgeFields(){
+  const s=$("edgeType").value==="series";
+  $("edgeSeriesBox").style.display=s?"block":"none";
+  $("edgeReasonBox").style.display=s?"none":"block";
+}
+$("edgeType").onchange=edgeFields;
+$("edgeSearch").oninput=edgeResults;
+
+function edgeResults(){
+  const q=$("edgeSearch").value.trim().toLocaleLowerCase("ko");
+  const list=books.filter(b=>
+    b.id!==edgeFrom&&
+    (!q||(b.title+" "+authorNames(b).join(" "))
+      .toLocaleLowerCase("ko").includes(q))
+  ).slice(0,80);
+
+  $("edgeResults").innerHTML=list.map(b=>`
+    <button class="item ${b.id===edgeTo?"primary":""}"
+      data-edge-target="${esc(b.id)}">
+      ${esc(b.title)}
+      <small>${esc(authorNames(b).join(" · "))}</small>
+    </button>
+  `).join("")||'<p class="hint">검색 결과가 없습니다.</p>';
+
+  document.querySelectorAll("[data-edge-target]").forEach(el=>{
     el.onclick=()=>{
-      const s=series.find(x=>x.id===el.dataset.delseries);
-      if(!s)return;
-
-      if(!confirm(`"${s.name}" 시리즈를 삭제할까요?`))return;
-
-      series=series.filter(x=>x.id!==s.id);
-      save();
-      render();
-      renderSeriesList();
+      edgeTo=el.dataset.edgeTarget;
+      $("edgeChosen").textContent=
+        "선택: "+books.find(b=>b.id===edgeTo).title;
+      edgeResults();
     };
   });
 }
 
-function editSeries(id=null){
-  editingSeriesId=id;
+$("cancelEdge").onclick=()=>modal("edgeModal",false);
 
-  const s=series.find(x=>x.id===id);
+$("saveEdge").onclick=()=>{
+  if(!edgeTo){
+    alert("연결할 책을 검색하여 선택하세요.");
+    return;
+  }
 
-  $("seriesEditTitle").textContent=
-    s?"시리즈 편집":"새 시리즈 만들기";
+  const t=$("edgeType").value;
 
-  $("seriesName").value=s?s.name:"";
-  $("memberSearch").value="";
+  if(t==="series"){
+    let s=series.find(x=>x.id===$("edgeSeries").value);
+    if(!s){
+      const name=$("edgeSeriesName").value.trim();
+      if(!name){
+        alert("시리즈 이름을 입력하거나 기존 시리즈를 선택하세요.");
+        return;
+      }
+      s=series.find(x=>x.name===name);
+      if(!s){
+        s={id:uid(),name,members:[]};
+        series.push(s);
+      }
+    }
+    s.members=[...new Set([...s.members,edgeFrom,edgeTo])];
+  }else{
+    const duplicate=edges.some(e=>
+      e.type===t&&(
+        (e.from===edgeFrom&&e.to===edgeTo)||
+        (e.from===edgeTo&&e.to===edgeFrom)
+      )
+    );
+    if(duplicate){
+      alert("이미 같은 관계가 있습니다.");
+      return;
+    }
+    edges.push({
+      id:uid(),from:edgeFrom,to:edgeTo,type:t,
+      reason:$("edgeReason").value.trim()
+    });
+  }
 
-  editingMembers=new Set(s?s.members:[]);
+  modal("edgeModal",false);
+  save();render();
+};
 
-  renderMembers();
+function seriesList(){
+  $("seriesList").innerHTML=series.map(s=>`
+    <div class="choice" style="display:block">
+      <b>${esc(s.name)}</b>
+      <p class="hint">${s.members.length}권</p>
+      <div class="row">
+        <button data-edit-series="${esc(s.id)}">책 관리</button>
+        <button data-delete-series="${esc(s.id)}">삭제</button>
+      </div>
+    </div>
+  `).join("")||'<p class="hint">등록된 시리즈가 없습니다.</p>';
 
-  $("seriesEditModal").classList.add("open");
+  document.querySelectorAll("[data-edit-series]").forEach(el=>{
+    el.onclick=()=>openSeriesEdit(el.dataset.editSeries);
+  });
+
+  document.querySelectorAll("[data-delete-series]").forEach(el=>{
+    el.onclick=()=>{
+      const s=series.find(x=>x.id===el.dataset.deleteSeries);
+      if(s&&confirm("시리즈를 삭제할까요?")){
+        series=series.filter(x=>x.id!==s.id);
+        save();render();seriesList();
+      }
+    };
+  });
 }
 
-function renderMembers(){
-  const q=$("memberSearch").value.trim().toLowerCase();
+$("manageSeries").onclick=()=>{
+  seriesList();modal("seriesModal");
+};
+$("closeSeries").onclick=()=>modal("seriesModal",false);
+$("newSeries").onclick=()=>openSeriesEdit();
 
+function openSeriesEdit(sid=null){
+  editingSeries=sid;
+  const s=series.find(x=>x.id===sid);
+  chosenMembers=new Set(s?.members||[]);
+  $("seriesName").value=s?.name||"";
+  $("memberSearch").value="";
+  memberResults();
+  modal("seriesEditModal");
+}
+
+function memberResults(){
+  const q=$("memberSearch").value.trim().toLocaleLowerCase("ko");
   const list=books.filter(b=>
-    b.title.toLowerCase().includes(q)||
-    b.author.toLowerCase().includes(q)
-  );
+    !q||(b.title+" "+authorNames(b).join(" "))
+      .toLocaleLowerCase("ko").includes(q)
+  ).slice(0,120);
 
-  $("memberList").innerHTML=list.map(b=>`
-    <label class="member">
-      <input type="checkbox"
-        data-member="${esc(b.id)}"
-        ${editingMembers.has(b.id)?"checked":""}>
+  $("memberResults").innerHTML=list.map(b=>`
+    <label class="choice">
+      <input type="checkbox" data-member="${esc(b.id)}"
+        ${chosenMembers.has(b.id)?"checked":""}>
       <span>
         ${esc(b.title)}
-        <small style="display:block;color:#9ba9ba">
-          ${esc(b.author)}
+        <small style="display:block;color:var(--muted)">
+          ${esc(authorNames(b).join(" · "))}
         </small>
       </span>
     </label>
@@ -1322,276 +1194,78 @@ function renderMembers(){
 
   document.querySelectorAll("[data-member]").forEach(el=>{
     el.onchange=()=>{
-      if(el.checked){
-        editingMembers.add(el.dataset.member);
-      }else{
-        editingMembers.delete(el.dataset.member);
-      }
-
-      updateMemberCount();
+      if(el.checked)chosenMembers.add(el.dataset.member);
+      else chosenMembers.delete(el.dataset.member);
+      $("memberCount").textContent=chosenMembers.size+"권 선택됨";
     };
   });
 
-  updateMemberCount();
+  $("memberCount").textContent=chosenMembers.size+"권 선택됨";
 }
 
-function updateMemberCount(){
-  $("memberCount").textContent=
-    `${editingMembers.size}권 선택됨`;
-}
+$("memberSearch").oninput=memberResults;
+$("cancelSeriesEdit").onclick=()=>modal("seriesEditModal",false);
 
-$("memberSearch").oninput=renderMembers;
-
-$("saveSeriesEdit").onclick=()=>{
+$("saveSeries").onclick=()=>{
   const name=$("seriesName").value.trim();
+  if(!name)return alert("시리즈 이름을 입력하세요.");
 
-  if(!name){
-    alert("시리즈 이름을 입력해 주세요.");
+  if(series.some(s=>s.name===name&&s.id!==editingSeries)){
+    alert("같은 이름의 시리즈가 있습니다.");
     return;
   }
 
-  const duplicate=series.some(s=>
-    s.name===name&&s.id!==editingSeriesId
-  );
-
-  if(duplicate){
-    alert("같은 이름의 시리즈가 이미 있습니다.");
-    return;
+  let s=series.find(x=>x.id===editingSeries);
+  if(!s){
+    s={id:uid(),name,members:[]};
+    series.push(s);
   }
 
-  if(editingSeriesId){
-    const s=series.find(x=>x.id===editingSeriesId);
+  s.name=name;
+  s.members=[...chosenMembers];
 
-    if(s){
-      s.name=name;
-      s.members=[...editingMembers];
-    }
-  }else{
-    series.push({
-      id:uid(),
-      name,
-      members:[...editingMembers]
-    });
-  }
-
-  $("seriesEditModal").classList.remove("open");
-
-  save();
-  render();
-  renderSeriesList();
+  modal("seriesEditModal",false);
+  save();render();seriesList();
 };
 
-$("manageSeries").onclick=openSeriesManager;
-$("newSeries").onclick=()=>editSeries();
-
-$("closeSeries").onclick=()=>{
-  $("seriesmodal").classList.remove("open");
-};
-
-$("cancelSeriesEdit").onclick=()=>{
-  $("seriesEditModal").classList.remove("open");
-};
-
-/* 책 추가 */
-$("year").innerHTML=
-  '<option value="2026년까지">2026년까지</option>'+
-  Array.from({length:20},(_,i)=>2027+i)
-    .map(y=>`<option value="${y}년">${y}년</option>`)
-    .join("");
-
-$("rtype").innerHTML=relations
-  .filter(r=>r[0]!=="author")
-  .map(r=>`<option value="${r[0]}">${r[1]}</option>`)
-  .join("");
-
-$("add").onclick=()=>{
-  ["title","author","finished","memo"].forEach(id=>{
-    $(id).value="";
-  });
-
-  $("bookmodal").classList.add("open");
-};
-
-$("cancelBook").onclick=()=>{
-  $("bookmodal").classList.remove("open");
-};
-
-$("cancelEdge").onclick=()=>{
-  $("edgemodal").classList.remove("open");
-};
-
-$("savebook").onclick=()=>{
-  const title=$("title").value.trim();
-  const author=$("author").value.trim();
-
-  if(!title||!author){
-    alert("책 제목과 작가를 입력해 주세요.");
-    return;
-  }
-
-  if(books.some(b=>
-    b.title===title&&b.author===author
-  )){
-    alert("이미 등록된 책입니다.");
-    return;
-  }
-
-  const i=books.length;
-  const angle=i*2.399963;
-  const radius=180+Math.sqrt(i)*105;
-
-  books.push({
-    id:uid(),
-    title,
-    author,
-    yearGroup:$("year").value,
-    finished:$("finished").value,
-    memo:$("memo").value,
-    x:Math.cos(angle)*radius,
-    y:Math.sin(angle)*radius
-  });
-
-  $("bookmodal").classList.remove("open");
-
-  save();
-  render();
-  fit();
-};
-
-/* 관계 저장 */
-$("saveedge").onclick=()=>{
-  const to=$("target").value;
-  const type=$("rtype").value;
-
-  if(type==="series"){
-    const existingId=$("seriesChoice").value;
-    const newName=$("newSeriesName").value.trim();
-
-    let s=series.find(x=>x.id===existingId);
-
-    if(!s){
-      if(!newName){
-        alert("새 시리즈 이름을 입력해 주세요.");
-        return;
-      }
-
-      s=series.find(x=>x.name===newName);
-
-      if(!s){
-        s={
-          id:uid(),
-          name:newName,
-          members:[]
-        };
-        series.push(s);
-      }
-    }
-
-    s.members=[
-      ...new Set([...s.members,source,to])
-    ];
-
-  }else{
-    const duplicate=edges.some(e=>
-      e.type===type&&(
-        (e.from===source&&e.to===to)||
-        (e.from===to&&e.to===source)
-      )
-    );
-
-    if(duplicate){
-      alert("이미 같은 관계가 있습니다.");
-      return;
-    }
-
-    edges.push({
-      id:uid(),
-      from:source,
-      to,
-      type,
-      reason:$("reason").value.trim()
-    });
-  }
-
-  $("edgemodal").classList.remove("open");
-
-  save();
-  render();
-};
-
-/* JSON 내보내기 */
 $("export").onclick=()=>{
   const blob=new Blob(
     [JSON.stringify({books,edges,series},null,2)],
     {type:"application/json"}
   );
-
   const url=URL.createObjectURL(blob);
   const a=document.createElement("a");
-
   a.href=url;
   a.download="my-reading-universe.json";
-
   document.body.appendChild(a);
-  a.click();
-  a.remove();
-
+  a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),3000);
 };
 
-/* JSON 가져오기 */
 $("import").onclick=()=>$("file").click();
 
 $("file").onchange=async e=>{
   try{
-    const file=e.target.files?.[0];
-    if(!file)return;
+    const f=e.target.files?.[0];
+    if(!f)return;
 
-    const raw=await new Promise((resolve,reject)=>{
-      const reader=new FileReader();
+    const d=JSON.parse((await f.text()).replace(/^\uFEFF/,""));
+    if(!Array.isArray(d.books))throw Error("books 배열이 없습니다.");
 
-      reader.onload=()=>resolve(reader.result);
-      reader.onerror=()=>reject(new Error("파일 읽기 실패"));
+    if(!confirm("현재 데이터를 가져온 JSON으로 교체할까요? 먼저 백업하는 것을 권장합니다."))return;
 
-      reader.readAsText(file,"UTF-8");
-    });
-
-    let data;
-
-    try{
-      data=JSON.parse(String(raw).replace(/^\uFEFF/,""));
-    }catch(err){
-      throw new Error("JSON 형식이 올바르지 않습니다.");
-    }
-
-    if(!Array.isArray(data.books)||!Array.isArray(data.edges)){
-      throw new Error("books 또는 edges 목록이 없습니다.");
-    }
-
-    if(!confirm("현재 지도를 가져온 데이터로 교체할까요?")){
-      return;
-    }
-
-    books=data.books;
-    edges=data.edges;
-    series=Array.isArray(data.series)?data.series:[];
+    books=d.books;
+    edges=Array.isArray(d.edges)?d.edges:[];
+    series=Array.isArray(d.series)?d.series:[];
 
     normalize();
-
     selected=null;
     yearFilter="all";
     typeFilter="all";
 
-    save();
-    render();
-
+    save();render();
     requestAnimationFrame(fit);
-
-    alert(
-      `${books.length}권을 가져왔습니다.\n`+
-      `자동 관계 포함 ${allRelations().length}개 연결`
-    );
-
+    alert(`${books.length}권을 가져왔습니다. 재배치를 누르면 관계 중심으로 정렬됩니다.`);
   }catch(err){
     alert("가져오기 실패: "+err.message);
   }finally{
@@ -1599,219 +1273,123 @@ $("file").onchange=async e=>{
   }
 };
 
-/* 예시 지도 */
-$("demo").onclick=()=>{
-  const data=[
-    ["데미안","헤르만 헤세"],
-    ["싯다르타","헤르만 헤세"],
-    ["어린 왕자","생텍쥐페리"],
-    ["이방인","알베르 카뮈"],
-    ["페스트","알베르 카뮈"],
-    ["여름","알베르 카뮈"]
-  ];
-
-  books=data.map((x,i)=>({
-    id:"demo"+i,
-    title:x[0],
-    author:x[1],
-    yearGroup:"2026년까지",
-    memo:"",
-    finished:"",
-    x:Math.cos(i*Math.PI/3)*360,
-    y:Math.sin(i*Math.PI/3)*260
-  }));
-
-  edges=[];
-
-  series=[{
-    id:uid(),
-    name:"카뮈 작품 시리즈 예시",
-    members:["demo3","demo4","demo5"]
-  }];
-
-  save();
-  render();
-  fit();
-};
-
-/* 검색 */
 $("search").oninput=e=>{
-  const q=e.target.value.trim().toLowerCase();
+  const q=e.target.value.trim().toLocaleLowerCase("ko");
   if(!q)return;
 
   const b=books.find(b=>
-    b.title.toLowerCase().includes(q)||
-    b.author.toLowerCase().includes(q)
+    (b.title+" "+authorNames(b).join(" "))
+      .toLocaleLowerCase("ko").includes(q)
   );
-
   if(!b)return;
 
   yearFilter="all";
   typeFilter="all";
-
   selected=b.id;
   render();
 
-  zoom=Math.max(zoom,.75);
+  zoom=Math.max(zoom,.8);
   panX=-b.x*zoom;
   panY=-b.y*zoom;
-
   updateTransform();
 };
 
-/* 화면 버튼 */
 $("fit").onclick=fit;
 $("relayout").onclick=arrange;
-$("zoomIn").onclick=()=>zoomCenter(1.4);
-$("zoomOut").onclick=()=>zoomCenter(1/1.4);
-
-$("showLines").onchange=drawMap;
+$("plus").onclick=()=>zoomAt(zoom*1.4);
+$("minus").onclick=()=>zoomAt(zoom/1.4);
+$("showLines").onchange=draw;
 $("highlight").onchange=updateSelection;
 
-/*
- 터치 처리
- - 한 손가락: 지도 이동
- - 두 손가락: 확대·축소
- - 책 탭: 책 선택
- - 드래그 후에는 책 선택하지 않음
-*/
-function pointerPos(e){
+/* 아이폰 터치 조작 */
+function pos(e){
   const r=viewport.getBoundingClientRect();
-
   return {
     x:e.clientX-r.left-r.width/2,
     y:e.clientY-r.top-r.height/2
   };
 }
 
+function pinchState(){
+  const ps=[...pointers.values()];
+  return {
+    cx:(ps[0].x+ps[1].x)/2,
+    cy:(ps[0].y+ps[1].y)/2,
+    d:Math.max(1,Math.hypot(
+      ps[0].x-ps[1].x,ps[0].y-ps[1].y
+    ))
+  };
+}
+
 viewport.addEventListener("pointerdown",e=>{
-  const p=pointerPos(e);
-
-  const bookEl=e.target.closest(".book");
-  const bookId=bookEl?bookEl.dataset.id:null;
-
+  const p=pos(e);
   pointers.set(e.pointerId,p);
 
-  try{
-    viewport.setPointerCapture(e.pointerId);
-  }catch(err){}
+  const book=e.target.closest(".book")?.dataset.id||null;
+
+  try{viewport.setPointerCapture(e.pointerId)}catch(_){}
 
   if(pointers.size===1){
-    gesture={
-      mode:"pan",
-      start:p,
-      panX,
-      panY,
-      bookId,
-      moved:false
+    drag={
+      mode:"pan",start:p,px:panX,py:panY,
+      moved:false,book
     };
-  }
-
-  if(pointers.size===2){
-    const ps=[...pointers.values()];
-
-    const center={
-      x:(ps[0].x+ps[1].x)/2,
-      y:(ps[0].y+ps[1].y)/2
-    };
-
-    gesture={
-      mode:"pinch",
-      distance:Math.max(1,Math.hypot(
-        ps[0].x-ps[1].x,
-        ps[0].y-ps[1].y
-      )),
-      zoom,
-      panX,
-      panY,
-      center
+  }else if(pointers.size===2){
+    const t=pinchState();
+    drag={
+      mode:"pinch",...t,z:zoom,px:panX,py:panY
     };
   }
 });
 
 viewport.addEventListener("pointermove",e=>{
   if(!pointers.has(e.pointerId))return;
-
-  const p=pointerPos(e);
+  const p=pos(e);
   pointers.set(e.pointerId,p);
 
-  if(pointers.size===2&&gesture?.mode==="pinch"){
-    const ps=[...pointers.values()];
-
-    const distance=Math.max(1,Math.hypot(
-      ps[0].x-ps[1].x,
-      ps[0].y-ps[1].y
-    ));
-
-    const center={
-      x:(ps[0].x+ps[1].x)/2,
-      y:(ps[0].y+ps[1].y)/2
-    };
-
-    const next=Math.max(.025,Math.min(
-      4,
-      gesture.zoom*distance/gesture.distance
-    ));
-
-    const ratio=next/gesture.zoom;
-
-    zoom=next;
-
-    panX=center.x-
-      (gesture.center.x-gesture.panX)*ratio;
-
-    panY=center.y-
-      (gesture.center.y-gesture.panY)*ratio;
-
+  if(pointers.size===2&&drag?.mode==="pinch"){
+    const t=pinchState();
+    const z=Math.max(.025,Math.min(5,drag.z*t.d/drag.d));
+    const r=z/drag.z;
+    zoom=z;
+    panX=t.cx-(drag.cx-drag.px)*r;
+    panY=t.cy-(drag.cy-drag.py)*r;
     updateTransform();
-    return;
-  }
+  }else if(pointers.size===1&&drag?.mode==="pan"){
+    const dx=p.x-drag.start.x;
+    const dy=p.y-drag.start.y;
 
-  if(pointers.size===1&&gesture?.mode==="pan"){
-    const dx=p.x-gesture.start.x;
-    const dy=p.y-gesture.start.y;
+    if(Math.hypot(dx,dy)>7)drag.moved=true;
 
-    if(Math.hypot(dx,dy)>7){
-      gesture.moved=true;
-    }
-
-    if(gesture.moved){
-      panX=gesture.panX+dx;
-      panY=gesture.panY+dy;
+    if(drag.moved){
+      panX=drag.px+dx;
+      panY=drag.py+dy;
       updateTransform();
     }
   }
 });
 
 function endPointer(e){
-  const wasTap=
+  const tap=
     pointers.size===1&&
-    gesture?.mode==="pan"&&
-    !gesture.moved&&
-    gesture.bookId;
-
-  const tappedId=wasTap?gesture.bookId:null;
+    drag?.mode==="pan"&&
+    !drag.moved&&
+    e.type==="pointerup"
+      ?drag.book:null;
 
   pointers.delete(e.pointerId);
 
-  if(pointers.size===0){
-    gesture=null;
+  if(!pointers.size){
+    drag=null;
   }else if(pointers.size===1){
-    const p=[...pointers.values()][0];
-
-    gesture={
+    drag={
       mode:"pan",
-      start:p,
-      panX,
-      panY,
-      moved:true,
-      bookId:null
+      start:[...pointers.values()][0],
+      px:panX,py:panY,moved:true,book:null
     };
   }
 
-  if(tappedId&&e.type==="pointerup"){
-    selectBook(tappedId);
-  }
+  if(tap)select(tap);
 }
 
 viewport.addEventListener("pointerup",endPointer);
@@ -1819,45 +1397,28 @@ viewport.addEventListener("pointercancel",endPointer);
 
 viewport.addEventListener("wheel",e=>{
   e.preventDefault();
-
-  const p=pointerPos(e);
-  const factor=e.deltaY<0?1.12:1/1.12;
-
-  zoomAt(zoom*factor,p.x,p.y);
+  const p=pos(e);
+  zoomAt(
+    zoom*(e.deltaY<0?1.12:1/1.12),
+    p.x,p.y
+  );
 },{passive:false});
 
-/* 모바일 패널 */
-function togglePanel(which){
-  const left=$("leftPanel");
-  const right=$("rightPanel");
-
-  const panel=which==="left"?left:right;
-  const other=which==="left"?right:left;
-
-  other.classList.remove("mobile-open");
-  panel.classList.toggle("mobile-open");
-}
-
-$("mobileFilters").onclick=()=>togglePanel("left");
-$("mobileDetails").onclick=()=>togglePanel("right");
-
-$("closeLeft").onclick=()=>{
-  $("leftPanel").classList.remove("mobile-open");
+$("mobileFilters").onclick=()=>{
+  $("left").classList.toggle("open");
+  $("right").classList.remove("open");
 };
-
-$("closeRight").onclick=()=>{
-  $("rightPanel").classList.remove("mobile-open");
+$("mobileDetail").onclick=()=>{
+  $("right").classList.toggle("open");
+  $("left").classList.remove("open");
 };
+$("closeLeft").onclick=()=>$("left").classList.remove("open");
+$("closeRight").onclick=()=>$("right").classList.remove("open");
 
-/* 초기 실행 */
 load();
 render();
-
 requestAnimationFrame(fit);
-
-window.addEventListener("orientationchange",()=>{
-  setTimeout(fit,300);
-});
+window.addEventListener("orientationchange",()=>setTimeout(fit,350));
 </script>
 </body>
 </html>
