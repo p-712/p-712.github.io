@@ -3,251 +3,263 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light">
-  <title>우주 탐사선 AI | 실행·검증실</title>
+  <meta name="theme-color" content="#14214c">
+  <title>우주 탐사선 AI | 만들기 · 시험 · 제출</title>
   <style>
-    :root { --navy:#111c3e; --ink:#1b2946; --muted:#687894; --line:#dce4f2; --blue:#3a67ed; --purple:#824fe5; --mint:#20baad; --bg:#f4f7ff; }
-    * { box-sizing:border-box; }
-    body { margin:0; background:var(--bg); color:var(--ink); font-family:Pretendard,"Noto Sans KR","Malgun Gothic",system-ui,sans-serif; line-height:1.55; }
-    button, input, select, textarea { font:inherit; }
-    button { cursor:pointer; }
-    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible { outline:3px solid #8cadff; outline-offset:2px; }
-    header { position:relative; overflow:hidden; background:linear-gradient(110deg,#111d40,#29398b 65%,#7646b7); color:white; padding:27px 18px 33px; }
-    header:before { content:""; position:absolute; width:340px; height:340px; border-radius:50%; right:-90px; top:-205px; background:radial-gradient(circle,#67e9f566,transparent 67%); }
-    header:after { content:"✦  ·  ✧   ·   ✦  ·  ✧"; position:absolute; right:27px; top:46px; font-size:22px; color:#aac9ffbb; letter-spacing:13px; pointer-events:none; }
-    .wrap { max-width:1150px; margin:0 auto; }
-    .eyebrow { color:#a4f2ef; font-size:12px; font-weight:800; letter-spacing:2px; margin-bottom:6px; }
-    h1 { margin:0 0 7px; font-size:clamp(25px,4.1vw,37px); letter-spacing:-1.4px; font-weight:900; position:relative; z-index:1; }
-    header p { margin:0; color:#dce7ff; font-size:14px; position:relative; z-index:1; }
-    main { max-width:1150px; padding:19px 15px 50px; margin:auto; }
-    .notice { background:#e9f2ff; color:#254675; border:1px solid #d2e4ff; border-radius:15px; padding:12px 15px; margin-bottom:16px; font-weight:700; font-size:13px; }
-    .layout { display:grid; grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr); grid-template-areas:"input viewer" "submit viewer"; gap:16px; align-items:start; }
-    .card { background:#fff; border:1px solid var(--line); border-radius:20px; padding:20px; box-shadow:0 8px 25px #1a35790a; min-width:0; }
-    .input { grid-area:input; }.viewer { grid-area:viewer; }.submit { grid-area:submit; }
-    .title-row { display:flex; align-items:center; gap:10px; margin-bottom:13px; }
-    .num { display:inline-flex; align-items:center; justify-content:center; flex:0 0 34px; height:34px; border-radius:12px; color:white; font-weight:900; background:linear-gradient(135deg,var(--blue),var(--purple)); }
-    h2 { margin:0; font-size:20px; letter-spacing:-.7px; }
-    label { display:block; font-size:13px; font-weight:800; margin:12px 0 5px; }
-    input[type=text], select, textarea { width:100%; background:#fbfcff; border:1px solid #c9d6e9; border-radius:11px; color:var(--ink); padding:11px 12px; min-width:0; }
-    input[type=text], select { height:44px; }
-    textarea { resize:vertical; }
-    #source { height:238px; min-height:150px; font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace; white-space:pre; }
-    .fields { display:grid; grid-template-columns:1.25fr .75fr; gap:12px; }
-    .buttons { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
-    .btn { background:var(--blue); color:white; border:0; border-radius:11px; padding:11px 16px; min-height:45px; font-weight:800; font-size:14px; flex:1 1 145px; }
-    .btn.alt { background:#edf2ff; color:#2c4e9e; }
-    .btn.mint { background:#0a9e91; }
-    .btn.purple { background:#7652d3; }
-    .btn:disabled { opacity:.48; cursor:not-allowed; }
-    .tiny { color:var(--muted); font-size:12px; margin:8px 0 0; }
-    .stats { display:flex; flex-wrap:wrap; gap:8px; margin-top:9px; }
-    .chip { display:inline-flex; gap:5px; padding:4px 9px; border-radius:100px; background:#eff3fd; font-size:11px; font-weight:750; color:#476180; }
-    #preview { display:block; width:100%; height:590px; border:1px solid #ccd8e9; background:white; border-radius:13px; }
-    .check { display:flex; gap:10px; align-items:flex-start; font-size:14px; font-weight:750; padding:12px; background:#f1f8ff; border-radius:11px; margin:13px 0; cursor:pointer; }
-    .check input { width:21px; height:21px; flex:0 0 21px; margin:1px 0 0; accent-color:var(--mint); }
-    .filehelp { border:1px solid #d6eee8; border-radius:12px; background:#f1fbf8; padding:13px; font-size:13px; }
-    .filehelp strong { color:#067e70; }
-    .step-list { margin:8px 0 2px 18px; padding:0; font-size:13px; }
-    .step-list li { margin:3px 0; }
-    #status { padding:12px 13px; background:#edf3ff; border-radius:11px; font-size:13px; white-space:pre-wrap; color:#244e91; margin:13px 0 0; }
-    #status.good { background:#e5f9ef; color:#126843; }
-    #status.bad { background:#fff0ed; color:#a4382e; }
-    .flag { display:inline-block; background:#eaf7ff; color:#2659a2; border-radius:30px; padding:4px 10px; font-size:11px; font-weight:800; }
-    footer { margin:17px 0 0; text-align:center; font-size:12px; color:#7a88a3; }
-    @media(max-width:820px){ .layout {grid-template-columns:minmax(0,1fr);grid-template-areas:"input" "viewer" "submit";} #preview{height:390px;} header:after{opacity:.45;} }
-    @media(max-width:390px){.fields{grid-template-columns:1fr;} .card{padding:15px;} }
+    :root {
+      --ink:#1b2b47; --sub:#526885; --line:#dbe5f4; --blue:#2f63df;
+      --mint:#0d9c92; --purple:#7049cf; --bg:#f2f6ff;
+      font-synthesis:none;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;color:var(--ink);background:var(--bg);font-family:Pretendard,"Noto Sans KR","Malgun Gothic",system-ui,sans-serif;line-height:1.55;word-break:keep-all}
+    button,input,a{font:inherit}
+    a{text-decoration:none}
+    button{cursor:pointer}
+    button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #90c5ff;outline-offset:3px}
+    .hero{position:relative;isolation:isolate;overflow:hidden;color:white;background:linear-gradient(114deg,#0e1b3f 0%,#203f88 57%,#643da3 100%);padding:36px 20px 38px}
+    .hero:before{content:"";position:absolute;z-index:-1;width:440px;height:440px;border:2px solid #8fbaff22;border-radius:50%;top:-270px;right:-80px;box-shadow:0 0 0 80px #8fbaff0a,0 0 0 150px #8fbaff09}
+    .hero:after{content:"✦    ✧   ✦  ·  ✧";position:absolute;right:6%;top:38%;color:#7af7e877;font-size:32px;letter-spacing:13px;pointer-events:none}
+    .inner{max-width:1060px;margin:0 auto}
+    .tag{display:inline-block;color:#8ef7df;border:1px solid #8ef7df55;border-radius:40px;padding:5px 12px;font-size:12px;font-weight:850;letter-spacing:1.4px}
+    h1{font-size:clamp(28px,4.5vw,42px);line-height:1.23;letter-spacing:-1.5px;margin:15px 0 11px;font-weight:900;position:relative}
+    .hero p{margin:0;color:#e7efff;font-size:clamp(14px,2vw,18px);position:relative}
+    .hero strong{color:#a4ffed}
+    .trail{display:flex;gap:8px;flex-wrap:wrap;margin-top:19px;position:relative}
+    .trail span{font-size:12px;border:1px solid #d9eaff50;background:#ffffff13;color:#ecf5ff;padding:7px 12px;border-radius:40px;font-weight:750}
+    main{max-width:1060px;margin:0 auto;padding:19px 15px 55px}
+    .intro{border-radius:15px;border:1px solid #bbdafa;background:#e7f1ff;padding:15px 18px;margin-bottom:17px;font-size:15px;color:#224575}
+    .intro strong{color:#16396a}
+    .card{background:white;border:1px solid var(--line);border-radius:21px;padding:22px 23px;box-shadow:0 12px 32px #243c7d0b;margin:0 0 16px}
+    .heading{display:flex;gap:13px;align-items:center;margin-bottom:13px}
+    .step{flex:0 0 45px;width:45px;height:45px;border-radius:15px;display:grid;place-items:center;font-size:22px;font-weight:900;color:white;background:linear-gradient(135deg,#2e6bec,#7152e4)}
+    h2{font-size:clamp(21px,2.7vw,25px);margin:0;letter-spacing:-.75px}
+    .eyebrow{font-size:12px;font-weight:850;letter-spacing:.4px;color:#5d78a3;margin-bottom:2px}
+    .why{margin:0 0 16px;background:#f2f7ff;border-left:4px solid #5486e6;border-radius:9px;padding:12px 15px;font-size:14px;color:#315274}
+    .how{margin:10px 0 14px;padding-left:25px;font-size:16px}
+    .how li{padding:4px 0 4px 4px}
+    .how li::marker{font-weight:900;color:#2d65d7}
+    .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .btn{min-height:50px;padding:12px 19px;border:0;border-radius:12px;color:#fff;background:var(--blue);font-size:15px;font-weight:850;display:inline-flex;align-items:center;justify-content:center;gap:7px;flex:1 1 205px;text-align:center}
+    .btn:hover{filter:brightness(1.045)}
+    .btn.alt{background:#edf2ff;color:#315397}
+    .btn.mint{background:var(--mint)}
+    .btn.purple{background:var(--purple)}
+    .btn:disabled{background:#dbe4f1;color:#7185a4;cursor:not-allowed}
+    .small{color:var(--sub);font-size:13px;margin:8px 0 0}
+    .optional{border:1px dashed #a8c4ee;background:#fafcff;border-radius:15px;padding:15px 16px;margin-top:15px}
+    .optional h3{margin:0 0 5px;font-size:16px;letter-spacing:-.3px}
+    .optional p{margin:0 0 10px;color:#586d8b;font-size:13px}
+    .toolstatus{border-radius:11px;padding:12px 14px;background:#eaf2ff;color:#295395;font-size:13px;white-space:pre-wrap;margin:12px 0 0}
+    .toolstatus.ok{background:#e7f8f1;color:#126d4e}
+    .toolstatus.err{background:#fff0ec;color:#a03a2f}
+    .inlinecheck{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
+    .checkitem{font-size:13px;background:#f4f7fd;border-radius:12px;padding:12px 11px;color:#355070;font-weight:700}
+    .tip{border:1px solid #d3efe8;border-radius:13px;background:#f0fcf8;color:#1b7669;padding:13px 15px;margin:14px 0 0;font-size:14px}
+    .disclaimer{padding:3px 1px;color:#718099;font-size:12px;line-height:1.6}
+    .footer{text-align:center;color:#7a89a1;font-size:12px;padding-top:17px}
+    @media(max-width:690px){.hero{padding:29px 18px 31px}.card{padding:17px 16px;border-radius:16px}.heading{gap:10px}.step{width:40px;height:40px;flex-basis:40px}.inlinecheck{grid-template-columns:1fr}.btn{width:100%;flex-basis:100%}.hero:after{opacity:.3}}
   </style>
 </head>
 <body>
-<header>
-  <div class="wrap">
-    <div class="eyebrow">AI SCIENCE MISSION · STUDENT LAB</div>
-    <h1>🛰️ 우주 탐사선 AI 실험실</h1>
-    <p>① 코드 붙여넣기 → ② 실행·시험 → ③ 파일 저장 후 Google Forms 제출</p>
+<header class="hero">
+  <div class="inner">
+    <span class="tag">SCIENCE × AI · SPACE MISSION</span>
+    <h1>🛰️ 우리가 만든 우주 탐사선 AI</h1>
+    <p>운동을 보고 <strong>힘의 작용을 추론</strong>해 보고, 우리가 학습시킨 AI의 판단도 직접 확인해요.</p>
+    <div class="trail"><span>① Gem에서 만들기</span><span>② 파일 열어 시험하기</span><span>③ Google Forms 제출하기</span></div>
   </div>
 </header>
+
 <main>
-  <div class="notice">✨ 학생은 Google Apps Script에 접속하지 않습니다. 이곳에서 코드를 시험하고 파일을 저장한 뒤, Google Forms에서 최종 제출하세요.</div>
-  <div class="layout">
-    <section class="card input">
-      <div class="title-row"><span class="num">1</span><h2>우리 프로그램 넣기</h2></div>
-      <div class="fields">
-        <div><label for="classroom">학급</label><input id="classroom" type="text" maxlength="30" placeholder="예: 1학년 1반" autocomplete="off"></div>
-        <div><label for="group">우리 조</label><select id="group"><option value="">선택</option></select></div>
-      </div>
-      <label for="source">Gem이 만든 HTML 전체 코드</label>
-      <textarea id="source" spellcheck="false" placeholder="Gem에서 만든 코드를 <!doctype html>부터 </html>까지 붙여넣으세요."></textarea>
-      <div class="stats"><span id="codeStat" class="chip">코드 0자</span><span id="modelStat" class="chip">AI 모델 주소 미확인</span></div>
-      <div class="buttons">
-        <button class="btn" type="button" id="run">▶ 실행하기</button>
-        <button class="btn alt" type="button" id="newtab">↗ 새 창에서 실행</button>
-        <button class="btn alt" type="button" id="import">📂 HTML 파일 불러오기</button>
-      </div>
-      <input type="file" id="file" accept=".html,.htm,text/html" hidden>
-      <p class="tiny">Gem이 <code>```html</code> 표시를 함께 출력했다면 자동으로 제거합니다. 모델 연결 오류가 나면 새 창에서 시험해 보세요.</p>
-    </section>
+  <div class="intro"><strong>오늘 우리가 할 일</strong> · AI가 운동 그림을 분류하도록 학습시켰다면, 이제 우리 팀이 생각한 과학적 대응 방법을 프로그램으로 만들고 <strong>처음 보는 그림으로 검증</strong>해 봐요. AI가 알려준 결과가 맞는지 결정하는 사람은 우리예요.</div>
 
-    <section class="card viewer">
-      <div class="title-row"><span class="num">2</span><h2>실행·시험하기</h2><span class="flag">NEW IMAGE TEST</span></div>
-      <iframe id="preview" title="우리 모둠의 AI 프로그램" sandbox="allow-scripts allow-forms allow-popups allow-downloads" referrerpolicy="no-referrer"></iframe>
-      <label class="check"><input id="verified" type="checkbox"><span>새로운 운동 그림을 넣어 AI 분류와 탐사선의 대응 안내를 시험했어요.</span></label>
-      <p class="tiny">코드를 수정하면 시험 확인이 해제됩니다. HTML이 실행되어도 AI가 정확히 분류했는지는 직접 확인해야 합니다.</p>
-    </section>
+  <section class="card" aria-labelledby="step1">
+    <div class="heading"><span class="step">1</span><div><div class="eyebrow">CREATE · 프로그램 만들기</div><h2 id="step1">Gem에서 HTML 파일 받기</h2></div></div>
+    <p class="why"><b>왜 이렇게 할까요?</b> 우리 팀이 선택한 힘의 대응 방법을 실제로 작동하는 프로그램으로 만들기 위해서예요. HTML은 웹브라우저에서 여는 프로그램 파일이에요.</p>
+    <ol class="how">
+      <li>선생님이 공유한 <b>Gem</b>을 열어요.</li>
+      <li>1차시에 만든 <b>Teachable Machine 모델 주소</b>를 알려줘요.</li>
+      <li>Gem의 과학 질문에 <b>우리 팀이 생각한 이유</b>를 말해요. 프로그램 이름과 디자인도 선택해요.</li>
+      <li>완성된 프로그램에서 <b>코드 다운로드</b>를 눌러 <b>.html 파일</b>을 저장해요.</li>
+    </ol>
+    <div class="btnrow"><button class="btn" type="button" id="openGem">✨ Gem 열기</button></div>
+    <p class="small">Gem 대화에는 학생 이름을 쓰지 마세요. 이름은 마지막 Google Forms에만 입력해요.</p>
+  </section>
 
-    <section class="card submit">
-      <div class="title-row"><span class="num">3</span><h2>파일 저장하고 제출하기</h2></div>
-      <div class="filehelp">
-        <strong>최종 제출은 Google Forms에서 해요.</strong>
-        <ol class="step-list">
-          <li><b>제출용 ZIP 저장</b> 버튼을 누르세요. (HTML 전체 코드 포함)</li>
-          <li>Google Forms를 열어 학급·조·학생 이름을 적으세요.</li>
-          <li>ZIP 파일을 첨부하고 소감을 작성해 제출하세요.</li>
-        </ol>
+  <section class="card" aria-labelledby="step2">
+    <div class="heading"><span class="step">2</span><div><div class="eyebrow">TEST · 처음 보는 그림으로 시험</div><h2 id="step2">파일을 열고 AI를 확인해요</h2></div></div>
+    <p class="why"><b>왜 시험할까요?</b> AI는 학습할 때 본 그림과 비슷한 모양을 기억해 분류하는 거예요. <b>처음 보는 그림에서도</b> 제대로 분류하는지 확인해야 믿을 수 있어요.</p>
+    <ol class="how">
+      <li>크롬북 <b>파일 앱 → 다운로드</b>에서 방금 받은 <b>.html 파일</b>을 찾아요.</li>
+      <li>파일을 열어 프로그램이 보이는지 확인해요. 브라우저에서 열리지 않으면 아래 <b>예비 시험 도구</b>를 이용해요.</li>
+      <li><b>학습에 사용하지 않은 새로운 운동 그림</b>을 넣어 봐요.</li>
+      <li>AI가 예측한 운동 유형이 맞는지 확인하고, 프로그램이 알려주는 <b>힘의 대응 방법</b>이 과학적으로 맞는지 토의해요.</li>
+    </ol>
+    <div class="inlinecheck"><div class="checkitem">✓ 새로운 그림이 들어갔나요?</div><div class="checkitem">✓ AI 분류가 맞았나요?</div><div class="checkitem">✓ 대응 방법이 타당한가요?</div></div>
+    <div class="optional">
+      <h3>🧰 파일이 열리지 않나요? 예비 시험 도구</h3>
+      <p>이 기능은 <b>선택 사항</b>이에요. 다운로드한 HTML 파일을 이 페이지에서 골라 새 탭으로 열어볼 수 있어요. 코드는 서버에 업로드되지 않아요.</p>
+      <input id="htmlFile" type="file" accept=".html,.htm,text/html" hidden>
+      <div class="btnrow">
+        <button class="btn alt" type="button" id="selectFile">📂 HTML 파일 선택</button>
+        <button class="btn mint" type="button" id="runOnline" disabled>▶ 온라인에서 시험하기</button>
       </div>
-      <div class="buttons">
-        <button class="btn mint" type="button" id="zip">📦 제출용 ZIP 저장</button>
-        <button class="btn alt" type="button" id="download">⬇ HTML만 저장</button>
-      </div>
-      <p class="tiny">Google Forms에는 ZIP 파일을 제출하는 것을 권장해요. HTML 파일은 별도 보관용이며, 두 파일 모두 프로그램 전체 코드가 들어 있어요.</p>
-      <div class="buttons"><button class="btn purple" type="button" id="form">📝 Google Forms로 최종 제출</button></div>
-      <p id="status" role="status" aria-live="polite">먼저 HTML 코드를 붙여넣고 실행·시험해 보세요.</p>
-      <p class="tiny">입력 중인 코드와 학급·조는 이 브라우저 탭에서만 임시 저장됩니다. 실제 제출 완료는 Google Forms의 응답 완료 화면에서 확인하세요.</p>
-    </section>
-  </div>
-  <footer>우주 탐사선 AI · 중1 과학 | 알짜힘에 따른 운동 변화와 AI의 분류·검증</footer>
+      <div id="fileInfo" class="toolstatus" role="status" aria-live="polite">아직 파일을 선택하지 않았어요.</div>
+    </div>
+    <div class="tip">💡 프로그램이 실행되는 것과 AI 분류가 정확한 것은 다른 문제예요. 틀린 결과가 나온다면 어떤 이미지에서 실패했는지 기억해 두세요.</div>
+  </section>
+
+  <section class="card" aria-labelledby="step3">
+    <div class="heading"><span class="step">3</span><div><div class="eyebrow">SUBMIT · 우리 조의 최종 기록</div><h2 id="step3">Google Forms에 제출해요</h2></div></div>
+    <p class="why"><b>무엇을 제출할까요?</b> 우리가 직접 만든 <b>HTML 프로그램 파일</b>, 처음 보는 그림으로 시험한 결과, 새로 알게 된 점을 제출해요. 파일 안에 프로그램 전체가 들어 있어요.</p>
+    <ol class="how">
+      <li><b>Google Forms 열기</b>를 눌러요.</li>
+      <li>학급·조·학생 1·2 이름, 프로그램 이름을 적어요.</li>
+      <li><b>파일 업로드</b>에서 Gem에서 다운로드한 <b>.html 파일</b>을 첨부해요.</li>
+      <li>업로드가 허용되지 않으면, 위의 <b>HTML 파일 선택</b>을 이용해 <b>ZIP 파일 만들기</b>를 눌러 ZIP 파일을 첨부해요.</li>
+      <li>시험 결과와 오늘 새로 알게 된 점을 적고 <b>제출</b>을 눌러요.</li>
+    </ol>
+    <div class="btnrow">
+      <button class="btn purple" type="button" id="openForm">📝 Google Forms 열기</button>
+      <button class="btn alt" type="button" id="makeZip" disabled>📦 HTML을 ZIP 파일로 만들기</button>
+    </div>
+    <p class="small">ZIP 파일도 프로그램을 담은 파일이에요. ZIP을 제출해도 원본 HTML은 안에 그대로 남아 있어요.</p>
+    <div id="submitStatus" class="toolstatus" role="status" aria-live="polite">제출 완료 여부는 Google Forms에서 확인해요. 이 페이지는 학생 정보를 저장하거나 제출받지 않아요.</div>
+  </section>
+  <div class="disclaimer">* 로컬 HTML에서 외부 AI 모델을 불러올 때 브라우저 보안 설정에 따라 오류가 생길 수 있어요. 예비 시험 도구도 모든 외부 모델의 동작을 보장하지는 않아요. 파일은 Gem에서 직접 만든 신뢰할 수 있는 코드만 열어 주세요.</div>
+  <footer class="footer">중학교 과학 · 알짜힘과 운동의 변화 · 우리의 판단으로 검증하는 AI</footer>
 </main>
 <script>
 'use strict';
-// ▼ Google Forms를 만든 뒤 '응답자용 링크'를 여기에 붙여넣으세요.
-const FORM_URL = 'GOOGLE_FORM_URL_HERE';
-const el = id => document.getElementById(id);
-const DRAFT_KEY = 'probe-ai-file-form-v1';
-let testedCode = '';
-let savedBlobURL = '';
 
-for(let i=1;i<=18;i++) el('group').add(new Option(i+'조',String(i)));
-function status(text,kind='') { el('status').textContent=text; el('status').className=kind; }
-function cleanCode(){
-  return el('source').value.trim().replace(/^```(?:html)?\s*/i,'').replace(/\s*```$/,'').trim();
+// ★ 선생님: 아래 두 주소만 실제 공유 링크로 바꾸세요.
+const GEM_URL = 'GEM_URL_HERE';
+const FORM_URL = 'GOOGLE_FORM_URL_HERE';
+
+const $ = id => document.getElementById(id);
+let selectedFile = null;
+let selectedBytes = null;
+
+function say(target, msg, kind='') {
+  const node = $(target);
+  node.textContent = msg;
+  node.className = 'toolstatus' + (kind ? ' ' + kind : '');
 }
-function validate(){
-  const html=cleanCode();
-  if (!html || !/<!doctype html\s*>/i.test(html.slice(0,150)) || !/<html(?:\s|>)/i.test(html) || !/<\/html\s*>\s*$/i.test(html)) {
-    status('HTML 코드가 완전하지 않아요. Gem에서 <!doctype html>부터 마지막 </html>까지 모두 복사해 주세요.','bad');
-    return null;
+function openConfigured(url, kind) {
+  if (!/^https:\/\//i.test(url)) {
+    say('submitStatus', kind + ' 링크가 아직 연결되지 않았어요. 선생님께 알려 주세요.', 'err');
+    return;
   }
-  if (html.length > 1000000) { status('코드가 100만 자를 초과했어요. 프로그램을 단순화해 주세요.','bad'); return null; }
-  if (/teachablemachine\.withgoogle\.com\/models\/TEST123/i.test(html)) {
-    status('TEST123은 예시 모델 주소예요. 직접 학습한 모델 주소를 Gem에 알려 주세요.','bad');return null;
+  const a = document.createElement('a');
+  a.href = url;
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+$('openGem').addEventListener('click', () => openConfigured(GEM_URL, 'Gem'));
+$('openForm').addEventListener('click', () => openConfigured(FORM_URL, 'Google Forms'));
+$('selectFile').addEventListener('click', () => $('htmlFile').click());
+
+function looksLikeHtml(text) {
+  return /<html(?:\s|>)/i.test(text) && /<\/html\s*>/i.test(text);
+}
+$('htmlFile').addEventListener('change', async () => {
+  selectedFile = null;
+  selectedBytes = null;
+  $('runOnline').disabled = true;
+  $('makeZip').disabled = true;
+  const file = $('htmlFile').files?.[0];
+  if (!file) return;
+  if (!/\.html?$/i.test(file.name)) {
+    say('fileInfo', 'HTML 파일(.html 또는 .htm)을 선택해 주세요.', 'err');return;
   }
-  return html;
-}
-function updateStats(){
-  const html=cleanCode();
-  const bytes=new Blob([html]).size;
-  el('codeStat').textContent=html.length.toLocaleString('ko-KR')+'자 · '+(bytes/1024).toFixed(1)+'KB';
-  const model=html.match(/https:\/\/teachablemachine\.withgoogle\.com\/models\/[A-Za-z0-9_-]+\/?/i);
-  el('modelStat').textContent=model?'AI 모델 주소 발견':'AI 모델 주소 미확인';
-}
-function saveDraft(){
-  try { sessionStorage.setItem(DRAFT_KEY,JSON.stringify({classroom:el('classroom').value,group:el('group').value,source:el('source').value})); }
-  catch(_) { /* 저장 공간 부족 시 코드 입력과 실행 기능은 유지 */ }
-}
-let draftTimer;
-function scheduleSave(){clearTimeout(draftTimer);draftTimer=setTimeout(saveDraft,300);}
-try{
-  const draft=JSON.parse(sessionStorage.getItem(DRAFT_KEY)||'null');
-  if(draft){
-    if(typeof draft.classroom==='string')el('classroom').value=draft.classroom;
-    if(typeof draft.group==='string')el('group').value=draft.group;
-    if(typeof draft.source==='string')el('source').value=draft.source;
-    if(draft.source)status('이 탭에서 이전에 입력한 코드를 복원했어요. 다시 실행·시험해 주세요.');
+  if (file.size > 8 * 1024 * 1024) {
+    say('fileInfo', '파일이 8MB를 넘었어요. Gem에서 코드를 더 간단하게 만들어 주세요.', 'err');return;
   }
-}catch(_){}
-updateStats();
-for(const id of ['classroom','group'])el(id).addEventListener('input',scheduleSave);
-el('source').addEventListener('input',()=>{
-  testedCode='';el('verified').checked=false;updateStats();scheduleSave();
-  status('코드를 바꿨다면 다시 실행하고 시험해 주세요.');
+  try {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const text = new TextDecoder('utf-8').decode(bytes);
+    if (!looksLikeHtml(text)) {
+      say('fileInfo', '완성된 HTML이 아닌 것 같아요. Gem에서 끝까지 만들어진 파일을 다시 다운로드해 주세요.', 'err');return;
+    }
+    selectedFile = file;
+    selectedBytes = bytes;
+    $('runOnline').disabled = false;
+    $('makeZip').disabled = false;
+    let note = '✓ ' + file.name + ' 선택 완료 (' + Math.ceil(file.size / 1024) + 'KB).';
+    if (/\/models\/TEST123/i.test(text)) note += '\n⚠ TEST123은 실제 AI 모델이 아니에요.';
+    else if (!/teachablemachine\.withgoogle\.com\/models\//i.test(text)) note += '\n⚠ AI 모델 주소를 찾지 못했어요. Gem에서 받은 파일이 맞는지 확인해 주세요.';
+    note += '\n온라인 시험 또는 ZIP 변환을 선택할 수 있어요.';
+    say('fileInfo', note, 'ok');
+  } catch (error) {
+    say('fileInfo', '파일을 읽지 못했어요. 다시 선택해 주세요.', 'err');
+  }
 });
-el('run').addEventListener('click',()=>{
-  const html=validate();if(!html)return;
-  el('preview').srcdoc=html;testedCode=html;
-  status('프로그램을 실행했어요. 처음 보는 운동 그림을 넣어 시험해 보세요.');
+
+$('runOnline').addEventListener('click', () => {
+  if (!selectedBytes) return;
+  // 클릭한 시점에 새 탭을 열어서 팝업 차단을 줄여요.
+  const tab = window.open('about:blank', '_blank');
+  if (!tab) {say('fileInfo', '새 탭을 열 수 없어요. 브라우저에서 팝업을 허용해 주세요.', 'err');return;}
+  const blob = new Blob([selectedBytes], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  tab.location.replace(url);
+  setTimeout(() => URL.revokeObjectURL(url), 120000);
+  say('fileInfo', selectedFile.name + ' 파일을 새 탭에서 열었어요. 새로운 운동 그림으로 AI 분류를 확인해 보세요.', 'ok');
 });
-el('newtab').addEventListener('click',()=>{
-  const html=validate();if(!html)return;
-  const url=URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'}));
-  const opened=window.open(url,'_blank','noopener,noreferrer');
-  setTimeout(()=>URL.revokeObjectURL(url),120000);
-  testedCode=html;
-  status('새 창에서 시험한 뒤 이 화면으로 돌아와 시험 확인에 체크해 주세요. 새 창이 안 열리면 팝업을 허용해 주세요.');
-});
-el('import').addEventListener('click',()=>el('file').click());
-el('file').addEventListener('change',async()=>{
-  const file=el('file').files?.[0];if(!file)return;
-  if(file.size>3*1024*1024){status('3MB 이하의 HTML 파일을 불러와 주세요.','bad');el('file').value='';return;}
-  try{el('source').value=await file.text();el('source').dispatchEvent(new Event('input'));status('HTML 파일을 불러왔어요. 실행해 확인하세요.');}
-  catch(_){status('HTML 파일을 읽지 못했습니다.','bad');}
-  el('file').value='';
-});
-function filename(ext){
-  const cls=el('classroom').value.trim().replace(/[^0-9a-zA-Z가-힣_-]/g,'').slice(0,24);
-  const team=el('group').value;
-  if(!cls||!team){status('파일 이름을 만들 학급과 조를 먼저 입력해 주세요.','bad');return null;}
-  return cls+'_'+String(team).padStart(2,'0')+'조_우주탐사선AI.'+ext;
+
+// 외부 라이브러리 없이 HTML 원본 1개를 담은 ZIP 파일 생성 (무압축 ZIP).
+const encoder = new TextEncoder();
+const crcTable = (() => {
+  const table = [];
+  for (let i=0;i<256;i++) {
+    let c=i;
+    for (let j=0;j<8;j++) c=(c&1)?(0xedb88320^(c>>>1)):(c>>>1);
+    table[i]=c>>>0;
+  }
+  return table;
+})();
+function crc32(bytes) {
+  let c=0xffffffff;
+  for (const v of bytes) c=crcTable[(c^v)&255]^(c>>>8);
+  return (c^0xffffffff)>>>0;
 }
-function downloadBlob(blob,name){
-  if(savedBlobURL)URL.revokeObjectURL(savedBlobURL);
-  savedBlobURL=URL.createObjectURL(blob);
-  const link=document.createElement('a');link.href=savedBlobURL;link.download=name;
-  document.body.appendChild(link);link.click();link.remove();
-  setTimeout(()=>{URL.revokeObjectURL(savedBlobURL);savedBlobURL='';},45000);
-}
-function readyToSave(){
-  const html=validate();if(!html)return null;
-  if(testedCode!==html||!el('verified').checked){status('먼저 ②에서 프로그램을 실행하고, 새로운 그림으로 시험한 뒤 체크해 주세요.','bad');return null;}
-  return html;
-}
-el('download').addEventListener('click',()=>{
-  const html=readyToSave();if(!html)return;
-  const name=filename('html');if(!name)return;
-  downloadBlob(new Blob([html],{type:'text/html;charset=utf-8'}),name);
-  status(name+' 파일 저장을 시작했어요. 다운로드 폴더에서 확인한 후 Google Forms에 첨부하세요.','good');
-});
-// 외부 라이브러리 없이 ZIP 파일 생성 (STORE 방식, UTF-8 파일 이름)
-const enc=new TextEncoder();
-const crcTable=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[n]=c>>>0;}return t;})();
-function crc32(data){let c=0xFFFFFFFF;for(const b of data)c=crcTable[(c^b)&255]^(c>>>8);return(c^0xFFFFFFFF)>>>0;}
-function zipSingle(name,content){
-  const nameBytes=enc.encode(name),bytes=enc.encode(content),crc=crc32(bytes);
-  const local=new Uint8Array(30+nameBytes.length),lv=new DataView(local.buffer);
-  lv.setUint32(0,0x04034b50,true);lv.setUint16(4,20,true);lv.setUint16(6,0x0800,true);
-  lv.setUint32(14,crc,true);lv.setUint32(18,bytes.length,true);lv.setUint32(22,bytes.length,true);
-  lv.setUint16(26,nameBytes.length,true);local.set(nameBytes,30);
-  const central=new Uint8Array(46+nameBytes.length),cv=new DataView(central.buffer);
-  cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);
-  cv.setUint16(8,0x0800,true);cv.setUint32(16,crc,true);
-  cv.setUint32(20,bytes.length,true);cv.setUint32(24,bytes.length,true);
-  cv.setUint16(28,nameBytes.length,true);central.set(nameBytes,46);
-  const end=new Uint8Array(22),ev=new DataView(end.buffer);
-  ev.setUint32(0,0x06054b50,true);ev.setUint16(8,1,true);ev.setUint16(10,1,true);
-  ev.setUint32(12,central.length,true);ev.setUint32(16,local.length+bytes.length,true);
+function zipOne(filename, bytes) {
+  const name = encoder.encode(filename);
+  const crc=crc32(bytes);
+  const local = new Uint8Array(30 + name.length);
+  const l=new DataView(local.buffer);
+  l.setUint32(0,0x04034b50,true); l.setUint16(4,20,true);
+  l.setUint16(6,0x0800,true); l.setUint16(8,0,true);
+  l.setUint32(14,crc,true); l.setUint32(18,bytes.length,true); l.setUint32(22,bytes.length,true);
+  l.setUint16(26,name.length,true); local.set(name,30);
+  const central = new Uint8Array(46+name.length);
+  const c=new DataView(central.buffer);
+  c.setUint32(0,0x02014b50,true); c.setUint16(4,20,true); c.setUint16(6,20,true);
+  c.setUint16(8,0x0800,true); c.setUint16(10,0,true);
+  c.setUint32(16,crc,true); c.setUint32(20,bytes.length,true); c.setUint32(24,bytes.length,true);
+  c.setUint16(28,name.length,true); central.set(name,46);
+  const end = new Uint8Array(22);
+  const e=new DataView(end.buffer);
+  e.setUint32(0,0x06054b50,true); e.setUint16(8,1,true); e.setUint16(10,1,true);
+  e.setUint32(12,central.length,true); e.setUint32(16,local.length+bytes.length,true);
   return new Blob([local,bytes,central,end],{type:'application/zip'});
 }
-el('zip').addEventListener('click',()=>{
-  const html=readyToSave();if(!html)return;
-  const htmlName=filename('html'),zipName=filename('zip');if(!htmlName||!zipName)return;
-  downloadBlob(zipSingle(htmlName,html),zipName);
-  status(zipName+' 파일 저장을 시작했어요. 이 ZIP 파일을 Google Forms에 첨부하세요.','good');
-});
-el('form').addEventListener('click',()=>{
-  if(!/^https:\/\/(?:docs\.google\.com\/forms\/|forms\.gle\/)/i.test(FORM_URL)){
-    status('아직 제출할 Google Form 주소가 연결되지 않았어요. 선생님께 알려 주세요.','bad');return;
+$('makeZip').addEventListener('click', () => {
+  if (!selectedBytes || !selectedFile) {
+    say('submitStatus', '먼저 ② 예비 시험 도구에서 HTML 파일을 선택해 주세요.', 'err');return;
   }
-  const html=readyToSave();if(!html)return;
-  window.open(FORM_URL,'_blank','noopener,noreferrer');
-  status('Google Forms를 열었어요. 저장한 ZIP 파일을 첨부하고 학급·조·이름·소감을 작성한 뒤 「제출」을 눌러야 완료됩니다.','good');
+  const name = selectedFile.name.replace(/\.html?$/i,'') + '.zip';
+  const blob=zipOne(selectedFile.name,selectedBytes);
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url),45000);
+  say('submitStatus', '✓ ' + name + ' 다운로드가 시작됐어요. Google Forms에서 이 ZIP 파일을 첨부해 주세요.', 'ok');
 });
 </script>
 </body>
