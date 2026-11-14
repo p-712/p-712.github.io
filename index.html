@@ -1,0 +1,388 @@
+
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>우주 탐사선 AI · 실행 및 제출</title>
+<style>
+:root{color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:#f4f7fc;color:#172b48;font:16px/1.55 system-ui,'Malgun Gothic',sans-serif}
+header{background:#173761;color:#fff;padding:23px 18px}
+.wrap{max-width:1100px;margin:auto}
+h1{font-size:24px;margin:0;letter-spacing:-.7px}
+header p{font-size:14px;color:#d2e3fa;margin:4px 0 0}
+main{max-width:1100px;margin:auto;padding:18px 13px 48px}
+.columns{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);grid-template-areas:'input preview' 'submit preview';gap:14px;align-items:start}
+.card{background:#fff;border:1px solid #d7e1ef;border-radius:16px;padding:18px;min-width:0}
+.input-card{grid-area:input}
+.preview-card{grid-area:preview}
+.submit-card{grid-area:submit}
+h2{font-size:18px;letter-spacing:-.4px;margin:0 0 12px}
+.num{color:#2d62cb;margin-right:5px}
+label{display:block;font-size:14px;font-weight:750;margin:10px 0 5px}
+input[type=text],select,textarea{width:100%;border:1px solid #bdcfe3;border-radius:10px;background:white;color:inherit;font:inherit;min-width:0}
+input[type=text],select{height:46px;padding:0 11px}
+textarea{padding:12px;resize:vertical}
+#source{height:225px;min-height:160px;font:12px/1.45 ui-monospace,Consolas,monospace}
+#reflection{height:87px;min-height:74px;font:15px/1.5 system-ui,'Malgun Gothic',sans-serif}
+.students{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.students>div{min-width:0}
+button{border:0;border-radius:10px;cursor:pointer;font:inherit;font-size:15px;font-weight:750;min-height:47px;padding:10px 13px;background:#2563d9;color:#fff}
+button.secondary{background:#e8effd;color:#244e9d}
+button:disabled{opacity:.5;cursor:wait}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #88b5ff;outline-offset:1px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.actions button{flex:1 1 145px}
+#preview{display:block;width:100%;height:560px;min-height:380px;border:1px solid #d6e2f1;border-radius:12px;background:white}
+#status{padding:12px 13px;border-radius:10px;background:#edf3ff;color:#24529e;white-space:pre-wrap;font-size:14px;margin:11px 0 0}
+#status.ok{background:#e8f8f0;color:#137544}
+#status.error{background:#fff0e9;color:#a23b27}
+.tick{display:flex;gap:10px;align-items:start;font-size:14px;font-weight:650;margin:10px 0;cursor:pointer}
+.tick input{width:21px;height:21px;flex:0 0 21px;margin:1px 0 0;accent-color:#2563d9}
+.subtle{font-size:12px;color:#63778e;margin:9px 0 0}
+.hint{font-size:13px;color:#57708b;margin:0 0 7px}
+@media(max-width:780px){
+.columns{grid-template-columns:minmax(0,1fr);grid-template-areas:'input' 'preview' 'submit'}
+#preview{height:360px;min-height:320px}
+}
+@media(max-width:380px){
+.students{grid-template-columns:1fr}
+h1{font-size:21px}
+}
+</style>
+</head>
+<body>
+
+<header>
+<div class="wrap">
+<h1>🛰️ 우주 탐사선 AI · 실행 및 제출</h1>
+<p>① 코드 붙여넣기 → ② 실행·시험 → ③ 소감 쓰고 제출</p>
+</div>
+</header>
+
+<main class="columns">
+<section class="card input-card">
+<h2><span class="num">①</span> 우리 프로그램 넣기</h2>
+<label for="classroom">학급</label>
+<input type="text" id="classroom" placeholder="예: 1학년 1반" autocomplete="off" maxlength="30">
+<label for="group">우리 조</label>
+<select id="group"><option value="">조를 선택하세요</option></select>
+<div class="students">
+<div>
+<label for="student1">학생 1 이름</label>
+<input type="text" id="student1" placeholder="학생 1" autocomplete="off" maxlength="30">
+</div>
+<div>
+<label for="student2">학생 2 이름</label>
+<input type="text" id="student2" placeholder="학생 2" autocomplete="off" maxlength="30">
+</div>
+</div>
+<label for="source">Gems가 만든 HTML 전체 코드</label>
+<textarea id="source" spellcheck="false" placeholder="Gems에서 만든 HTML 코드를 처음부터 끝까지 붙여넣으세요."></textarea>
+<div class="actions">
+<button id="run" type="button">▶ 실행하기</button>
+<button id="newtab" type="button" class="secondary">↗ 새 창에서 실행</button>
+</div>
+<p class="subtle">모델 연결 오류가 나면 '새 창에서 실행'을 눌러 보세요.</p>
+</section>
+
+<section class="card preview-card">
+<h2><span class="num">②</span> 실행·시험하기</h2>
+<iframe id="preview" sandbox="allow-scripts allow-forms allow-popups allow-downloads" title="학생이 만든 AI 프로그램 미리보기"></iframe>
+<div class="actions" style="margin-top:10px">
+<button id="backup" type="button" class="secondary">HTML 백업 파일 저장</button>
+</div>
+<p class="subtle">새 창에서 시험했더라도 여기로 돌아와서 제출하세요.</p>
+</section>
+
+<section class="card submit-card">
+<h2><span class="num">③</span> 소감 쓰고 제출하기</h2>
+<label class="tick">
+<input id="done" type="checkbox">
+새로운 운동 그림을 넣어 시험했어요.
+</label>
+<label for="reflection">새로 알게 된 점 또는 소감</label>
+<p class="hint">한두 문장만 적으면 돼요.</p>
+<textarea id="reflection" maxlength="450" placeholder="예: AI가 같은 그림도 잘못 판단할 수 있다는 걸 알게 됐어요."></textarea>
+<button id="submit" type="button" style="width:100%;margin-top:12px">✓ 최종 제출하기</button>
+<p id="status" role="status" aria-live="polite">프로그램을 넣고 시험해 보세요.</p>
+<p class="subtle">학급·이름·프로그램·소감이 선생님께 함께 저장됩니다. 입력 내용은 이 탭에서 임시 저장돼요.</p>
+</section>
+</main>
+
+<iframe name="saveResultFrame" id="saveResultFrame" title="제출 처리" style="display:none"></iframe>
+
+<script>
+'use strict';
+
+// 배포가 끝나면 Apps Script의 /exec 주소로 교체
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMtTUe6VGq8fGspzNhKcatU-58rCUk5cIuUZe7-L3QROmzv2NeeKz4u1N8LBscRqkTvA/exec';
+
+const DRAFT_KEY = 'probe-ai-github-draft-v1';
+const el = id => document.getElementById(id);
+let lastRunCode = '';
+let activeRequestId = '';
+let receiptTimer = null;
+let timeoutTimer = null;
+let pollCount = 0;
+
+for(let i=1;i<=18;i++){
+  el('group').add(new Option(i+'조',String(i)));
+}
+
+function message(t,kind=''){
+  el('status').textContent=t;
+  el('status').className=kind;
+}
+
+function code(){
+  let txt=el('source').value.trim();
+  txt=txt.replace(/^```(?:html)?\s*/i,'').replace(/\s*```$/,'').trim();
+  if(!/<html(?:\s|>)/i.test(txt)||!/<\/html\s*>/i.test(txt)){
+    message('Gems가 만든 HTML 코드를 처음부터 끝까지 붙여넣어 주세요.','error');
+    return null;
+  }
+  if(txt.length<300||txt.length>280000){
+    message('HTML 코드가 너무 짧거나 길어요. 코드 전체를 확인해 주세요.','error');
+    return null;
+  }
+  if(/\/models\/TEST123\/?(?:$|[^a-zA-Z0-9_-])/i.test(txt)){
+    message('TEST123은 시험용 모델 주소예요. 실제 학습한 AI 모델 주소로 교체해 주세요.','error');
+    return null;
+  }
+  return txt;
+}
+
+function titleOf(c){
+  const m=c.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  return(m?.[1]||'우주 탐사선 AI').replace(/<[^>]+>/g,'').trim().slice(0,90);
+}
+
+function blobUrl(c){
+  return URL.createObjectURL(new Blob([c],{type:'text/html;charset=utf-8'}));
+}
+
+function draftValues(){
+  return {
+    classroom:el('classroom').value,
+    group:el('group').value,
+    student1:el('student1').value,
+    student2:el('student2').value,
+    source:el('source').value,
+    reflection:el('reflection').value,
+    done:el('done').checked
+  };
+}
+
+let saveDelay;
+function saveDraft(){
+  clearTimeout(saveDelay);
+  saveDelay=setTimeout(()=>{
+    try{
+      sessionStorage.setItem(DRAFT_KEY,JSON.stringify(draftValues()));
+    }catch(_){}
+  },250);
+}
+
+try{
+  const saved=JSON.parse(sessionStorage.getItem(DRAFT_KEY)||'null');
+  if(saved&&typeof saved==='object'){
+    for(const id of ['classroom','group','student1','student2','source','reflection']){
+      if(typeof saved[id]==='string') el(id).value=saved[id];
+    }
+    if(saved.source) message('이 탭의 임시 작성 내용을 복구했어요. 다시 실행·시험해 주세요.');
+  }
+}catch(_){}
+
+['classroom','group','student1','student2','reflection'].forEach(id=>{
+  el(id).addEventListener(id==='group'?'change':'input',saveDraft);
+});
+el('done').addEventListener('change',saveDraft);
+
+el('source').addEventListener('input',()=>{
+  lastRunCode='';
+  el('done').checked=false;
+  saveDraft();
+  message('코드를 바꿨다면 다시 실행해 주세요.');
+});
+
+el('run').addEventListener('click',()=>{
+  const c=code();
+  if(!c)return;
+  el('preview').srcdoc=c;
+  lastRunCode=c;
+  message('프로그램을 실행했어요. 새로운 운동 그림으로 시험해 보세요.');
+});
+
+el('newtab').addEventListener('click',()=>{
+  const c=code();
+  if(!c)return;
+  const u=blobUrl(c);
+  window.open(u,'_blank','noopener,noreferrer');
+  setTimeout(()=>URL.revokeObjectURL(u),120000);
+  lastRunCode=c;
+  message('새 창에서 시험한 뒤 이 화면으로 돌아오세요. 창이 안 열리면 팝업을 허용해 주세요.');
+});
+
+el('backup').addEventListener('click',()=>{
+  const c=code();
+  if(!c)return;
+  const u=blobUrl(c),a=document.createElement('a');
+  a.href=u;
+  a.download=(el('classroom').value.trim().replace(/[^0-9a-zA-Z가-힣_-]/g,'_').slice(0,20)||'학급')+'_'+(el('group').value||'우리')+'조_탐사선AI.html';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(u),30000);
+});
+
+function finishSubmit(data){
+  if(!activeRequestId||data.requestId!==activeRequestId)return;
+  clearTimeout(receiptTimer);
+  clearTimeout(timeoutTimer);
+  activeRequestId='';
+  el('submit').disabled=false;
+
+  if(data.ok===true){
+    message(el('classroom').value.trim()+' · '+el('group').value+'조 제출 완료! (버전 '+data.version+')\nGoogle Sheets 저장 확인됨','ok');
+    try{sessionStorage.removeItem(DRAFT_KEY)}catch(_){}
+  }else{
+    message('제출 오류: '+(data.message||'저장하지 못했습니다.')+'\n입력한 내용은 유지돼요.','error');
+  }
+}
+
+window.addEventListener('message',event=>{
+  if(!/^https:\/\/(?:[a-z0-9-]+\.)*googleusercontent\.com$/i.test(event.origin)&&event.origin!=='https://script.google.com')return;
+  const data=event.data;
+  if(!data||data.type!=='PROBE_AI_SUBMIT_RESULT')return;
+  finishSubmit(data);
+});
+
+function pollReceipt(requestId){
+  if(activeRequestId!==requestId)return;
+  pollCount+=1;
+
+  const cb='probeReceipt_'+requestId.replace(/-/g,'');
+  const script=document.createElement('script');
+  let completed=false;
+
+  function clean(){
+    if(completed)return;
+    completed=true;
+    try{delete window[cb]}catch(_){window[cb]=undefined}
+    script.remove();
+  }
+
+  window[cb]=data=>{
+    clean();
+    if(data&&data.requestId===requestId&&data.pending===false){
+      finishSubmit(data);
+    }
+  };
+
+  script.onerror=clean;
+  script.src=SCRIPT_URL+'?receipt='+encodeURIComponent(requestId)+'&callback='+cb+'&nocache='+Date.now();
+  document.head.appendChild(script);
+  setTimeout(clean,8500);
+
+  if(pollCount<7){
+    receiptTimer=setTimeout(()=>pollReceipt(requestId),10000);
+  }
+}
+
+function uniqueRequestId(){
+  if(crypto.randomUUID)return crypto.randomUUID();
+  const b=new Uint8Array(16);
+  crypto.getRandomValues(b);
+  return [...b].map(n=>n.toString(16).padStart(2,'0')).join('');
+}
+
+el('submit').addEventListener('click',()=>{
+  const classroom=el('classroom').value.trim();
+  const team=el('group').value;
+  const student1=el('student1').value.trim();
+  const student2=el('student2').value.trim();
+  const reflection=el('reflection').value.trim();
+
+  if(!classroom){
+    message('학급을 적어 주세요. (예: 1학년 1반)','error');
+    el('classroom').focus();return;
+  }
+  if(!team){
+    message('조 번호를 선택해 주세요.','error');
+    el('group').focus();return;
+  }
+  if(!student1||!student2){
+    message('학생 1과 학생 2의 이름을 모두 적어 주세요.','error');
+    (!student1?el('student1'):el('student2')).focus();return;
+  }
+
+  const c=code();
+  if(!c)return;
+  if(lastRunCode!==c||!el('done').checked){
+    message('먼저 ②에서 실행·시험하고 체크해 주세요.','error');
+    return;
+  }
+  if(reflection.length<3){
+    message('새로 알게 된 점이나 소감을 한 문장 적어 주세요.','error');
+    el('reflection').focus();return;
+  }
+  if(!/^https:\/\/script\.google\.com\/macros\/s\/[a-zA-Z0-9_-]+\/exec$/.test(SCRIPT_URL)){
+    message('아직 제출 서버 주소가 설정되지 않았어요. 선생님께 알려 주세요.','error');
+    return;
+  }
+  if(activeRequestId)return;
+
+  const requestId=uniqueRequestId();
+  activeRequestId=requestId;
+  pollCount=0;
+  saveDraft();
+  el('submit').disabled=true;
+  message('선생님께 제출 중이에요. 저장 확인이 표시될 때까지 이 화면을 닫지 마세요.');
+
+  const form=document.createElement('form');
+  form.method='POST';
+  form.action=SCRIPT_URL;
+  form.target='saveResultFrame';
+  form.acceptCharset='UTF-8';
+
+  function add(name,value){
+    const input=document.createElement('input');
+    input.type='hidden';
+    input.name=name;
+    input.value=value;
+    form.appendChild(input);
+  }
+
+  add('origin',location.origin);
+  add('requestId',requestId);
+  add('payload',JSON.stringify({
+    classroom,team,student1,student2,reflection,html:c,title:titleOf(c)
+  }));
+
+  document.body.appendChild(form);
+
+  try{
+    form.submit();
+  }catch(err){
+    activeRequestId='';
+    el('submit').disabled=false;
+    message('전송을 시작하지 못했어요. 입력 내용은 유지돼요. '+err.message,'error');
+  }
+  form.remove();
+  if(!activeRequestId)return;
+
+  receiptTimer=setTimeout(()=>pollReceipt(requestId),7000);
+  timeoutTimer=setTimeout(()=>{
+    if(activeRequestId!==requestId)return;
+    activeRequestId='';
+    clearTimeout(receiptTimer);
+    el('submit').disabled=false;
+    message('제출 성공 여부를 확인하지 못했어요. 다시 제출하기 전에 선생님께 스프레드시트에 기록됐는지 확인해 달라고 하세요. 작성 내용은 유지돼요.','error');
+  },72000);
+});
+</script>
+</body>
+</html>
