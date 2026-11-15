@@ -59,6 +59,27 @@
     .disclaimer{padding:3px 1px;color:#718099;font-size:12px;line-height:1.6}
     .footer{text-align:center;color:#7a89a1;font-size:12px;padding-top:17px}
     @media(max-width:690px){.hero{padding:29px 18px 31px}.card{padding:17px 16px;border-radius:16px}.heading{gap:10px}.step{width:40px;height:40px;flex-basis:40px}.inlinecheck{grid-template-columns:1fr}.btn{width:100%;flex-basis:100%}.hero:after{opacity:.3}}
+  .backlink{display:inline-block;margin-bottom:13px;color:#315ab1;font-weight:800;text-decoration:none}.logic-card{border:1px solid #c8d8f4;border-radius:19px;padding:22px;background:#fff;margin-bottom:18px}.logic-card h2{margin:4px 0 16px}.logic-flow{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap}.logic-flow div{flex:1 1 160px;background:#eef4fe;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:5px;min-width:0}.logic-flow b{color:#305abd;font-size:13px}.logic-flow span{font-size:14px;font-weight:700}.logic-flow em{font-style:normal;align-self:center;color:#3b6de5;font-weight:900}.logic-example{font-size:14px;line-height:1.7;color:#2b4d70;border-left:4px solid #52b1a9;padding:12px 14px;background:#f2fbf8;border-radius:8px;margin:15px 0 0}@media(max-width:690px){.logic-flow em{display:none}}
+
+    .sample-tests{border-radius:15px;background:#fff;border:1px solid #dae3f6;padding:17px;margin-top:16px}
+    .sample-top{display:flex;gap:12px;align-items:start;justify-content:space-between}
+    .sample-top h3{font-size:18px;margin:0 0 3px;color:#233962}
+    .sample-top p{margin:0;color:#5b6f8a;font-size:13px}
+    .sample-count{background:#eef1ff;color:#5947a6;font-size:12px;font-weight:850;border-radius:9px;padding:6px 9px;white-space:nowrap}
+    .sample-thumbs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin:13px 0 14px}
+    .sample-choice{min-width:0;border:2px solid #e3e9f5;background:#f8faff;border-radius:11px;padding:7px;cursor:pointer;color:#35476c;font-size:12px;font-weight:800}
+    .sample-choice[aria-pressed="true"]{border-color:#654de7;background:#f0ecff;box-shadow:0 0 0 2px #654de722}
+    .sample-choice img{display:block;width:100%;aspect-ratio:1;background:white;border-radius:7px;margin-bottom:5px}
+    .sample-bottom{display:grid;grid-template-columns:minmax(0,0.83fr) minmax(0,1.17fr);gap:15px;align-items:stretch}
+    .sample-large{border:1px solid #dbe3f3;border-radius:12px;padding:10px;background:#f8fbff;text-align:center;display:flex;align-items:center;justify-content:center;flex-direction:column}
+    .sample-large img{width:min(100%,210px);aspect-ratio:1;object-fit:contain;border:1px solid #e6edf7;border-radius:8px;background:#fff}
+    .sample-large span{font-size:13px;color:#4a5d7b;font-weight:800;margin-top:8px}
+    .sample-guide{display:flex;flex-direction:column;gap:8px;justify-content:center}
+    .sample-guide>b{font-size:16px;color:#253f72}
+    .sample-guide ol{font-size:13px;line-height:1.65;margin:0 0 4px;padding-left:22px;color:#476080}
+    .sample-guide .btn{flex:none;width:100%}
+    .sample-status{font-size:13px;color:#315b91;min-height:18px}
+    @media(max-width:690px){.sample-thumbs{gap:5px}.sample-choice{font-size:10px;padding:4px}.sample-tests{padding:12px}.sample-bottom{grid-template-columns:1fr}.sample-large img{width:min(100%,170px)}}
   </style>
 </head>
 <body>
@@ -67,19 +88,26 @@
     <span class="tag">SCIENCE × AI · SPACE MISSION</span>
     <h1>🛰️ 우리가 만든 우주 탐사선 AI</h1>
     <p>운동을 보고 <strong>힘의 작용을 추론</strong>해 보고, 우리가 학습시킨 AI의 판단도 직접 확인해요.</p>
-    <div class="trail"><span>① Gem에서 만들기</span><span>② 파일 열어 시험하기</span><span>③ Google Forms 제출하기</span></div>
+    <div class="trail"><span>① Gem 열고 만들기</span><span>② HTML 시험하기</span><span>③ 파일·소감 제출</span></div>
   </div>
 </header>
 
 <main>
+  <a class="backlink" href="../">← ① 운동 그림 AI 연구소로 돌아가기</a>
+  <section class="logic-card" aria-labelledby="logic-title">
+    <div class="eyebrow">SCIENCE × AI · 프로그램이 작동하는 순서</div>
+    <h2 id="logic-title">AI의 분류가 곧 조종 명령은 아니에요!</h2>
+    <div class="logic-flow"><div><b>① 입력</b><span>새 운동 그림 PNG</span></div><em>→</em><div><b>② AI 분류</b><span>알짜힘과 운동 방향의 관계</span></div><em>→</em><div><b>③ 우리 판단</b><span>목표와 비교해 대응 규칙 적용</span></div><em>→</em><div><b>④ 프로그램 결과</b><span>분류 + 과학적 대응 안내</span></div></div>
+    <p class="logic-example"><strong>예시:</strong> 탐사선이 목표보다 빠른데 AI가 ‘알짜힘과 운동 방향 같음’으로 분류했어요. → <b>우리는</b> 속력을 줄이기 위해 반대 방향의 알짜힘이 필요하다고 판단해요. 목표 속력에 도달하면 알짜힘이 0이 되도록 해요.</p>
+  </section>
   <div class="intro"><strong>오늘 우리가 할 일</strong> · AI가 운동 그림을 분류하도록 학습시켰다면, 이제 우리 팀이 생각한 과학적 대응 방법을 프로그램으로 만들고 <strong>처음 보는 그림으로 검증</strong>해 봐요. AI가 알려준 결과가 맞는지 결정하는 사람은 우리예요.</div>
 
   <section class="card" aria-labelledby="step1">
     <div class="heading"><span class="step">1</span><div><div class="eyebrow">CREATE · 프로그램 만들기</div><h2 id="step1">Gem에서 HTML 파일 받기</h2></div></div>
     <p class="why"><b>왜 이렇게 할까요?</b> 우리 팀이 선택한 힘의 대응 방법을 실제로 작동하는 프로그램으로 만들기 위해서예요. HTML은 웹브라우저에서 여는 프로그램 파일이에요.</p>
     <ol class="how">
-      <li>선생님이 공유한 <b>Gem</b>을 열어요.</li>
-      <li>1차시에 만든 <b>Teachable Machine 모델 주소</b>를 알려줘요.</li>
+      <li>바로 아래 <b>Gem 열기</b> 버튼을 눌러요. (새 주소를 외울 필요 없어요.)</li>
+      <li>Teachable Machine에서 복사한 <b>우리 조의 모델 주소</b>를 붙여넣어요.</li>
       <li>Gem의 과학 질문에 <b>우리 팀이 생각한 이유</b>를 말해요. 프로그램 이름과 디자인도 선택해요.</li>
       <li>완성된 프로그램에서 <b>코드 다운로드</b>를 눌러 <b>.html 파일</b>을 저장해요.</li>
     </ol>
@@ -93,19 +121,24 @@
     <ol class="how">
       <li>크롬북 <b>파일 앱 → 다운로드</b>에서 방금 받은 <b>.html 파일</b>을 찾아요.</li>
       <li>파일을 열어 프로그램이 보이는지 확인해요. 브라우저에서 열리지 않으면 아래 <b>예비 시험 도구</b>를 이용해요.</li>
-      <li><b>학습에 사용하지 않은 새로운 운동 그림</b>을 넣어 봐요.</li>
-      <li>AI가 예측한 운동 유형이 맞는지 확인하고, 프로그램이 알려주는 <b>힘의 대응 방법</b>이 과학적으로 맞는지 토의해요.</li>
+      <li>바로 아래에서 <b>시험 그림 5개 중 하나</b>를 골라 <b>PNG 저장</b>을 누르세요.</li>
+      <li>AI가 예측한 운동 유형이 맞는지 확인하고, 프로그램이 알려주는 <b>힘의 대응 방법</b>이 목표에 맞는지 토의해요.</li>
     </ol>
     <div class="inlinecheck"><div class="checkitem">✓ 새로운 그림이 들어갔나요?</div><div class="checkitem">✓ AI 분류가 맞았나요?</div><div class="checkitem">✓ 대응 방법이 타당한가요?</div></div>
     <div class="optional">
       <h3>🧰 파일이 열리지 않나요? 예비 시험 도구</h3>
-      <p>이 기능은 <b>선택 사항</b>이에요. 다운로드한 HTML 파일을 이 페이지에서 골라 새 탭으로 열어볼 수 있어요. 코드는 서버에 업로드되지 않아요.</p>
+      <p>다운로드한 HTML 파일을 이곳에서 골라 새 탭으로 열어 볼 수 있어요. 코드는 서버에 업로드되지 않아요.</p>
       <input id="htmlFile" type="file" accept=".html,.htm,text/html" hidden>
       <div class="btnrow">
         <button class="btn alt" type="button" id="selectFile">📂 HTML 파일 선택</button>
         <button class="btn mint" type="button" id="runOnline" disabled>▶ 온라인에서 시험하기</button>
       </div>
       <div id="fileInfo" class="toolstatus" role="status" aria-live="polite">아직 파일을 선택하지 않았어요.</div>
+      <div class="sample-tests" aria-labelledby="sample-title">
+        <div class="sample-top"><div><h3 id="sample-title">🖼️ 처음 보는 시험 그림 5개</h3><p>원하는 그림을 하나 골라 바로 저장해요. <b>ZIP 압축 풀기는 필요 없어요.</b></p></div><span class="sample-count">총 5장</span></div>
+        <div class="sample-thumbs" id="sampleThumbs" role="group" aria-label="시험할 운동 그림 선택"></div>
+        <div class="sample-bottom"><div class="sample-large"><img id="samplePreview" alt="선택한 시험용 운동 흔적 그림"/><span id="sampleLabel">시험 그림 1</span></div><div class="sample-guide"><b>이렇게 시험하세요!</b><ol><li>그림을 하나 선택해요.</li><li><b>이 그림 PNG 저장</b>을 눌러요.</li><li>우리 프로그램에서 그 PNG를 넣고 AI의 분류와 대응 방법을 확인해요.</li></ol><button class="btn purple" id="downloadSample" type="button">⬇ 이 그림 PNG 저장</button><div id="sampleStatus" class="sample-status" role="status" aria-live="polite">그림 하나를 선택해 보세요.</div></div></div>
+      </div>
     </div>
     <div class="tip">💡 프로그램이 실행되는 것과 AI 분류가 정확한 것은 다른 문제예요. 틀린 결과가 나온다면 어떤 이미지에서 실패했는지 기억해 두세요.</div>
   </section>
@@ -133,9 +166,9 @@
 <script>
 'use strict';
 
-// ★ 선생님: 아래 두 주소만 실제 공유 링크로 바꾸세요.
+// 학생용 Gem과 Google Forms 연결 주소 (설정 완료).
 const GEM_URL = 'https://gemini.google.com/gem/1pSxdZKBdl-F9iMLQz-OigXv7_egrxdXn?usp=sharing';
-const FORM_URL = 'https://forms.gle/d5vVLUtNpKjDQX3Y8';
+const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScfe1lMZ6Cm1ynSi4BNQjJEjlm6epditpLELVfr_rM6iNq2Qg/viewform';
 
 const $ = id => document.getElementById(id);
 let selectedFile = null;
@@ -209,6 +242,66 @@ $('runOnline').addEventListener('click', () => {
   tab.location.replace(url);
   setTimeout(() => URL.revokeObjectURL(url), 120000);
   say('fileInfo', selectedFile.name + ' 파일을 새 탭에서 열었어요. 새로운 운동 그림으로 AI 분류를 확인해 보세요.', 'ok');
+});
+
+
+// 시험용 PNG: 첫 번째 연구소의 학습 이미지와 같은 방식으로 궤적을 그리되,
+// 학습에 사용하지 않은 물리 조건을 사용해 새 그림 5장을 만듭니다.
+const samplePhysics = [
+  {kind:0,index:15}, {kind:1,index:15}, {kind:2,index:15}, {kind:3,index:15}, {kind:3,index:16}
+];
+const toRad = degrees => degrees * Math.PI / 180;
+function seededRandom(seed){return ()=>{let x=seed+=0x6d2b79f5;x=Math.imul(x^(x>>>15),x|1);x^=x+Math.imul(x^(x>>>7),x|61);return ((x^(x>>>14))>>>0)/4294967296;};}
+function sampleSettings(kind,i){
+  const rr=seededRandom(1000+kind*101+i*67+7919);
+  const mass=1.8+rr()*.8,speed=(kind===2?2.8:2.1)*(.88+rr()*.22);
+  let angle=-22+44*rr(); if(i===0)angle=0;
+  const force=kind===0?0:kind===3?(1.75+rr()*.35):(1.25+rr()*.35);
+  const forceAngle=kind===0?angle:kind===1?angle:kind===2?angle+180:angle+(rr()<.5?-1:1)*(62+10*rr());
+  return{mass,speed,force,initialAngle:angle,forceAngle};
+}
+function samplePosition(s,t){
+  const vx=s.speed*Math.cos(toRad(s.initialAngle)),vy=s.speed*Math.sin(toRad(s.initialAngle));
+  const ax=s.force/s.mass*Math.cos(toRad(s.forceAngle)),ay=s.force/s.mass*Math.sin(toRad(s.forceAngle));
+  return {x:vx*t+.5*ax*t*t,y:vy*t+.5*ay*t*t};
+}
+function sampleCanvas(setting){
+  const cv=document.createElement('canvas');cv.width=cv.height=384;
+  const c=cv.getContext('2d');c.fillStyle='#fff';c.fillRect(0,0,384,384);
+  const T=3.2,step=.4,ps=Array.from({length:9},(_,i)=>samplePosition(setting,i*step));
+  const xs=ps.map(p=>p.x),ys=ps.map(p=>p.y);
+  const minx=Math.min(0,...xs),maxx=Math.max(0,...xs),miny=Math.min(0,...ys),maxy=Math.max(0,...ys);
+  const k=Math.min(57,260/Math.max(maxx-minx,.01),260/Math.max(maxy-miny,.01));
+  const cx=(minx+maxx)/2,cy=(miny+maxy)/2;
+  const p2xy=p=>({x:192+(p.x-cx)*k,y:192-(p.y-cy)*k});
+  c.strokeStyle='#aabdd7';c.lineWidth=2.5;c.lineCap='round';c.beginPath();
+  for(let i=0;i<=140;i++){const p=p2xy(samplePosition(setting,T*i/140));if(i)c.lineTo(p.x,p.y);else c.moveTo(p.x,p.y);}c.stroke();
+  ps.forEach((v,i)=>{const p=p2xy(v);c.beginPath();c.arc(p.x,p.y,i?5:6.5,0,Math.PI*2);c.fillStyle=i?'#315cdd':'#fff';c.fill();if(!i){c.strokeStyle='#244065';c.lineWidth=2;c.stroke();}});
+  return cv;
+}
+const samples=samplePhysics.map(({kind,index})=>sampleCanvas(sampleSettings(kind,index)).toDataURL('image/png'));
+let selectedSample=0;
+function showSample(index){
+  selectedSample=index;
+  $('samplePreview').src=samples[index];
+  $('sampleLabel').textContent='시험 그림 '+(index+1)+' / '+samples.length;
+  [...$('sampleThumbs').children].forEach((button,i)=>button.setAttribute('aria-pressed',String(i===index)));
+  $('sampleStatus').textContent='시험 그림 '+(index+1)+' 선택 완료';
+}
+samples.forEach((src,i)=>{
+  const button=document.createElement('button');button.type='button';button.className='sample-choice';
+  button.setAttribute('aria-label','시험 그림 '+(i+1)+' 선택');button.setAttribute('aria-pressed','false');
+  const img=document.createElement('img');img.src=src;img.alt='시험 그림 '+(i+1)+'의 운동 흔적';
+  button.append(img,document.createTextNode('그림 '+(i+1)));
+  button.addEventListener('click',()=>showSample(i));$('sampleThumbs').appendChild(button);
+});
+showSample(0);
+$('downloadSample').addEventListener('click',()=>{
+  const name='탐사선AI_시험그림_'+String(selectedSample+1).padStart(2,'0')+'.png';
+  // PNG는 ZIP과 달리 그림 한 장을 바로 다운로드합니다.
+  const a=document.createElement('a');a.href=samples[selectedSample];a.download=name;
+  document.body.appendChild(a);a.click();a.remove();
+  $('sampleStatus').textContent='✓ '+name+' 다운로드! 이 그림을 우리 AI 프로그램에 넣어 보세요.';
 });
 
 // 외부 라이브러리 없이 HTML 원본 1개를 담은 ZIP 파일 생성 (무압축 ZIP).
